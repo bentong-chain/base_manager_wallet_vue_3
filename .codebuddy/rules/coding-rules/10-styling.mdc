@@ -1,0 +1,362 @@
+---
+description: Vue 3 样式规范
+alwaysApply: true
+enabled: true
+---
+
+# 样式规范
+
+## Scoped 样式
+
+### 使用 scoped
+```vue
+<style scoped>
+.card {
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+</style>
+```
+
+### 深度选择器
+```vue
+<style scoped>
+/* 修改子组件样式 */
+:deep(.el-button) {
+  margin-top: 10px;
+}
+
+/* 插槽内容样式 */
+:slotted(.custom-class) {
+  color: red;
+}
+
+/* 全局样式 */
+:global(.global-class) {
+  background: white;
+}
+</style>
+```
+
+## BEM 命名规范
+
+### BEM 结构
+```scss
+// Block__Element--Modifier
+.user-card {}
+.user-card__header {}
+.user-card__title {}
+.user-card__content {}
+.user-card--active {}
+.user-card__button--disabled {}
+```
+
+### 实际应用
+```vue
+<template>
+  <div class="user-card" :class="{ 'user-card--active': isActive }">
+    <div class="user-card__header">
+      <h3 class="user-card__title">{{ user.name }}</h3>
+    </div>
+    <div class="user-card__content">
+      <p>{{ user.bio }}</p>
+    </div>
+    <button class="user-card__button" :class="{ 'user-card__button--disabled': disabled }">
+      操作
+    </button>
+  </div>
+</template>
+
+<style scoped>
+.user-card {
+  padding: 16px;
+  border: 1px solid #ddd;
+}
+
+.user-card--active {
+  border-color: #409eff;
+}
+
+.user-card__header {
+  margin-bottom: 12px;
+}
+
+.user-card__title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.user-card__content {
+  color: #666;
+}
+
+.user-card__button {
+  padding: 8px 16px;
+}
+
+.user-card__button--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+</style>
+```
+
+## CSS 变量
+
+### 定义变量
+```scss
+// assets/styles/variables.scss
+:root {
+  // 颜色
+  --color-primary: #409eff;
+  --color-success: #67c23a;
+  --color-warning: #e6a23c;
+  --color-danger: #f56c6c;
+  --color-info: #909399;
+  
+  // 文字
+  --text-primary: #303133;
+  --text-regular: #606266;
+  --text-secondary: #909399;
+  --text-placeholder: #c0c4cc;
+  
+  // 边框
+  --border-color: #dcdfe6;
+  --border-radius: 4px;
+  
+  // 间距
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+}
+```
+
+### 使用变量
+```vue
+<style scoped>
+.card {
+  padding: var(--spacing-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  color: var(--text-primary);
+}
+
+.button-primary {
+  background-color: var(--color-primary);
+}
+</style>
+```
+
+## 响应式设计
+
+### 媒体查询
+```scss
+// 移动端优先
+.container {
+  padding: 16px;
+  
+  // 平板
+  @media (min-width: 768px) {
+    padding: 24px;
+  }
+  
+  // 桌面
+  @media (min-width: 1024px) {
+    padding: 32px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  // 大屏
+  @media (min-width: 1440px) {
+    max-width: 1400px;
+  }
+}
+```
+
+### 断点变量
+```scss
+// variables.scss
+$breakpoint-mobile: 640px;
+$breakpoint-tablet: 768px;
+$breakpoint-desktop: 1024px;
+$breakpoint-wide: 1440px;
+
+// 使用
+.sidebar {
+  width: 100%;
+  
+  @media (min-width: $breakpoint-tablet) {
+    width: 240px;
+  }
+}
+```
+
+## Flexbox 布局
+
+### 常用布局
+```scss
+// 水平居中
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+// 两端对齐
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+// 垂直布局
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+// 自动换行
+.flex-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+```
+
+## Grid 布局
+
+### 响应式网格
+```scss
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+// 固定列数
+.grid-3-columns {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+```
+
+## 动画与过渡
+
+### CSS 过渡
+```scss
+.button {
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+```
+
+### Vue 过渡
+```vue
+<template>
+  <transition name="fade">
+    <div v-if="show">内容</div>
+  </transition>
+</template>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>
+```
+
+## 样式组织
+
+### 文件结构
+```
+assets/styles/
+├── variables.scss    # 变量
+├── mixins.scss       # 混入
+├── reset.scss        # 重置样式
+├── common.scss       # 通用样式
+└── themes/           # 主题
+    ├── light.scss
+    └── dark.scss
+```
+
+### 导入顺序
+```scss
+// main.scss
+@import './variables';
+@import './mixins';
+@import './reset';
+@import './common';
+```
+
+## 性能优化
+
+### 避免深层嵌套
+```scss
+✅ 正确
+.card {}
+.card-header {}
+.card-title {}
+
+❌ 错误
+.card {
+  .card-header {
+    .card-title {
+      // 嵌套过深
+    }
+  }
+}
+```
+
+### 使用 CSS 变量代替计算
+```scss
+✅ 正确
+:root {
+  --spacing: 16px;
+  --spacing-double: 32px;
+}
+
+.element {
+  padding: var(--spacing);
+  margin: var(--spacing-double);
+}
+
+❌ 错误
+.element {
+  padding: 16px;
+  margin: calc(16px * 2);  // 运行时计算
+}
+```
+
+## 最佳实践
+
+### 1. 使用 scoped 样式
+### 2. 遵循 BEM 命名
+### 3. 使用 CSS 变量
+### 4. 移动端优先
+### 5. 合理使用 Flexbox 和 Grid
+### 6. 避免深层嵌套
+### 7. 提供过渡动画
+### 8. 注意性能优化

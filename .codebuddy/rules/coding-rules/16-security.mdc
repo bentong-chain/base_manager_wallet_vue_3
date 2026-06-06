@@ -1,0 +1,422 @@
+---
+description: Vue 3 安全规范
+alwaysApply: true
+enabled: true
+---
+
+# 安全规范
+
+## XSS 防护
+
+### 1. 避免使用 v-html
+```vue
+✅ 正确 - 使用文本插值
+<div>{{ userInput }}</div>
+
+❌ 危险 - 使用 v-html
+<div v-html="userInput"></div>
+```
+
+### 2. 必须使用 v-html 时进行清理
+```typescript
+import DOMPurify from 'dompurify'
+
+const sanitizedHTML = computed(() => {
+  return DOMPurify.sanitize(userInput.value)
+})
+```
+
+```vue
+<div v-html="sanitizedHTML"></div>
+```
+
+### 3. URL 验证
+```typescript
+function isSafeUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url)
+    // 只允许 http 和 https 协议
+    return ['http:', 'https:'].includes(parsed.protocol)
+  } catch {
+    return false
+  }
+}
+
+// 使用
+if (isSafeUrl(userProvidedUrl)) {
+  window.location.href = userProvidedUrl
+}
+```
+
+### 4. 转义用户输入
+```typescript
+function escapeHtml(text: string): string {
+  const map: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  }
+  return text.replace(/[&<>"']/g, (m) => map[m])
+}
+```
+
+## CSRF 防护
+
+### 1. 使用 Token 验证
+```typescript
+// api/client.ts
+axios.interceptors.request.use((config) => {
+  // 添加 CSRF Token
+  const csrfToken = getCsrfToken()
+  if (csrfToken) {
+    config.headers['X-CSRF-Token'] = csrfToken
+  }
+  return config
+})
+
+function getCsrfToken(): string | null {
+  return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || null
+}
+```
+
+### 2. SameSite Cookie
+```typescript
+// 服务端设置
+Set-Cookie: sessionId=xxx; SameSite=Strict; Secure; HttpOnly
+```
+
+### 3. 验证 Referer
+```typescript
+// 服务端验证
+if (request.headers.referer !== expectedOrigin) {
+  return 403
+}
+```
+
+## 认证与授权
+
+### 1. Token 安全存储
+```typescript
+// ✅ 正确 - 加密存储
+import { aesEncrypt, aesDecrypt } from '@/utils/crypto'
+
+function saveToken(token: string) {
+  const encrypted = aesEncrypt(token, SECRET_KEY)
+  sessionStorage.setItem('token', encrypted)
+}
+
+function getToken(): string | null {
+  const encrypted = sessionStorage.getItem('token')
+  if (!encrypted) return null
+  return aesDecrypt(encrypted, SECRET_KEY)
+}
+
+// ❌ 错误 - 明文存储
+localStorage.setItem('token', token)
+```
+
+### 2. Token 过期处理
+```typescript
+// api/client.ts
+axios.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response?.status === 401) {
+      // Token 过期，尝试刷新
+      try {
+        const newToken = await refreshToken()
+        // 重试原请求
+        error.config.headers['Authorization'] = `Bearer ${newToken}`
+        return axios.request(error.config)
+      } catch {
+        // 刷新失败，跳转登录
+        router.push('/login')
+      }
+    }
+    return Promise.reject(error)
+  }
+)
+```
+
+### 3. 权限验证
+```typescript
+// router/index.ts
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore()
+  
+  // 检查是否需要登录
+  if (to.meta.requiresAuth && !authStore.isLoggedIn) {
+    next({ name: 'Login', query: { redirect: to.fullPath } })
+    return
+  }
+  
+  // 检查权限
+  if (to.meta.roles && !hasPermission(to.meta.roles)) {
+    next({ name: 'Forbidden' })
+    return
+  }
+  
+  next()
+})
+
+function hasPermission(requiredRoles: string[]): boolean {
+  const authStore = useAuthStore()
+  const userRole = authStore.user?.role
+  return userRole ? requiredRoles.includes(userRole) : false
+}
+```
+
+## 敏感信息保护
+
+### 1. 不在前端存储敏感信息
+```typescript
+✅ 正确
+// 只存储必要的标识
+const userId = ref(123)
+
+❌ 错误
+// 不要存储敏感信息
+const password = ref('user-password')
+const creditCard = ref('1234-5678-9012-3456')
+```
+
+### 2. 敏感数据加密传输
+```typescript
+// 使用 HTTPS
+const API_BASE_URL = 'https://api.example.com'
+
+// 敏感字段加密
+import { encryptWithPublicKey } from '@/utils/rsa'
+
+async function login(credentials: LoginRequest) {
+  const encryptedPassword = await encryptWithPublicKey(
+    credentials.password,
+    PUBLIC_KEY
+  )
+  
+  return post('/login', {
+    username: credentials.username,
+    password: encryptedPassword
+  })
+}
+```
+
+### 3. 日志脱敏
+```typescript
+function logUserAction(user: User, action: string) {
+  console.log({
+    userId: user.id,
+    username: user.username,
+    // 脱敏处理
+    email: maskEmail(user.email),
+    phone: maskPhone(user.phone),
+    action
+  })
+}
+
+function maskEmail(email: string): string {
+  const [name, domain] = email.split('@')
+  return `${name.slice(0, 2)}***@${domain}`
+}
+
+function maskPhone(phone: string): string {
+  return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2')
+}
+```
+
+## 输入验证
+
+### 1. 前端验证
+```typescript
+// 验证规则
+const rules: FormRules = {
+  username: [
+    { required: true, message: '请输入用户名' },
+    { min: 4, max: 20, message: '用户名长度为 4-20 个字符' },
+    { pattern: /^[a-zA-Z0-9_]+$/, message: '只能包含字母、数字和下划线' }
+  ],
+  email: [
+    { required: true, message: '请输入邮箱' },
+    { type: 'email', message: '邮箱格式不正确' }
+  ]
+}
+```
+
+### 2. 后端验证
+```typescript
+// 前端验证只是用户体验，后端必须再次验证
+async function createUser(data: CreateUserRequest) {
+  // 前端已验证，但后端仍需验证
+  return post('/users', data)
+}
+```
+
+### 3. 白名单验证
+```typescript
+✅ 正确 - 白名单
+const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/gif']
+
+function validateFileType(file: File): boolean {
+  return ALLOWED_FILE_TYPES.includes(file.type)
+}
+
+❌ 错误 - 黑名单
+const BLOCKED_FILE_TYPES = ['application/x-msdownload']
+
+function validateFileType(file: File): boolean {
+  return !BLOCKED_FILE_TYPES.includes(file.type)
+}
+```
+
+## 依赖安全
+
+### 1. 定期更新依赖
+```bash
+# 检查安全漏洞
+npm audit
+
+# 自动修复
+npm audit fix
+
+# 查看详细信息
+npm audit --json
+```
+
+### 2. 使用可信的包
+```json
+{
+  "dependencies": {
+    "vue": "^3.4.0",           // ✅ 官方包
+    "element-plus": "^2.5.0",  // ✅ 知名库
+    "unknown-package": "^1.0.0" // ❌ 不明来源
+  }
+}
+```
+
+### 3. 锁定依赖版本
+```json
+// package-lock.json 或 yarn.lock
+// 确保团队使用相同版本
+```
+
+## Content Security Policy
+
+### 1. 设置 CSP
+```html
+<!-- index.html -->
+<meta
+  http-equiv="Content-Security-Policy"
+  content="
+    default-src 'self';
+    script-src 'self' 'unsafe-inline' 'unsafe-eval';
+    style-src 'self' 'unsafe-inline';
+    img-src 'self' data: https:;
+    font-src 'self' data:;
+    connect-src 'self' https://api.example.com;
+  "
+/>
+```
+
+### 2. 避免 unsafe-inline 和 unsafe-eval
+```typescript
+✅ 正确
+// 使用外部脚本
+<script src="/js/app.js"></script>
+
+❌ 错误
+// 内联脚本
+<script>
+  console.log('inline script')
+</script>
+```
+
+## API 安全
+
+### 1. 请求签名
+```typescript
+// 所有请求都需要签名
+export async function buildAuthHeaderValues(
+  input: AuthHeadersInput,
+  encryptNonce: (plain: string) => Promise<string>
+): Promise<AuthHeadersResult> {
+  const timestamp = String(Date.now())
+  const nonceSrc = generateNonceSrc()
+  
+  const signParams = toSignParams(
+    input.token,
+    timestamp,
+    input.device,
+    input.businessParams
+  )
+  const paramString = buildParamString(signParams)
+  const sign = buildSign(paramString, nonceSrc, input.salt)
+  
+  return encryptNonce(nonceSrc).then((nonceEncrypted) => ({
+    'X-Auth-Token': input.token,
+    'X-Auth-Timestamp': timestamp,
+    'X-Auth-Sign': sign,
+    'X-Auth-Nonce': nonceEncrypted,
+    'X-Auth-Device': input.device,
+  }))
+}
+```
+
+### 2. 防止重放攻击
+```typescript
+// 使用 nonce 和 timestamp
+function generateNonceSrc(): string {
+  const arr = new Uint8Array(16)
+  crypto.getRandomValues(arr)
+  return Array.from(arr, (b) => b.toString(16).padStart(2, '0')).join('')
+}
+
+// 服务端验证 nonce 唯一性和 timestamp 有效期
+```
+
+### 3. HTTPS 强制
+```typescript
+// vite.config.ts
+export default defineConfig({
+  server: {
+    https: true  // 开发环境也使用 HTTPS
+  }
+})
+```
+
+## 安全检查清单
+
+### 开发阶段
+- [ ] 不使用 v-html 或已清理
+- [ ] 用户输入已验证
+- [ ] 敏感信息已加密
+- [ ] 使用 HTTPS
+- [ ] 实现 CSRF 防护
+- [ ] Token 安全存储
+- [ ] 权限验证完善
+
+### 部署阶段
+- [ ] 移除 console.log
+- [ ] 移除调试代码
+- [ ] 设置 CSP
+- [ ] 配置安全响应头
+- [ ] 依赖安全检查
+- [ ] 代码混淆压缩
+
+### 运维阶段
+- [ ] 定期更新依赖
+- [ ] 监控安全漏洞
+- [ ] 日志审计
+- [ ] 定期安全测试
+
+## 总结
+
+- 防范 XSS 攻击
+- 实现 CSRF 防护
+- 安全存储敏感信息
+- 验证所有输入
+- 使用 HTTPS
+- 定期更新依赖
+- 设置 CSP
+- 实现请求签名

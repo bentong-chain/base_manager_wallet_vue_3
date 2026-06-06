@@ -1,0 +1,563 @@
+---
+description: Vue 3 文件与命名规范
+alwaysApply: true
+enabled: true
+---
+
+# 文件与命名规范
+
+## 文件命名规范
+
+### Vue 组件文件
+**规则**：使用 PascalCase（大驼峰命名）
+
+```
+✅ 正确
+UserProfile.vue
+ProductList.vue
+OrderDetail.vue
+NavBar.vue
+
+❌ 错误
+userProfile.vue
+user-profile.vue
+UserProfileComponent.vue  # 不要加 Component 后缀
+```
+
+### TypeScript/JavaScript 文件
+**规则**：使用 camelCase（小驼峰命名）
+
+```
+✅ 正确
+userApi.ts
+formatDate.ts
+useAuth.ts
+authStore.ts
+
+❌ 错误
+UserApi.ts
+format-date.ts
+user_api.ts
+```
+
+### 样式文件
+**规则**：使用 kebab-case（短横线命名）
+
+```
+✅ 正确
+user-profile.scss
+common-styles.scss
+variables.scss
+
+❌ 错误
+UserProfile.scss
+user_profile.scss
+userProfile.scss
+```
+
+### 测试文件
+**规则**：与被测试文件同名，添加 `.spec.ts` 或 `.test.ts` 后缀
+
+```
+✅ 正确
+UserProfile.spec.ts
+formatDate.test.ts
+useAuth.spec.ts
+
+❌ 错误
+UserProfileTest.ts
+test-formatDate.ts
+```
+
+## 变量命名规范
+
+### 普通变量
+**规则**：使用 camelCase
+
+```typescript
+✅ 正确
+const userName = 'John'
+const isLoading = false
+const userList = []
+let currentPage = 1
+
+❌ 错误
+const UserName = 'John'
+const user_name = 'John'
+const ISLOADING = false
+```
+
+### 常量
+**规则**：使用 UPPER_SNAKE_CASE（全大写下划线）
+
+```typescript
+✅ 正确
+const MAX_COUNT = 100
+const API_BASE_URL = 'https://api.example.com'
+const DEFAULT_PAGE_SIZE = 20
+
+❌ 错误
+const maxCount = 100
+const apiBaseUrl = 'https://api.example.com'
+const default_page_size = 20
+```
+
+### 布尔值变量
+**规则**：使用 is/has/can/should 等前缀
+
+```typescript
+✅ 正确
+const isLoading = ref(false)
+const hasPermission = computed(() => true)
+const canEdit = ref(true)
+const shouldUpdate = false
+
+❌ 错误
+const loading = ref(false)  # 不清晰
+const permission = true     # 不清晰
+const edit = ref(true)      # 不清晰
+```
+
+### 数组变量
+**规则**：使用复数形式
+
+```typescript
+✅ 正确
+const users = []
+const productList = []
+const items = ref([])
+
+❌ 错误
+const user = []  # 应该用复数
+const product = []
+```
+
+### 对象变量
+**规则**：使用单数形式，语义明确
+
+```typescript
+✅ 正确
+const user = { name: 'John' }
+const config = { timeout: 5000 }
+const userInfo = ref({})
+
+❌ 错误
+const users = { name: 'John' }  # 单个对象不用复数
+const cfg = {}  # 缩写不清晰
+```
+
+## 函数命名规范
+
+### 普通函数
+**规则**：使用 camelCase，动词开头
+
+```typescript
+✅ 正确
+function getUserInfo() {}
+function calculateTotal() {}
+function validateForm() {}
+function handleClick() {}
+
+❌ 错误
+function GetUserInfo() {}  # 应该小写开头
+function user_info() {}    # 不要用下划线
+function userInfo() {}     # 应该是动词开头
+```
+
+### 事件处理函数
+**规则**：使用 handle/on 前缀
+
+```typescript
+✅ 正确
+function handleClick() {}
+function handleSubmit() {}
+function onUserLogin() {}
+function onDataChange() {}
+
+❌ 错误
+function click() {}
+function submit() {}
+function userLogin() {}
+```
+
+### 异步函数
+**规则**：可以使用 fetch/load/get 等前缀，返回 Promise
+
+```typescript
+✅ 正确
+async function fetchUserData() {}
+async function loadProducts() {}
+async function getUserList() {}
+
+❌ 错误
+function fetchUserData() {}  # 异步函数应该用 async
+async function user() {}     # 不清晰
+```
+
+### 工具函数
+**规则**：清晰描述功能
+
+```typescript
+✅ 正确
+function formatDate(date: Date): string {}
+function validateEmail(email: string): boolean {}
+function debounce(fn: Function, delay: number) {}
+
+❌ 错误
+function format(date: Date) {}  # 太泛化
+function validate(email: string) {}  # 不够具体
+function db(fn: Function) {}  # 缩写不清晰
+```
+
+## 类命名规范
+
+### 类名
+**规则**：使用 PascalCase
+
+```typescript
+✅ 正确
+class UserService {}
+class HttpClient {}
+class DataValidator {}
+
+❌ 错误
+class userService {}
+class httpClient {}
+class data_validator {}
+```
+
+### 接口/类型
+**规则**：使用 PascalCase，不要加 I 前缀
+
+```typescript
+✅ 正确
+interface User {}
+interface UserInfo {}
+type LoginRequest = {}
+type ApiResponse<T> = {}
+
+❌ 错误
+interface IUser {}  # 不要加 I 前缀
+interface user {}   # 应该大写开头
+type loginRequest = {}  # 应该大写开头
+```
+
+### 枚举
+**规则**：枚举名 PascalCase，枚举值 UPPER_SNAKE_CASE
+
+```typescript
+✅ 正确
+enum UserRole {
+  ADMIN = 'admin',
+  USER = 'user',
+  GUEST = 'guest'
+}
+
+enum OrderStatus {
+  PENDING = 1,
+  CONFIRMED = 2,
+  SHIPPED = 3
+}
+
+❌ 错误
+enum userRole {  # 应该大写开头
+  admin = 'admin',  # 枚举值应该大写
+  user = 'user'
+}
+```
+
+## Composables 命名规范
+
+### Composable 函数
+**规则**：使用 use 前缀，camelCase
+
+```typescript
+✅ 正确
+export function useAuth() {}
+export function useRequest() {}
+export function useCounter() {}
+
+❌ 错误
+export function auth() {}  # 缺少 use 前缀
+export function UseAuth() {}  # 应该小写开头
+export function use_auth() {}  # 不要用下划线
+```
+
+### Composable 文件
+**规则**：文件名与函数名一致
+
+```
+✅ 正确
+useAuth.ts  -> export function useAuth()
+useRequest.ts  -> export function useRequest()
+
+❌ 错误
+auth.ts  -> export function useAuth()
+use-auth.ts  -> export function useAuth()
+```
+
+## Store 命名规范
+
+### Store 定义
+**规则**：使用 use*Store 格式
+
+```typescript
+✅ 正确
+export const useAuthStore = defineStore('auth', {})
+export const useUserStore = defineStore('user', {})
+
+❌ 错误
+export const authStore = defineStore('auth', {})  # 缺少 use 前缀
+export const useAuth = defineStore('auth', {})  # 应该加 Store 后缀
+```
+
+### Store 文件
+**规则**：文件名使用 camelCase，与 store 名称对应
+
+```
+✅ 正确
+auth.ts  -> useAuthStore
+user.ts  -> useUserStore
+
+❌ 错误
+authStore.ts
+Auth.ts
+```
+
+## 路由命名规范
+
+### 路由名称
+**规则**：使用 PascalCase
+
+```typescript
+✅ 正确
+{
+  path: '/user/profile',
+  name: 'UserProfile',
+  component: () => import('@/views/UserProfile.vue')
+}
+
+❌ 错误
+{
+  path: '/user/profile',
+  name: 'userProfile',  # 应该大写开头
+  name: 'user-profile'  # 不要用短横线
+}
+```
+
+### 路由路径
+**规则**：使用 kebab-case
+
+```typescript
+✅ 正确
+/user-profile
+/product-list
+/order-detail
+
+❌ 错误
+/userProfile
+/user_profile
+/UserProfile
+```
+
+## Props 和 Emits 命名规范
+
+### Props
+**规则**：使用 camelCase
+
+```typescript
+✅ 正确
+defineProps<{
+  userName: string
+  isActive: boolean
+  maxCount: number
+}>()
+
+❌ 错误
+defineProps<{
+  UserName: string  # 应该小写开头
+  is_active: boolean  # 不要用下划线
+  'max-count': number  # 不要用短横线
+}>()
+```
+
+### Emits
+**规则**：使用 kebab-case
+
+```typescript
+✅ 正确
+const emit = defineEmits<{
+  'update:modelValue': [value: string]
+  'user-login': [user: User]
+  'data-change': []
+}>()
+
+❌ 错误
+const emit = defineEmits<{
+  updateModelValue: [value: string]  # 应该用短横线
+  userLogin: [user: User]
+  data_change: []  # 应该用短横线
+}>()
+```
+
+## CSS 类名命名规范
+
+### BEM 命名法
+**规则**：Block__Element--Modifier
+
+```scss
+✅ 正确
+.user-card {}
+.user-card__header {}
+.user-card__title {}
+.user-card--active {}
+.user-card__button--disabled {}
+
+❌ 错误
+.userCard {}
+.user_card {}
+.UserCard {}
+```
+
+### 通用类名
+**规则**：使用 kebab-case，语义化
+
+```scss
+✅ 正确
+.container {}
+.main-content {}
+.sidebar {}
+.btn-primary {}
+.text-center {}
+
+❌ 错误
+.Container {}
+.main_content {}
+.btnPrimary {}
+```
+
+## 特殊命名约定
+
+### 私有变量/方法
+**规则**：使用下划线前缀（TypeScript 中优先使用 private）
+
+```typescript
+✅ 正确
+class UserService {
+  private _cache = new Map()
+  private _fetchData() {}
+}
+
+// 或在普通对象中
+const utils = {
+  _internalMethod() {}
+}
+
+❌ 错误
+class UserService {
+  __cache = new Map()  # 双下划线是保留的
+  cache_ = new Map()   # 下划线应该在前面
+}
+```
+
+### 临时变量
+**规则**：使用简短但有意义的名称
+
+```typescript
+✅ 正确
+for (const item of items) {}
+for (const user of users) {}
+const temp = value
+
+❌ 错误
+for (const i of items) {}  # i 通常用于索引
+for (const x of users) {}  # x 太模糊
+const tmp = value  # 缩写不清晰
+```
+
+### 索引变量
+**规则**：使用 i, j, k 或更具描述性的名称
+
+```typescript
+✅ 正确
+for (let i = 0; i < arr.length; i++) {}
+for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {}
+
+❌ 错误
+for (let index = 0; index < arr.length; index++) {}  # 太长
+for (let x = 0; x < arr.length; x++) {}  # 不清晰
+```
+
+## 缩写规范
+
+### 允许的常见缩写
+```typescript
+✅ 可以使用
+id (identifier)
+url (Uniform Resource Locator)
+api (Application Programming Interface)
+html (HyperText Markup Language)
+css (Cascading Style Sheets)
+btn (button)
+msg (message)
+err (error)
+req (request)
+res (response)
+```
+
+### 避免的缩写
+```typescript
+❌ 避免使用
+usr (user)
+pwd (password)
+cfg (config)
+mgr (manager)
+ctrl (controller)
+```
+
+## 命名长度建议
+
+### 变量名
+- 局部变量：1-3 个单词
+- 全局变量：2-4 个单词
+- 常量：2-4 个单词
+
+### 函数名
+- 普通函数：2-4 个单词
+- 工具函数：2-3 个单词
+- 事件处理：2-3 个单词
+
+### 类/接口名
+- 类名：1-3 个单词
+- 接口名：1-3 个单词
+
+## 命名检查清单
+
+在命名时，问自己以下问题：
+
+1. ✅ 名称是否清晰表达了意图？
+2. ✅ 名称是否遵循了项目的命名约定？
+3. ✅ 名称是否避免了误导性？
+4. ✅ 名称是否易于搜索？
+5. ✅ 名称是否避免了不必要的缩写？
+6. ✅ 名称长度是否合适？
+
+## 示例对比
+
+### ❌ 不好的命名
+```typescript
+const d = new Date()  // 太短
+const data = fetchData()  // 太泛化
+function process() {}  // 不清晰
+const flag = true  // 不明确
+const temp = value  // 临时变量名不清晰
+```
+
+### ✅ 好的命名
+```typescript
+const currentDate = new Date()
+const userData = fetchUserData()
+function processPayment() {}
+const isPaymentProcessed = true
+const previousValue = value
+```

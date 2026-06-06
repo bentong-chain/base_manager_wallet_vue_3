@@ -1,0 +1,335 @@
+---
+description: Vue 3 代码风格与格式化规范
+alwaysApply: true
+enabled: true
+---
+
+# 代码风格与格式化规范
+
+## 代码格式化
+
+### ESLint 配置
+```javascript
+// .eslintrc.js
+module.exports = {
+  extends: [
+    'plugin:vue/vue3-recommended',
+    '@vue/typescript/recommended',
+    'prettier'
+  ],
+  rules: {
+    'vue/multi-word-component-names': 'off',
+    'vue/no-v-html': 'warn',
+    '@typescript-eslint/no-explicit-any': 'warn',
+    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }]
+  }
+}
+```
+
+### Prettier 配置
+```json
+// .prettierrc
+{
+  "semi": false,
+  "singleQuote": true,
+  "trailingComma": "es5",
+  "printWidth": 100,
+  "tabWidth": 2,
+  "useTabs": false,
+  "arrowParens": "always",
+  "endOfLine": "lf"
+}
+```
+
+## 代码注释规范
+
+### 文件注释
+```typescript
+/**
+ * 用户认证模块
+ * 处理用户登录、登出、token 管理等功能
+ * @module api/auth
+ */
+```
+
+### 函数注释
+```typescript
+/**
+ * 格式化日期
+ * @param date - 日期对象、时间戳或日期字符串
+ * @param format - 格式化模板，默认 'YYYY-MM-DD'
+ * @returns 格式化后的日期字符串
+ * @example
+ * formatDate(new Date(), 'YYYY-MM-DD HH:mm:ss')
+ * // => '2024-03-09 10:30:00'
+ */
+export function formatDate(date: Date | number | string, format = 'YYYY-MM-DD'): string {
+  // 实现
+}
+```
+
+### 复杂逻辑注释
+```typescript
+// 计算签名：SHA256(paramString + nonceSrc + salt)
+const sign = buildSign(paramString, nonceSrc, input.salt)
+
+// TODO: 优化性能，考虑使用缓存
+// FIXME: 修复边界情况的 bug
+// NOTE: 这里的逻辑比较复杂，需要仔细理解
+```
+
+### 组件注释
+```vue
+<script setup lang="ts">
+/**
+ * 用户卡片组件
+ * 
+ * @description 展示用户基本信息的卡片组件
+ * @example
+ * <UserCard :user="userData" @click="handleClick" />
+ */
+
+interface Props {
+  /** 用户数据 */
+  user: User
+  /** 是否显示详细信息 */
+  showDetail?: boolean
+}
+</script>
+```
+
+## 命名约定
+
+### 变量命名
+```typescript
+// camelCase
+const userName = 'John'
+const isActive = true
+const userList = []
+
+// UPPER_SNAKE_CASE for constants
+const MAX_COUNT = 100
+const API_BASE_URL = 'https://api.example.com'
+```
+
+### 函数命名
+```typescript
+// 动词开头
+function getUserInfo() {}
+function handleClick() {}
+function validateForm() {}
+```
+
+### 组件命名
+```typescript
+// PascalCase
+UserProfile.vue
+ProductList.vue
+OrderDetail.vue
+```
+
+## 代码组织
+
+### 导入顺序
+```typescript
+// 1. Vue 核心
+import { ref, computed, onMounted } from 'vue'
+
+// 2. 第三方库
+import { ElMessage } from 'element-plus'
+import axios from 'axios'
+
+// 3. 类型定义
+import type { User, Product } from '@/api/types'
+
+// 4. 组件
+import UserCard from '@/components/business/UserCard.vue'
+
+// 5. Composables
+import { useAuth } from '@/composables/useAuth'
+
+// 6. 工具函数
+import { formatDate } from '@/utils/format'
+
+// 7. 样式
+import './styles.scss'
+```
+
+### 代码块分隔
+```typescript
+// ─────────────────────────────────────────────────────────────────────────────
+// State
+// ─────────────────────────────────────────────────────────────────────────────
+
+const count = ref(0)
+const user = ref<User | null>(null)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Computed
+// ─────────────────────────────────────────────────────────────────────────────
+
+const doubleCount = computed(() => count.value * 2)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Methods
+// ─────────────────────────────────────────────────────────────────────────────
+
+function increment() {
+  count.value++
+}
+```
+
+## 代码简洁性
+
+### 避免嵌套过深
+```typescript
+✅ 正确
+async function processUser(userId: number) {
+  if (!userId) return
+  
+  const user = await fetchUser(userId)
+  if (!user) return
+  
+  const profile = await fetchProfile(user.id)
+  if (!profile) return
+  
+  updateUI(profile)
+}
+
+❌ 错误
+async function processUser(userId: number) {
+  if (userId) {
+    const user = await fetchUser(userId)
+    if (user) {
+      const profile = await fetchProfile(user.id)
+      if (profile) {
+        updateUI(profile)
+      }
+    }
+  }
+}
+```
+
+### 使用解构
+```typescript
+✅ 正确
+const { name, age, email } = user
+const [first, second] = items
+
+❌ 错误
+const name = user.name
+const age = user.age
+const email = user.email
+```
+
+### 使用可选链
+```typescript
+✅ 正确
+const userName = user?.profile?.name ?? 'Unknown'
+
+❌ 错误
+const userName = user && user.profile && user.profile.name || 'Unknown'
+```
+
+## 一致性原则
+
+### 1. 引号使用
+```typescript
+// 统一使用单引号
+const message = 'Hello World'
+import { ref } from 'vue'
+```
+
+### 2. 分号使用
+```typescript
+// 根据项目配置统一使用或不使用
+const count = ref(0)  // 不使用分号
+const count = ref(0); // 使用分号
+```
+
+### 3. 缩进
+```typescript
+// 使用 2 空格缩进
+function example() {
+  if (condition) {
+    doSomething()
+  }
+}
+```
+
+### 4. 空行
+```typescript
+// 逻辑块之间添加空行
+const user = ref<User | null>(null)
+const loading = ref(false)
+
+async function fetchUser() {
+  loading.value = true
+  
+  try {
+    user.value = await get('/user')
+  } finally {
+    loading.value = false
+  }
+}
+```
+
+## EditorConfig 配置
+
+```ini
+# .editorconfig
+root = true
+
+[*]
+charset = utf-8
+indent_style = space
+indent_size = 2
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.md]
+trim_trailing_whitespace = false
+```
+
+## Git 提交规范
+
+### Commit Message 格式
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+### Type 类型
+- `feat`: 新功能
+- `fix`: 修复 bug
+- `docs`: 文档更新
+- `style`: 代码格式调整
+- `refactor`: 重构
+- `perf`: 性能优化
+- `test`: 测试相关
+- `chore`: 构建/工具相关
+
+### 示例
+```
+feat(auth): 添加用户登录功能
+
+- 实现登录表单
+- 添加表单验证
+- 集成认证 API
+
+Closes #123
+```
+
+## 总结
+
+- 使用 ESLint 和 Prettier
+- 编写清晰的注释
+- 遵循命名约定
+- 保持代码组织有序
+- 追求代码简洁
+- 保持一致性
+- 遵循 Git 提交规范

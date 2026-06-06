@@ -1,0 +1,376 @@
+---
+description: Vue 3 项目结构规范
+alwaysApply: true
+enabled: true
+---
+
+# 项目结构规范
+
+## 标准目录结构
+
+```
+project-root/
+├── .codebuddy/              # CodeBuddy 配置
+│   ├── plans/               # 开发计划
+│   └── rules/               # 编码规范
+├── docs/                    # 项目文档
+│   ├── business/            # 业务文档
+│   └── system/              # 系统文档
+├── public/                  # 静态资源（不经过构建）
+│   ├── favicon.ico
+│   └── images/
+├── src/                     # 源代码目录
+│   ├── api/                 # API 相关
+│   │   ├── modules/         # API 模块
+│   │   ├── types/           # API 类型定义（按业务模块组织）
+│   │   │   ├── user/        # 用户相关类型
+│   │   │   ├── member/      # 会员相关类型
+│   │   │   └── common/      # 通用类型
+│   │   ├── auth.ts          # 认证与签名
+│   │   ├── client.ts        # HTTP 客户端
+│   │   └── constants.ts     # API 常量
+│   ├── assets/              # 资源文件（经过构建）
+│   │   ├── images/          # 图片
+│   │   ├── styles/          # 全局样式
+│   │   └── fonts/           # 字体文件
+│   ├── components/          # 公共组件
+│   │   ├── common/          # 通用组件
+│   │   ├── business/        # 业务组件
+│   │   └── layout/          # 布局组件
+│   ├── composables/         # 组合式函数
+│   │   ├── useAuth.ts
+│   │   ├── useRequest.ts
+│   │   └── ...
+│   ├── directives/          # 自定义指令
+│   │   ├── index.ts
+│   │   └── ...
+│   ├── router/              # 路由配置
+│   │   ├── index.ts         # 路由主文件
+│   │   ├── routes.ts        # 路由定义
+│   │   └── guards.ts        # 路由守卫
+│   ├── stores/              # 状态管理
+│   │   ├── modules/         # Store 模块
+│   │   │   ├── auth.ts      # 认证 store
+│   │   │   └── ...
+│   │   └── index.ts         # Store 入口
+│   ├── utils/               # 工具函数
+│   │   ├── crypto.ts        # 加密工具
+│   │   ├── rsa.ts           # RSA 加密
+│   │   ├── format.ts        # 格式化工具
+│   │   └── ...
+│   ├── views/               # 页面组件
+│   │   ├── Home.vue
+│   │   ├── Login.vue
+│   │   └── ...
+│   ├── App.vue              # 根组件
+│   ├── main.ts              # 应用入口
+│   └── env.d.ts             # 环境变量类型定义
+├── .env.development         # 开发环境变量
+├── .env.production          # 生产环境变量
+├── .eslintrc.js             # ESLint 配置
+├── .gitignore               # Git 忽略文件
+├── index.html               # HTML 模板
+├── package.json             # 项目配置
+├── tsconfig.json            # TypeScript 配置
+├── vite.config.ts           # Vite 配置
+└── README.md                # 项目说明
+```
+
+## 目录说明
+
+### src/api/ - API 层
+**职责**：处理所有与后端的通信
+
+- `client.ts`：HTTP 客户端封装，包含请求/响应拦截器
+- `auth.ts`：认证相关逻辑（签名、nonce 生成）
+- `constants.ts`：API 常量（默认公钥、盐值等）
+- `types/`：按业务模块组织的类型定义
+  - `user/`：用户相关类型（如 `user.ts`、`user-request.ts`）
+  - `member/`：会员相关类型（如 `member.ts`、`member-query.ts`）
+  - `common/`：通用类型（如 `api.ts`、`pagination.ts`）
+- `modules/`：按业务模块组织的 API 函数
+
+**类型定义结构**：
+```
+api/types/
+├── user/
+│   ├── user.ts              # 用户实体类型
+│   └── user-request.ts      # 用户请求类型
+├── member/
+│   ├── member.ts            # 会员实体类型
+│   └── member-query.ts      # 会员查询类型
+└── common/
+    ├── api.ts               # API 通用类型（如 ApiResult）
+    └── pagination.ts        # 分页相关类型
+```
+
+**规则**：
+- 所有 API 调用必须通过 `client.ts` 的 `get`/`post` 等方法
+- 类型定义按业务模块组织在 `types/` 目录下
+- 每个业务模块的类型放在独立的子目录中
+- 通用类型放在 `types/common/` 目录
+- 不要在 API 层处理 UI 逻辑
+
+**类型文件命名规范**：
+- 实体类型：`{module}.ts`（如 `user.ts`、`member.ts`）
+- 请求类型：`{module}-request.ts` 或 `{module}-query.ts`
+- 响应类型：`{module}-response.ts`（如需要）
+- 通用类型：描述性命名（如 `api.ts`、`pagination.ts`）
+
+### src/components/ - 组件库
+**职责**：可复用的 UI 组件
+
+#### common/ - 通用组件
+- 与业务无关的基础组件
+- 高度可复用
+- 示例：Button、Input、Modal、Table
+
+#### business/ - 业务组件
+- 包含特定业务逻辑的组件
+- 可在多个页面复用
+- 示例：UserCard、ProductList、OrderTable
+
+#### layout/ - 布局组件
+- 页面布局相关组件
+- 示例：Header、Footer、Sidebar、Container
+
+**规则**：
+- 组件名使用 PascalCase
+- 每个组件一个文件夹（如果有样式、测试等）
+- 组件应该是纯展示或包含独立逻辑
+
+### src/composables/ - 组合式函数
+**职责**：可复用的逻辑
+
+**命名规则**：
+- 文件名：`use*.ts`（如 `useAuth.ts`）
+- 函数名：`use*`（如 `useAuth()`）
+
+**示例**：
+```typescript
+// useCounter.ts
+export function useCounter(initialValue = 0) {
+  const count = ref(initialValue)
+  const increment = () => count.value++
+  const decrement = () => count.value--
+  return { count, increment, decrement }
+}
+```
+
+**规则**：
+- 一个文件导出一个主要的 composable
+- 返回响应式数据和方法
+- 避免副作用，除非明确需要
+
+### src/stores/ - 状态管理
+**职责**：全局状态管理
+
+**结构**：
+```
+stores/
+├── modules/
+│   ├── auth.ts      # 认证状态
+│   ├── user.ts      # 用户信息
+│   └── app.ts       # 应用配置
+└── index.ts         # Store 入口
+```
+
+**规则**：
+- 使用 Pinia
+- 按功能模块划分 store
+- Store 名称使用 camelCase
+- 避免在 store 中存储可计算的数据
+
+### src/utils/ - 工具函数
+**职责**：纯函数工具库
+
+**分类**：
+- `crypto.ts`：加密解密
+- `format.ts`：格式化（日期、数字、文本）
+- `validate.ts`：验证函数
+- `storage.ts`：本地存储封装
+- `dom.ts`：DOM 操作
+
+**规则**：
+- 工具函数应该是纯函数
+- 每个文件按功能分类
+- 提供完整的类型定义和注释
+
+### src/views/ - 页面组件
+**职责**：路由对应的页面级组件
+
+**命名规则**：
+- 文件名使用 PascalCase（如 `UserProfile.vue`）
+- 与路由名称对应
+
+**规则**：
+- 页面组件负责组合其他组件
+- 处理页面级的数据获取和状态管理
+- 不应包含过多的业务逻辑（提取到 composables）
+
+### src/router/ - 路由配置
+**职责**：应用路由管理
+
+**文件**：
+- `index.ts`：路由实例和配置
+- `routes.ts`：路由定义（可选）
+- `guards.ts`：路由守卫（可选）
+
+**规则**：
+- 使用路由懒加载
+- 路由名称使用 PascalCase
+- 路由路径使用 kebab-case
+
+## 模块组织原则
+
+### 1. 按功能模块组织
+当某个功能足够复杂时，可以创建独立的模块目录：
+
+```
+src/
+└── modules/
+    └── user/
+        ├── components/
+        ├── composables/
+        ├── api/
+        ├── types.ts
+        └── index.ts
+```
+
+### 2. 文件命名规范
+- Vue 组件：PascalCase（`UserProfile.vue`）
+- TypeScript 文件：camelCase（`userApi.ts`）
+- 样式文件：kebab-case（`user-profile.scss`）
+- 测试文件：`*.spec.ts` 或 `*.test.ts`
+
+### 3. 导入顺序
+```typescript
+// 1. Vue 核心
+import { ref, computed } from 'vue'
+
+// 2. 第三方库
+import { ElMessage } from 'element-plus'
+
+// 3. 类型定义
+import type { User } from '@/api/types/user/user'
+import type { UserRequest } from '@/api/types/user/user-request'
+import type { ApiResult } from '@/api/types/common/api'
+
+// 4. 组件
+import UserCard from '@/components/business/UserCard.vue'
+
+// 5. Composables
+import { useAuth } from '@/composables/useAuth'
+
+// 6. 工具函数
+import { formatDate } from '@/utils/format'
+
+// 7. 样式
+import './styles.scss'
+```
+
+## 文件大小限制
+
+### 建议限制
+- Vue 组件：< 300 行
+- TypeScript 文件：< 500 行
+- 样式文件：< 300 行
+
+### 超出限制时
+- 拆分组件
+- 提取逻辑到 composables
+- 拆分样式文件
+
+## 避免的反模式
+
+### ❌ 不要做
+```
+src/
+├── components/
+│   ├── Button.vue
+│   ├── button.vue          # 命名不一致
+│   ├── user-card.vue       # 应该用 PascalCase
+│   └── UserCardComponent.vue  # 不要加 Component 后缀
+├── utils/
+│   └── index.ts            # 不要把所有工具函数放在一个文件
+└── views/
+    └── user/
+        └── profile.vue     # 应该用 PascalCase
+```
+
+### ✅ 应该做
+```
+src/
+├── components/
+│   ├── common/
+│   │   └── Button.vue
+│   └── business/
+│       └── UserCard.vue
+├── utils/
+│   ├── format.ts
+│   ├── validate.ts
+│   └── crypto.ts
+└── views/
+    └── user/
+        └── Profile.vue
+```
+
+## 特殊目录说明
+
+### .codebuddy/
+- 存放 CodeBuddy 相关配置
+- 不要手动修改，除非必要
+- 包含开发计划和编码规范
+
+### docs/
+- 项目文档目录
+- `business/`：业务需求、API 文档
+- `system/`：系统设计、技术文档
+
+### public/
+- 不经过构建的静态资源
+- 直接复制到输出目录
+- 通过绝对路径访问（如 `/favicon.ico`）
+
+### assets/
+- 经过构建处理的资源
+- 会被 Vite 处理（压缩、hash 等）
+- 通过 `@/assets/` 导入
+
+## 路径别名配置
+
+在 `vite.config.ts` 和 `tsconfig.json` 中配置：
+
+```typescript
+// vite.config.ts
+export default defineConfig({
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, 'src'),
+    },
+  },
+})
+
+// tsconfig.json
+{
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}
+```
+
+**使用**：
+```typescript
+import { useAuth } from '@/composables/useAuth'
+import UserCard from '@/components/business/UserCard.vue'
+```
+
+## 总结
+
+- 保持目录结构清晰和一致
+- 按功能和职责组织代码
+- 遵循命名规范
+- 合理拆分文件和模块
+- 使用路径别名简化导入

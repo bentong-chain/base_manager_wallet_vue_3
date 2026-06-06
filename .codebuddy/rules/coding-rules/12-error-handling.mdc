@@ -1,0 +1,345 @@
+---
+description: Vue 3 错误处理规范
+alwaysApply: true
+enabled: true
+---
+
+# 错误处理规范
+
+## 错误处理原则
+
+### 1. 优雅降级
+- 提供友好的错误提示
+- 不暴露技术细节
+- 提供恢复方案
+
+### 2. 分层处理
+- API 层：处理网络错误
+- 业务层：处理业务逻辑错误
+- UI 层：展示错误信息
+
+### 3. 日志记录
+- 记录错误详情
+- 便于问题排查
+- 不影响用户体验
+
+## API 错误处理
+
+### 统一错误拦截
+```typescript
+// api/client.ts
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response) {
+      const { status, data } = error.response
+      
+      switch (status) {
+        case 400:
+          ElMessage.error(data.message || '请求参数错误')
+          break
+        case 401:
+          ElMessage.error('登录已过期，请重新登录')
+          router.push('/login')
+          break
+        case 403:
+          ElMessage.error('没有权限访问')
+          break
+        case 404:
+          ElMessage.error('请求的资源不存在')
+          break
+        case 500:
+          ElMessage.error('服务器错误，请稍后重试')
+          break
+        default:
+          ElMessage.error(data.message || '请求失败')
+      }
+    } else if (error.request) {
+      ElMessage.error('网络连接失败，请检查网络')
+    } else {
+      ElMessage.error('请求配置错误')
+    }
+    
+    return Promise.reject(error)
+  }
+)
+```
+
+### 业务错误处理
+```typescript
+async function login(credentials: LoginRequest) {
+  try {
+    const response = await post<LoginResponse>('/member/login', credentials)
+    return response
+  } catch (error: any) {
+    // 处理特定业务错误
+    if (error.response?.data?.subCode === 'INVALID_CREDENTIALS') {
+      ElMessage.error('用户名或密码错误')
+    } else if (error.response?.data?.subCode === 'ACCOUNT_LOCKED') {
+      ElMessage.error('账号已被锁定，请联系管理员')
+    } else {
+      ElMessage.error('登录失败，请稍后重试')
+    }
+    throw error
+  }
+}
+```
+
+## 组件错误处理
+
+### Try-Catch 包装
+```vue
+<script setup lang="ts">
+const loading = ref(false)
+const error = ref<string | null>(null)
+
+async function fetchData() {
+  loading.value = true
+  error.value = null
+  
+  try {
+    const data = await get<User>('/users/1')
+    // 处理数据
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : '获取数据失败'
+    console.error('获取数据失败:', err)
+  } finally {
+    loading.value = false
+  }
+}
+</script>
+
+<template>
+  <div>
+    <div v-if="loading">加载中...</div>
+    <div v-else-if="error" class="error">
+      {{ error }}
+      <button @click="fetchData">重试</button>
+    </div>
+    <div v-else>
+      <!-- 正常内容 -->
+    </div>
+  </div>
+</template>
+```
+
+### 错误边界
+```vue
+<script setup lang="ts">
+import { onErrorCaptured } from 'vue'
+
+const error = ref<Error | null>(null)
+
+onErrorCaptured((err, instance, info) => {
+  error.value = err
+  console.error('捕获到错误:', err, info)
+  // 返回 false 阻止错误继续传播
+  return false
+})
+</script>
+
+<template>
+  <div v-if="error" class="error-boundary">
+    <h3>出错了</h3>
+    <p>{{ error.message }}</p>
+    <button @click="error = null">重试</button>
+  </div>
+  <slot v-else></slot>
+</template>
+```
+
+## 表单验证错误
+
+### 表单验证
+```vue
+<script setup lang="ts">
+import type { FormInstance, FormRules } from 'element-plus'
+
+const formRef = ref<FormInstance>()
+const form = reactive({
+  username: '',
+  password: ''
+})
+
+const rules: FormRules = {
+  username: [
+    { required: true, message: '请输入用户名', trigger: 'blur' },
+    { min: 4, max: 20, message: '用户名长度为 4-20 个字符', trigger: 'blur' }
+  ],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    { min: 6, message: '密码至少 6 个字符', trigger: 'blur' }
+  ]
+}
+
+async function handleSubmit() {
+  try {
+    await formRef.value?.validate()
+    // 提交表单
+  } catch (error) {
+    ElMessage.error('请检查表单输入')
+  }
+}
+</script>
+```
+
+## 全局错误处理
+
+### 全局错误处理器
+```typescript
+// main.ts
+const app = createApp(App)
+
+app.config.errorHandler = (err, instance, info) => {
+  console.error('全局错误:', err)
+  console.error('错误信息:', info)
+  
+  // 上报错误到监控系统
+  reportError(err, info)
+  
+  // 显示友好提示
+  ElMessage.error('应用出现错误，请刷新页面重试')
+}
+```
+
+### 未捕获的 Promise 错误
+```typescript
+// main.ts
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('未捕获的 Promise 错误:', event.reason)
+  event.preventDefault()
+  
+  ElMessage.error('操作失败，请重试')
+})
+```
+
+## 错误日志
+
+### 错误日志记录
+```typescript
+// utils/logger.ts
+interface ErrorLog {
+  message: string
+  stack?: string
+  timestamp: number
+  url: string
+  userAgent: string
+}
+
+export function logError(error: Error, context?: any) {
+  const log: ErrorLog = {
+    message: error.message,
+    stack: error.stack,
+    timestamp: Date.now(),
+    url: window.location.href,
+    userAgent: navigator.userAgent
+  }
+  
+  console.error('错误日志:', log, context)
+  
+  // 发送到服务器
+  sendErrorLog(log)
+}
+
+async function sendErrorLog(log: ErrorLog) {
+  try {
+    await fetch('/api/logs/error', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(log)
+    })
+  } catch {
+    // 忽略日志上报失败
+  }
+}
+```
+
+## 用户友好的错误提示
+
+### 错误提示组件
+```vue
+<script setup lang="ts">
+interface Props {
+  error: Error | string | null
+  retry?: () => void
+}
+
+const props = defineProps<Props>()
+
+const errorMessage = computed(() => {
+  if (!props.error) return ''
+  if (typeof props.error === 'string') return props.error
+  return props.error.message || '发生未知错误'
+})
+</script>
+
+<template>
+  <div v-if="error" class="error-message">
+    <el-alert
+      :title="errorMessage"
+      type="error"
+      :closable="false"
+    >
+      <template #default>
+        <el-button v-if="retry" size="small" @click="retry">
+          重试
+        </el-button>
+      </template>
+    </el-alert>
+  </div>
+</template>
+```
+
+## 最佳实践
+
+### 1. 始终处理错误
+```typescript
+✅ 正确
+try {
+  await fetchData()
+} catch (error) {
+  console.error('错误:', error)
+  handleError(error)
+}
+
+❌ 错误
+await fetchData()  // 没有错误处理
+```
+
+### 2. 提供恢复机制
+```typescript
+✅ 正确
+<div v-if="error">
+  <p>{{ error }}</p>
+  <button @click="retry">重试</button>
+</div>
+```
+
+### 3. 记录错误上下文
+```typescript
+✅ 正确
+try {
+  await updateUser(userId, data)
+} catch (error) {
+  console.error('更新用户失败:', { userId, data, error })
+  logError(error, { userId, data })
+}
+```
+
+### 4. 不暴露敏感信息
+```typescript
+✅ 正确
+ElMessage.error('操作失败，请稍后重试')
+
+❌ 错误
+ElMessage.error(error.stack)  // 暴露技术细节
+```
+
+## 总结
+
+- 分层处理错误
+- 提供友好提示
+- 记录错误日志
+- 提供恢复机制
+- 不暴露敏感信息
+- 优雅降级

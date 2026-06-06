@@ -1,0 +1,635 @@
+---
+description: Vue 3 组件设计规范
+alwaysApply: true
+enabled: true
+---
+
+# 组件设计规范
+
+## 组件设计原则
+
+### 单一职责原则
+**规则**：每个组件只负责一个功能
+
+```vue
+✅ 正确
+<!-- UserAvatar.vue - 只负责显示头像 -->
+<template>
+  <img :src="avatarUrl" :alt="userName" class="avatar" />
+</template>
+
+<!-- UserInfo.vue - 只负责显示用户信息 -->
+<template>
+  <div class="user-info">
+    <h3>{{ user.name }}</h3>
+    <p>{{ user.email }}</p>
+  </div>
+</template>
+
+❌ 错误
+<!-- UserComponent.vue - 职责过多 -->
+<template>
+  <div>
+    <img :src="avatarUrl" />
+    <div>{{ user.name }}</div>
+    <button @click="editUser">编辑</button>
+    <button @click="deleteUser">删除</button>
+    <form @submit="updateUser">...</form>
+  </div>
+</template>
+```
+
+### 高内聚低耦合
+**规则**：组件内部逻辑紧密相关，组件之间松散耦合
+
+```vue
+✅ 正确
+<!-- 高内聚：相关功能在一起 -->
+<script setup lang="ts">
+// 表单相关的所有逻辑
+const form = ref({ username: '', password: '' })
+const errors = ref({})
+const validate = () => { /* 验证逻辑 */ }
+const submit = () => { /* 提交逻辑 */ }
+</script>
+
+<!-- 低耦合：通过 props 和 events 通信 -->
+<UserForm
+  :initial-data="userData"
+  @submit="handleSubmit"
+/>
+```
+
+### 可复用性
+**规则**：设计可在多处使用的组件
+
+```vue
+✅ 正确
+<!-- Button.vue - 通用按钮组件 -->
+<script setup lang="ts">
+interface Props {
+  type?: 'primary' | 'secondary' | 'danger'
+  size?: 'small' | 'medium' | 'large'
+  disabled?: boolean
+  loading?: boolean
+}
+const props = withDefaults(defineProps<Props>(), {
+  type: 'primary',
+  size: 'medium'
+})
+</script>
+
+<template>
+  <button
+    :class="['btn', `btn-${type}`, `btn-${size}`]"
+    :disabled="disabled || loading"
+  >
+    <span v-if="loading">加载中...</span>
+    <slot v-else></slot>
+  </button>
+</template>
+```
+
+## 组件分类
+
+### 1. 基础组件（Common Components）
+**特点**：
+- 与业务无关
+- 高度可复用
+- 通常是 UI 元素的封装
+
+**示例**：
+```
+components/common/
+├── Button.vue
+├── Input.vue
+├── Modal.vue
+├── Table.vue
+├── Pagination.vue
+└── Loading.vue
+```
+
+**设计要点**：
+- 提供丰富的配置选项
+- 支持插槽自定义
+- 完善的类型定义
+- 良好的可访问性
+
+### 2. 业务组件（Business Components）
+**特点**：
+- 包含特定业务逻辑
+- 在多个页面复用
+- 可能依赖特定的数据结构
+
+**示例**：
+```
+components/business/
+├── UserCard.vue
+├── ProductList.vue
+├── OrderTable.vue
+└── CommentList.vue
+```
+
+**设计要点**：
+- 明确的数据接口
+- 合理的默认行为
+- 支持自定义扩展
+
+### 3. 布局组件（Layout Components）
+**特点**：
+- 定义页面结构
+- 管理布局逻辑
+- 通常包含插槽
+
+**示例**：
+```
+components/layout/
+├── AppLayout.vue
+├── Header.vue
+├── Sidebar.vue
+├── Footer.vue
+└── Container.vue
+```
+
+### 4. 页面组件（Page Components）
+**特点**：
+- 对应路由
+- 组合其他组件
+- 处理页面级逻辑
+
+**示例**：
+```
+views/
+├── Home.vue
+├── UserProfile.vue
+├── ProductDetail.vue
+└── OrderList.vue
+```
+
+## 组件拆分策略
+
+### 何时拆分组件
+
+#### 1. 代码行数过多
+```vue
+❌ 单个组件超过 300 行
+✅ 拆分为多个小组件
+
+<!-- UserProfile.vue -->
+<template>
+  <div class="user-profile">
+    <UserHeader :user="user" />
+    <UserStats :stats="stats" />
+    <UserPosts :posts="posts" />
+    <UserComments :comments="comments" />
+  </div>
+</template>
+```
+
+#### 2. 逻辑可复用
+```vue
+✅ 提取可复用的部分
+<!-- 原组件 -->
+<template>
+  <div>
+    <div class="search-box">...</div>
+    <div class="filter-box">...</div>
+  </div>
+</template>
+
+<!-- 拆分后 -->
+<template>
+  <div>
+    <SearchBox v-model="searchText" />
+    <FilterBox v-model="filters" />
+  </div>
+</template>
+```
+
+#### 3. 职责不单一
+```vue
+❌ 一个组件做太多事情
+<template>
+  <div>
+    <form>...</form>
+    <table>...</table>
+    <chart>...</chart>
+  </div>
+</template>
+
+✅ 拆分为独立组件
+<template>
+  <div>
+    <DataForm @submit="handleSubmit" />
+    <DataTable :data="tableData" />
+    <DataChart :data="chartData" />
+  </div>
+</template>
+```
+
+### 何时不拆分组件
+
+#### 1. 过度拆分
+```vue
+❌ 不要过度拆分
+<!-- 太细粒度 -->
+<UserNameLabel :name="user.name" />
+<UserEmailLabel :email="user.email" />
+
+✅ 保持合理粒度
+<UserInfo :user="user" />
+```
+
+#### 2. 仅使用一次
+```vue
+❌ 只用一次的组件不必拆分
+<!-- 如果只在一个地方使用 -->
+<SpecificSection />
+
+✅ 直接写在父组件中
+<template>
+  <div class="specific-section">
+    <!-- 内容 -->
+  </div>
+</template>
+```
+
+## 组件通信模式
+
+### 1. Props Down, Events Up
+**规则**：父组件通过 props 传递数据，子组件通过 events 通知父组件
+
+```vue
+<!-- 父组件 -->
+<template>
+  <UserForm
+    :user="currentUser"
+    :loading="isLoading"
+    @submit="handleSubmit"
+    @cancel="handleCancel"
+  />
+</template>
+
+<!-- 子组件 -->
+<script setup lang="ts">
+interface Props {
+  user: User
+  loading: boolean
+}
+const props = defineProps<Props>()
+
+const emit = defineEmits<{
+  'submit': [user: User]
+  'cancel': []
+}>()
+</script>
+```
+
+### 2. v-model 双向绑定
+**规则**：用于表单组件
+
+```vue
+<!-- 父组件 -->
+<template>
+  <CustomInput v-model="searchText" />
+</template>
+
+<!-- 子组件 -->
+<script setup lang="ts">
+interface Props {
+  modelValue: string
+}
+const props = defineProps<Props>()
+
+const emit = defineEmits<{
+  'update:modelValue': [value: string]
+}>()
+
+function handleInput(e: Event) {
+  const value = (e.target as HTMLInputElement).value
+  emit('update:modelValue', value)
+}
+</script>
+
+<template>
+  <input :value="modelValue" @input="handleInput" />
+</template>
+```
+
+### 3. Provide/Inject
+**规则**：用于跨层级通信
+
+```vue
+<!-- 祖先组件 -->
+<script setup lang="ts">
+import { provide, readonly } from 'vue'
+
+const theme = ref('light')
+provide('theme', readonly(theme))
+provide('updateTheme', (newTheme: string) => {
+  theme.value = newTheme
+})
+</script>
+
+<!-- 后代组件 -->
+<script setup lang="ts">
+import { inject } from 'vue'
+
+const theme = inject<Ref<string>>('theme')
+const updateTheme = inject<(theme: string) => void>('updateTheme')
+</script>
+```
+
+### 4. 状态管理（Pinia）
+**规则**：用于全局状态
+
+```typescript
+// 在需要共享状态的组件中
+import { useAuthStore } from '@/stores/modules/auth'
+
+const authStore = useAuthStore()
+const isLoggedIn = computed(() => authStore.isLoggedIn)
+```
+
+## 组件 Props 设计
+
+### Props 类型设计
+```typescript
+✅ 正确
+interface Props {
+  // 基础类型
+  id: number
+  name: string
+  isActive: boolean
+  
+  // 对象类型
+  user: User
+  config: Config
+  
+  // 数组类型
+  items: Item[]
+  tags: string[]
+  
+  // 联合类型
+  size: 'small' | 'medium' | 'large'
+  status: 'pending' | 'success' | 'error'
+  
+  // 可选属性
+  title?: string
+  description?: string
+  
+  // 函数类型
+  onSubmit?: (data: FormData) => void
+  formatter?: (value: any) => string
+}
+```
+
+### Props 默认值
+```typescript
+✅ 正确
+const props = withDefaults(defineProps<Props>(), {
+  size: 'medium',
+  isActive: true,
+  items: () => [],
+  config: () => ({ timeout: 5000 })
+})
+```
+
+### Props 验证
+```typescript
+✅ 使用 TypeScript 类型系统
+interface Props {
+  count: number  // 自动验证类型
+  status: 'pending' | 'success' | 'error'  // 限制值范围
+}
+
+// 复杂验证使用 computed
+const isValidCount = computed(() => {
+  return props.count >= 0 && props.count <= 100
+})
+```
+
+## 组件插槽设计
+
+### 默认插槽
+```vue
+<template>
+  <div class="card">
+    <slot>
+      <!-- 默认内容 -->
+      <p>暂无内容</p>
+    </slot>
+  </div>
+</template>
+```
+
+### 具名插槽
+```vue
+<template>
+  <div class="dialog">
+    <header>
+      <slot name="header">
+        <h2>默认标题</h2>
+      </slot>
+    </header>
+    
+    <main>
+      <slot></slot>
+    </main>
+    
+    <footer>
+      <slot name="footer">
+        <button>确定</button>
+      </slot>
+    </footer>
+  </div>
+</template>
+```
+
+### 作用域插槽
+```vue
+<template>
+  <ul>
+    <li v-for="(item, index) in items" :key="item.id">
+      <slot :item="item" :index="index">
+        {{ item.name }}
+      </slot>
+    </li>
+  </ul>
+</template>
+
+<!-- 使用 -->
+<List :items="users">
+  <template #default="{ item, index }">
+    <div>{{ index + 1 }}. {{ item.name }}</div>
+  </template>
+</List>
+```
+
+## 组件样式设计
+
+### Scoped 样式
+```vue
+<style scoped>
+/* 样式只作用于当前组件 */
+.card {
+  padding: 16px;
+}
+
+/* 深度选择器 */
+:deep(.el-button) {
+  margin-top: 10px;
+}
+
+/* 插槽选择器 */
+:slotted(.custom-class) {
+  color: red;
+}
+</style>
+```
+
+### CSS Modules
+```vue
+<template>
+  <div :class="$style.card">
+    <h2 :class="$style.title">标题</h2>
+  </div>
+</template>
+
+<style module>
+.card {
+  padding: 16px;
+}
+
+.title {
+  font-size: 18px;
+}
+</style>
+```
+
+### 动态类名
+```vue
+<template>
+  <div
+    :class="[
+      'card',
+      `card-${type}`,
+      { 'card-active': isActive }
+    ]"
+  >
+    内容
+  </div>
+</template>
+```
+
+## 组件性能优化
+
+### 1. 使用 v-show vs v-if
+```vue
+<!-- 频繁切换使用 v-show -->
+<div v-show="isVisible">内容</div>
+
+<!-- 条件很少改变使用 v-if -->
+<div v-if="hasPermission">内容</div>
+```
+
+### 2. 列表渲染优化
+```vue
+<!-- 使用 key -->
+<div v-for="item in items" :key="item.id">
+  {{ item.name }}
+</div>
+
+<!-- 大列表使用虚拟滚动 -->
+<VirtualList :items="largeList" :item-height="50">
+  <template #default="{ item }">
+    <div>{{ item.name }}</div>
+  </template>
+</VirtualList>
+```
+
+### 3. 计算属性缓存
+```typescript
+// 使用计算属性而不是方法
+const filteredList = computed(() => {
+  return items.value.filter(item => item.isActive)
+})
+```
+
+### 4. 异步组件
+```typescript
+// 路由懒加载
+const UserProfile = defineAsyncComponent(() =>
+  import('@/views/UserProfile.vue')
+)
+```
+
+## 组件文档
+
+### 组件注释
+```vue
+<script setup lang="ts">
+/**
+ * 用户卡片组件
+ * 
+ * @description 展示用户基本信息的卡片组件
+ * @example
+ * <UserCard :user="userData" @click="handleClick" />
+ */
+
+/**
+ * Props 定义
+ */
+interface Props {
+  /** 用户数据 */
+  user: User
+  /** 是否显示详细信息 */
+  showDetail?: boolean
+}
+
+/**
+ * Emits 定义
+ */
+const emit = defineEmits<{
+  /** 点击卡片时触发 */
+  'click': [user: User]
+  /** 用户信息更新时触发 */
+  'update': [user: User]
+}>()
+</script>
+```
+
+## 组件测试
+
+### 可测试的组件设计
+```vue
+<script setup lang="ts">
+// 1. 纯函数逻辑
+function calculateTotal(items: Item[]): number {
+  return items.reduce((sum, item) => sum + item.price, 0)
+}
+
+// 2. 依赖注入
+const api = inject('api', defaultApi)
+
+// 3. 清晰的输入输出
+interface Props {
+  items: Item[]
+}
+const props = defineProps<Props>()
+
+const emit = defineEmits<{
+  'total-change': [total: number]
+}>()
+</script>
+```
+
+## 总结
+
+- 遵循单一职责原则
+- 保持高内聚低耦合
+- 合理拆分组件
+- 设计清晰的接口
+- 提供灵活的插槽
+- 注重性能优化
+- 编写组件文档

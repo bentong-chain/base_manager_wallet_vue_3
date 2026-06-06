@@ -1,0 +1,589 @@
+---
+description: Vue 3 状态管理规范（Pinia）
+alwaysApply: true
+enabled: true
+---
+
+# 状态管理规范（Pinia）
+
+## Pinia Store 基础
+
+### Store 定义
+**规则**：使用 Setup Store 语法（推荐）
+
+```typescript
+✅ 正确
+// stores/modules/auth.ts
+import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
+
+export const useAuthStore = defineStore('auth', () => {
+  // State
+  const token = ref('')
+  const user = ref<User | null>(null)
+  
+  // Getters
+  const isLoggedIn = computed(() => !!token.value)
+  const userName = computed(() => user.value?.name || '')
+  
+  // Actions
+  function setToken(newToken: string) {
+    token.value = newToken
+  }
+  
+  function clearAuth() {
+    token.value = ''
+    user.value = null
+  }
+  
+  return {
+    // State
+    token,
+    user,
+    // Getters
+    isLoggedIn,
+    userName,
+    // Actions
+    setToken,
+    clearAuth
+  }
+})
+```
+
+### Store 命名
+**规则**：
+- Store 名称：use*Store
+- Store ID：小写，与文件名对应
+
+```typescript
+✅ 正确
+// auth.ts
+export const useAuthStore = defineStore('auth', () => {})
+
+// user.ts
+export const useUserStore = defineStore('user', () => {})
+
+❌ 错误
+// auth.ts
+export const authStore = defineStore('auth', () => {})  // 缺少 use 前缀
+export const useAuth = defineStore('auth', () => {})  // 缺少 Store 后缀
+```
+
+## State 设计
+
+### State 定义
+**规则**：使用 ref 定义响应式状态
+
+```typescript
+✅ 正确
+export const useAuthStore = defineStore('auth', () => {
+  // 基础类型
+  const token = ref('')
+  const isLoading = ref(false)
+  
+  // 对象类型
+  const user = ref<User | null>(null)
+  const config = ref<Config>({ timeout: 5000 })
+  
+  // 数组类型
+  const permissions = ref<string[]>([])
+  
+  return { token, isLoading, user, config, permissions }
+})
+
+❌ 错误
+// 不要使用普通变量
+let token = ''  // ❌ 不是响应式的
+```
+
+### State 初始化
+**规则**：提供合理的初始值
+
+```typescript
+✅ 正确
+const token = ref('')  // 空字符串
+const user = ref<User | null>(null)  // null
+const count = ref(0)  // 0
+const items = ref<Item[]>([])  // 空数组
+const config = ref({ timeout: 5000 })  // 默认配置
+
+❌ 错误
+const token = ref()  // undefined，类型不明确
+const user = ref({})  // 空对象，应该用 null
+```
+
+### State 持久化
+**规则**：敏感数据加密存储
+
+```typescript
+✅ 正确
+import { defineStore } from 'pinia'
+import { aesEncrypt, aesDecrypt } from '@/utils/crypto'
+
+export const useAuthStore = defineStore('auth', () => {
+  const token = ref('')
+  const publicKey = ref('')
+  const salt = ref('')
+  
+  // 从存储加载
+  function loadFromStorage() {
+    const encrypted = sessionStorage.getItem('auth_credentials')
+    if (encrypted) {
+      try {
+        const raw = aesDecrypt(encrypted, AP_KEY)
+        const parts = raw.split('|')
+        if (parts.length === 3) {
+          token.value = parts[0]
+          publicKey.value = parts[1]
+          salt.value = parts[2]
+        }
+      } catch {
+        sessionStorage.removeItem('auth_credentials')
+      }
+    }
+  }
+  
+  // 保存到存储
+  function saveToStorage() {
+    const raw = [token.value, publicKey.value, salt.value].join('|')
+    const encrypted = aesEncrypt(raw, AP_KEY)
+    sessionStorage.setItem('auth_credentials', encrypted)
+  }
+  
+  return { token, publicKey, salt, loadFromStorage, saveToStorage }
+})
+```
+
+## Getters 设计
+
+### Getters 定义
+**规则**：使用 computed 定义派生状态
+
+```typescript
+✅ 正确
+export const useAuthStore = defineStore('auth', () => {
+  const token = ref('')
+  const user = ref<User | null>(null)
+  
+  // 简单的派生状态
+  const isLoggedIn = computed(() => !!token.value)
+  
+  // 复杂的计算
+  const userDisplayName = computed(() => {
+    if (!user.value) return '游客'
+    return user.value.name || user.value.username || '未知用户'
+  })
+  
+  // 依赖其他 getter
+  const hasAdminPermission = computed(() => {
+    return isLoggedIn.value && user.value?.role === 'admin'
+  })
+  
+  return { token, user, isLoggedIn, userDisplayName, hasAdminPermission }
+})
+```
+
+### Getters 命名
+**规则**：使用名词或形容词
+
+```typescript
+✅ 正确
+const isLoggedIn = computed(() => ...)
+const userName = computed(() => ...)
+const totalCount = computed(() => ...)
+const filteredItems = computed(() => ...)
+
+❌ 错误
+const getIsLoggedIn = computed(() => ...)  // 不要用动词
+const checkLogin = computed(() => ...)
+```
+
+### Getters 性能
+**规则**：避免在 getter 中执行昂贵的计算
+
+```typescript
+✅ 正确
+// 简单的计算
+const total = computed(() => items.value.length)
+
+// 如果计算复杂，考虑缓存
+const expensiveComputation = computed(() => {
+  // 复杂计算
+  return items.value.reduce((acc, item) => acc + item.value, 0)
+})
+
+❌ 错误
+// 不要在 getter 中执行异步操作
+const userData = computed(async () => {  // ❌
+  return await fetchUser()
+})
+
+// 不要在 getter 中修改状态
+const count = computed(() => {
+  items.value.push({})  // ❌ 不要修改状态
+  return items.value.length
+})
+```
+
+## Actions 设计
+
+### Actions 定义
+**规则**：使用普通函数定义操作
+
+```typescript
+✅ 正确
+export const useAuthStore = defineStore('auth', () => {
+  const token = ref('')
+  const user = ref<User | null>(null)
+  
+  // 同步 action
+  function setToken(newToken: string) {
+    token.value = newToken
+  }
+  
+  // 异步 action
+  async function login(credentials: LoginRequest) {
+    try {
+      const response = await post<LoginResponse>('/member/login', credentials)
+      token.value = response.accessToken
+      user.value = { uid: response.uid, username: response.username }
+      return response
+    } catch (error) {
+      console.error('登录失败:', error)
+      throw error
+    }
+  }
+  
+  // 调用其他 action
+  function logout() {
+    setToken('')
+    user.value = null
+  }
+  
+  return { token, user, setToken, login, logout }
+})
+```
+
+### Actions 命名
+**规则**：使用动词开头
+
+```typescript
+✅ 正确
+function fetchUserData() {}
+function updateUser() {}
+function deleteItem() {}
+function setToken() {}
+function clearAuth() {}
+
+❌ 错误
+function userData() {}  // 应该用动词
+function user() {}
+function token() {}
+```
+
+### Actions 错误处理
+**规则**：在 action 中处理错误
+
+```typescript
+✅ 正确
+async function fetchUserData(id: number) {
+  loading.value = true
+  error.value = null
+  
+  try {
+    const data = await get<User>(`/users/${id}`)
+    user.value = data
+    return data
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : '获取用户数据失败'
+    console.error('获取用户数据失败:', err)
+    throw err
+  } finally {
+    loading.value = false
+  }
+}
+
+❌ 错误
+async function fetchUserData(id: number) {
+  // ❌ 没有错误处理
+  const data = await get<User>(`/users/${id}`)
+  user.value = data
+}
+```
+
+## Store 模块化
+
+### 按功能划分 Store
+**规则**：每个 Store 负责一个功能域
+
+```
+stores/
+└── modules/
+    ├── auth.ts      # 认证相关
+    ├── user.ts      # 用户信息
+    ├── app.ts       # 应用配置
+    ├── cart.ts      # 购物车
+    └── product.ts   # 产品数据
+```
+
+### Store 之间的通信
+**规则**：可以在一个 Store 中使用另一个 Store
+
+```typescript
+✅ 正确
+// stores/modules/user.ts
+import { useAuthStore } from './auth'
+
+export const useUserStore = defineStore('user', () => {
+  const authStore = useAuthStore()
+  
+  const userInfo = ref<User | null>(null)
+  
+  async function fetchUserInfo() {
+    // 使用 authStore 的状态
+    if (!authStore.isLoggedIn) {
+      console.log('用户未登录')
+      return
+    }
+    
+    const data = await get<User>('/member/info')
+    userInfo.value = data
+  }
+  
+  return { userInfo, fetchUserInfo }
+})
+```
+
+### 避免循环依赖
+**规则**：设计清晰的依赖关系
+
+```typescript
+✅ 正确
+// auth.ts 不依赖 user.ts
+export const useAuthStore = defineStore('auth', () => {
+  // ...
+})
+
+// user.ts 可以依赖 auth.ts
+import { useAuthStore } from './auth'
+export const useUserStore = defineStore('user', () => {
+  const authStore = useAuthStore()
+  // ...
+})
+
+❌ 错误
+// auth.ts 依赖 user.ts
+import { useUserStore } from './user'  // ❌
+
+// user.ts 依赖 auth.ts
+import { useAuthStore } from './auth'  // ❌ 循环依赖
+```
+
+## Store 使用规范
+
+### 在组件中使用 Store
+**规则**：在 setup 中调用 use*Store
+
+```vue
+✅ 正确
+<script setup lang="ts">
+import { useAuthStore } from '@/stores/modules/auth'
+
+const authStore = useAuthStore()
+
+// 访问状态
+const token = computed(() => authStore.token)
+const isLoggedIn = computed(() => authStore.isLoggedIn)
+
+// 调用 action
+function handleLogin() {
+  authStore.login(credentials)
+}
+</script>
+
+❌ 错误
+<script setup lang="ts">
+// ❌ 不要在 setup 外部调用
+const authStore = useAuthStore()  // 如果在模块顶层会出错
+</script>
+```
+
+### 解构 Store
+**规则**：使用 storeToRefs 解构响应式属性
+
+```typescript
+✅ 正确
+import { storeToRefs } from 'pinia'
+import { useAuthStore } from '@/stores/modules/auth'
+
+const authStore = useAuthStore()
+const { token, user, isLoggedIn } = storeToRefs(authStore)
+const { login, logout } = authStore  // actions 不需要 storeToRefs
+
+❌ 错误
+const { token, user } = authStore  // ❌ 失去响应性
+```
+
+### 在路由守卫中使用 Store
+**规则**：在守卫函数内部调用
+
+```typescript
+✅ 正确
+// router/index.ts
+import { useAuthStore } from '@/stores/modules/auth'
+
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore()  // ✅ 在函数内部调用
+  
+  if (to.meta.requiresAuth && !authStore.isLoggedIn) {
+    next({ name: 'Login' })
+  } else {
+    next()
+  }
+})
+
+❌ 错误
+const authStore = useAuthStore()  // ❌ 在外部调用
+
+router.beforeEach((to, from, next) => {
+  if (to.meta.requiresAuth && !authStore.isLoggedIn) {
+    next({ name: 'Login' })
+  } else {
+    next()
+  }
+})
+```
+
+## Store 最佳实践
+
+### 1. 保持 Store 简洁
+```typescript
+✅ 正确
+// 只存储必要的状态
+export const useAuthStore = defineStore('auth', () => {
+  const token = ref('')
+  const publicKey = ref('')
+  const salt = ref('')
+  
+  return { token, publicKey, salt }
+})
+
+❌ 错误
+// 不要存储可计算的数据
+export const useAuthStore = defineStore('auth', () => {
+  const token = ref('')
+  const tokenLength = ref(0)  // ❌ 可以通过 computed 计算
+  
+  return { token, tokenLength }
+})
+```
+
+### 2. 使用 TypeScript
+```typescript
+✅ 正确
+interface User {
+  uid: number
+  username: string
+  name?: string
+}
+
+export const useUserStore = defineStore('user', () => {
+  const user = ref<User | null>(null)
+  
+  async function fetchUser(): Promise<User> {
+    const data = await get<User>('/member/info')
+    user.value = data
+    return data
+  }
+  
+  return { user, fetchUser }
+})
+```
+
+### 3. 提供重置方法
+```typescript
+✅ 正确
+export const useAuthStore = defineStore('auth', () => {
+  const token = ref('')
+  const user = ref<User | null>(null)
+  
+  function $reset() {
+    token.value = ''
+    user.value = null
+  }
+  
+  return { token, user, $reset }
+})
+```
+
+### 4. 避免在 Store 中存储 UI 状态
+```typescript
+❌ 错误
+export const useAuthStore = defineStore('auth', () => {
+  const token = ref('')
+  const isModalOpen = ref(false)  // ❌ UI 状态应该在组件中
+  const currentTab = ref('login')  // ❌ UI 状态
+  
+  return { token, isModalOpen, currentTab }
+})
+
+✅ 正确
+// UI 状态在组件中管理
+<script setup lang="ts">
+const isModalOpen = ref(false)
+const currentTab = ref('login')
+</script>
+```
+
+### 5. 合理使用持久化
+```typescript
+✅ 正确
+// 敏感数据加密存储
+export const useAuthStore = defineStore('auth', () => {
+  const token = ref('')
+  
+  function loadFromStorage() {
+    const encrypted = sessionStorage.getItem('auth_credentials')
+    if (encrypted) {
+      token.value = aesDecrypt(encrypted, AP_KEY)
+    }
+  }
+  
+  function saveToStorage() {
+    const encrypted = aesEncrypt(token.value, AP_KEY)
+    sessionStorage.setItem('auth_credentials', encrypted)
+  }
+  
+  loadFromStorage()
+  
+  return { token, saveToStorage }
+})
+```
+
+## Store 测试
+
+### 测试 Store
+```typescript
+import { setActivePinia, createPinia } from 'pinia'
+import { useAuthStore } from '@/stores/modules/auth'
+
+describe('AuthStore', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+  })
+  
+  it('should set token', () => {
+    const store = useAuthStore()
+    store.setToken('test-token')
+    expect(store.token).toBe('test-token')
+  })
+  
+  it('should check login status', () => {
+    const store = useAuthStore()
+    expect(store.isLoggedIn).toBe(false)
+    
+    store.setToken('test-token')
+    expect(store.isLoggedIn).toBe(true)
+  })
+})
+```

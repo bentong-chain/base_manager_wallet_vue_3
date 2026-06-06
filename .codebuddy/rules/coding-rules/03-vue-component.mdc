@@ -1,0 +1,730 @@
+---
+description: Vue 3 组件编写规范
+alwaysApply: true
+enabled: true
+---
+
+# Vue 组件编写规范
+
+## 组件结构顺序
+
+### 标准顺序
+```vue
+<script setup lang="ts">
+// 1. 导入
+// 2. Props 定义
+// 3. Emits 定义
+// 4. 响应式数据
+// 5. 计算属性
+// 6. 监听器
+// 7. 生命周期钩子
+// 8. 方法
+</script>
+
+<template>
+  <!-- 模板内容 -->
+</template>
+
+<style scoped>
+/* 样式 */
+</style>
+```
+
+### 完整示例
+```vue
+<script setup lang="ts">
+// 1. 导入
+import { ref, computed, watch, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
+import type { User } from '@/api/types'
+
+// 2. Props 定义
+interface Props {
+  userId: number
+  isActive?: boolean
+}
+const props = withDefaults(defineProps<Props>(), {
+  isActive: true
+})
+
+// 3. Emits 定义
+const emit = defineEmits<{
+  'update:modelValue': [value: string]
+  'user-change': [user: User]
+}>()
+
+// 4. 响应式数据
+const loading = ref(false)
+const userData = ref<User | null>(null)
+
+// 5. 计算属性
+const displayName = computed(() => {
+  return userData.value?.name || '未知用户'
+})
+
+// 6. 监听器
+watch(() => props.userId, (newId) => {
+  fetchUserData(newId)
+})
+
+// 7. 生命周期钩子
+onMounted(() => {
+  fetchUserData(props.userId)
+})
+
+// 8. 方法
+async function fetchUserData(id: number) {
+  loading.value = true
+  try {
+    // 获取数据逻辑
+  } finally {
+    loading.value = false
+  }
+}
+</script>
+
+<template>
+  <div class="user-card">
+    <div v-if="loading">加载中...</div>
+    <div v-else>{{ displayName }}</div>
+  </div>
+</template>
+
+<style scoped>
+.user-card {
+  padding: 16px;
+}
+</style>
+```
+
+## Props 规范
+
+### Props 定义
+**规则**：使用 TypeScript 接口定义
+
+```typescript
+✅ 正确
+interface Props {
+  // 必需的 prop
+  userId: number
+  userName: string
+  
+  // 可选的 prop
+  age?: number
+  email?: string
+  
+  // 带默认值的 prop
+  isActive?: boolean
+  maxCount?: number
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  isActive: true,
+  maxCount: 10
+})
+
+❌ 错误
+// 不要使用运行时声明
+const props = defineProps({
+  userId: Number,
+  userName: String
+})
+```
+
+### Props 命名
+**规则**：使用 camelCase
+
+```typescript
+✅ 正确
+interface Props {
+  userId: number
+  userName: string
+  isActive: boolean
+}
+
+❌ 错误
+interface Props {
+  user_id: number  // 不要用下划线
+  'user-name': string  // 不要用短横线
+  IsActive: boolean  // 不要大写开头
+}
+```
+
+### Props 验证
+**规则**：提供类型和必要的验证
+
+```typescript
+✅ 正确
+interface Props {
+  // 基础类型
+  count: number
+  message: string
+  isActive: boolean
+  
+  // 对象类型
+  user: User
+  config: Config
+  
+  // 数组类型
+  items: string[]
+  users: User[]
+  
+  // 联合类型
+  status: 'pending' | 'success' | 'error'
+  
+  // 函数类型
+  onClick?: (event: MouseEvent) => void
+}
+```
+
+### Props 默认值
+**规则**：使用 withDefaults 设置默认值
+
+```typescript
+✅ 正确
+const props = withDefaults(defineProps<Props>(), {
+  isActive: true,
+  maxCount: 10,
+  items: () => [],  // 对象和数组使用工厂函数
+  config: () => ({ timeout: 5000 })
+})
+
+❌ 错误
+const props = withDefaults(defineProps<Props>(), {
+  items: [],  // 不要直接使用数组
+  config: {}  // 不要直接使用对象
+})
+```
+
+## Emits 规范
+
+### Emits 定义
+**规则**：使用 TypeScript 定义事件类型
+
+```typescript
+✅ 正确
+const emit = defineEmits<{
+  // 无参数事件
+  'close': []
+  'submit': []
+  
+  // 单参数事件
+  'update:modelValue': [value: string]
+  'user-select': [user: User]
+  
+  // 多参数事件
+  'data-change': [id: number, data: any]
+}>()
+
+// 触发事件
+emit('close')
+emit('update:modelValue', 'new value')
+emit('user-select', user)
+emit('data-change', 1, data)
+
+❌ 错误
+// 不要使用运行时声明
+const emit = defineEmits(['close', 'submit'])
+```
+
+### Emits 命名
+**规则**：使用 kebab-case
+
+```typescript
+✅ 正确
+const emit = defineEmits<{
+  'user-login': [user: User]
+  'data-change': [data: any]
+  'update:modelValue': [value: string]
+}>()
+
+❌ 错误
+const emit = defineEmits<{
+  userLogin: [user: User]  // 应该用短横线
+  dataChange: [data: any]
+  'update-modelValue': [value: string]  // update: 是特殊格式
+}>()
+```
+
+### v-model 支持
+**规则**：使用 update:modelValue 事件
+
+```typescript
+✅ 正确
+// 单个 v-model
+const emit = defineEmits<{
+  'update:modelValue': [value: string]
+}>()
+
+// 多个 v-model
+const emit = defineEmits<{
+  'update:modelValue': [value: string]
+  'update:title': [title: string]
+  'update:content': [content: string]
+}>()
+
+// 使用
+<CustomInput v-model="text" />
+<CustomInput v-model:title="title" v-model:content="content" />
+```
+
+## 响应式数据
+
+### ref vs reactive
+**规则**：
+- 基础类型使用 `ref`
+- 对象类型可以使用 `ref` 或 `reactive`
+- 推荐统一使用 `ref`
+
+```typescript
+✅ 正确
+// 基础类型
+const count = ref(0)
+const message = ref('')
+const isActive = ref(false)
+
+// 对象类型（推荐 ref）
+const user = ref<User | null>(null)
+const config = ref({ timeout: 5000 })
+
+// 或使用 reactive
+const state = reactive({
+  count: 0,
+  message: '',
+  isActive: false
+})
+
+❌ 错误
+// 不要对基础类型使用 reactive
+const state = reactive({
+  count: 0  // 应该用 ref
+})
+```
+
+### 响应式数据命名
+**规则**：使用清晰的名称，避免缩写
+
+```typescript
+✅ 正确
+const loading = ref(false)
+const userData = ref<User | null>(null)
+const errorMessage = ref('')
+const currentPage = ref(1)
+
+❌ 错误
+const ld = ref(false)  // 缩写不清晰
+const data = ref(null)  // 太泛化
+const err = ref('')  // 缩写不清晰
+const page = ref(1)  // 不够具体
+```
+
+## 计算属性
+
+### 计算属性定义
+**规则**：使用 computed，保持纯函数
+
+```typescript
+✅ 正确
+const fullName = computed(() => {
+  return `${user.value?.firstName} ${user.value?.lastName}`
+})
+
+const isValid = computed(() => {
+  return form.value.username && form.value.password
+})
+
+❌ 错误
+// 不要在计算属性中修改状态
+const fullName = computed(() => {
+  count.value++  // ❌ 不要修改状态
+  return `${user.value?.firstName} ${user.value?.lastName}`
+})
+
+// 不要在计算属性中执行异步操作
+const userData = computed(async () => {  // ❌ 不要异步
+  return await fetchUser()
+})
+```
+
+### 计算属性命名
+**规则**：使用名词或形容词
+
+```typescript
+✅ 正确
+const fullName = computed(() => ...)
+const isValid = computed(() => ...)
+const totalPrice = computed(() => ...)
+const filteredList = computed(() => ...)
+
+❌ 错误
+const getFullName = computed(() => ...)  // 不要用动词
+const checkValid = computed(() => ...)
+```
+
+## 监听器
+
+### watch 使用
+**规则**：明确监听的数据源
+
+```typescript
+✅ 正确
+// 监听 ref
+watch(count, (newVal, oldVal) => {
+  console.log(`count changed from ${oldVal} to ${newVal}`)
+})
+
+// 监听多个源
+watch([count, message], ([newCount, newMsg], [oldCount, oldMsg]) => {
+  console.log('Multiple values changed')
+})
+
+// 监听对象属性
+watch(() => user.value?.name, (newName) => {
+  console.log('User name changed:', newName)
+})
+
+// 深度监听
+watch(user, (newUser) => {
+  console.log('User changed:', newUser)
+}, { deep: true })
+
+// 立即执行
+watch(userId, (id) => {
+  fetchUser(id)
+}, { immediate: true })
+```
+
+### watchEffect 使用
+**规则**：自动追踪依赖
+
+```typescript
+✅ 正确
+watchEffect(() => {
+  // 自动追踪 count 和 message
+  console.log(`Count: ${count.value}, Message: ${message.value}`)
+})
+
+// 清理副作用
+watchEffect((onCleanup) => {
+  const timer = setTimeout(() => {
+    console.log('Delayed action')
+  }, 1000)
+  
+  onCleanup(() => {
+    clearTimeout(timer)
+  })
+})
+```
+
+## 生命周期钩子
+
+### 钩子使用顺序
+**规则**：按照生命周期顺序排列
+
+```typescript
+✅ 正确
+onBeforeMount(() => {
+  console.log('Before mount')
+})
+
+onMounted(() => {
+  console.log('Mounted')
+  fetchData()
+})
+
+onBeforeUpdate(() => {
+  console.log('Before update')
+})
+
+onUpdated(() => {
+  console.log('Updated')
+})
+
+onBeforeUnmount(() => {
+  console.log('Before unmount')
+  cleanup()
+})
+
+onUnmounted(() => {
+  console.log('Unmounted')
+})
+```
+
+### 常用钩子
+```typescript
+// 组件挂载后
+onMounted(() => {
+  // 初始化数据
+  // 添加事件监听
+  // 启动定时器
+})
+
+// 组件卸载前
+onBeforeUnmount(() => {
+  // 清理定时器
+  // 移除事件监听
+  // 取消请求
+})
+
+// 错误捕获
+onErrorCaptured((err, instance, info) => {
+  console.error('Error captured:', err)
+  return false  // 阻止错误继续传播
+})
+```
+
+## 模板规范
+
+### 指令使用
+**规则**：合理使用 Vue 指令
+
+```vue
+✅ 正确
+<template>
+  <!-- v-if vs v-show -->
+  <div v-if="isVisible">条件渲染</div>
+  <div v-show="isVisible">显示隐藏</div>
+  
+  <!-- v-for 必须有 key -->
+  <div v-for="item in items" :key="item.id">
+    {{ item.name }}
+  </div>
+  
+  <!-- v-if 和 v-for 不要同时使用 -->
+  <template v-if="isVisible">
+    <div v-for="item in items" :key="item.id">
+      {{ item.name }}
+    </div>
+  </template>
+  
+  <!-- 事件修饰符 -->
+  <button @click.prevent="handleClick">提交</button>
+  <input @keyup.enter="handleSubmit" />
+</template>
+
+❌ 错误
+<template>
+  <!-- 不要在同一元素上使用 v-if 和 v-for -->
+  <div v-for="item in items" v-if="item.isActive" :key="item.id">
+    {{ item.name }}
+  </div>
+  
+  <!-- v-for 必须有 key -->
+  <div v-for="item in items">
+    {{ item.name }}
+  </div>
+</template>
+```
+
+### 属性绑定
+**规则**：使用简写形式
+
+```vue
+✅ 正确
+<template>
+  <input :value="message" @input="handleInput" />
+  <button :disabled="isLoading" @click="handleClick">
+    提交
+  </button>
+</template>
+
+❌ 错误
+<template>
+  <input v-bind:value="message" v-on:input="handleInput" />
+  <button v-bind:disabled="isLoading" v-on:click="handleClick">
+    提交
+  </button>
+</template>
+```
+
+### 模板表达式
+**规则**：保持简单，复杂逻辑使用计算属性
+
+```vue
+✅ 正确
+<template>
+  <div>{{ displayName }}</div>
+  <div>{{ formattedDate }}</div>
+</template>
+
+<script setup lang="ts">
+const displayName = computed(() => {
+  return user.value?.name || '未知用户'
+})
+
+const formattedDate = computed(() => {
+  return formatDate(date.value)
+})
+</script>
+
+❌ 错误
+<template>
+  <!-- 表达式太复杂 -->
+  <div>
+    {{ user?.name || user?.email || user?.phone || '未知用户' }}
+  </div>
+  <div>
+    {{ new Date(date).toLocaleDateString('zh-CN') }}
+  </div>
+</template>
+```
+
+## 组件通信
+
+### 父子组件通信
+```vue
+<!-- 父组件 -->
+<template>
+  <ChildComponent
+    :user-id="userId"
+    :is-active="isActive"
+    @user-change="handleUserChange"
+    @close="handleClose"
+  />
+</template>
+
+<!-- 子组件 -->
+<script setup lang="ts">
+interface Props {
+  userId: number
+  isActive: boolean
+}
+const props = defineProps<Props>()
+
+const emit = defineEmits<{
+  'user-change': [user: User]
+  'close': []
+}>()
+
+function handleChange(user: User) {
+  emit('user-change', user)
+}
+</script>
+```
+
+### 跨层级通信
+```typescript
+// 使用 provide/inject
+// 父组件
+provide('theme', readonly(theme))
+
+// 子孙组件
+const theme = inject<Ref<string>>('theme')
+```
+
+## 插槽使用
+
+### 默认插槽
+```vue
+<!-- 子组件 -->
+<template>
+  <div class="card">
+    <slot>默认内容</slot>
+  </div>
+</template>
+
+<!-- 父组件 -->
+<template>
+  <Card>
+    <p>自定义内容</p>
+  </Card>
+</template>
+```
+
+### 具名插槽
+```vue
+<!-- 子组件 -->
+<template>
+  <div class="card">
+    <header>
+      <slot name="header"></slot>
+    </header>
+    <main>
+      <slot></slot>
+    </main>
+    <footer>
+      <slot name="footer"></slot>
+    </footer>
+  </div>
+</template>
+
+<!-- 父组件 -->
+<template>
+  <Card>
+    <template #header>
+      <h1>标题</h1>
+    </template>
+    
+    <p>内容</p>
+    
+    <template #footer>
+      <button>确定</button>
+    </template>
+  </Card>
+</template>
+```
+
+### 作用域插槽
+```vue
+<!-- 子组件 -->
+<template>
+  <div>
+    <slot :item="item" :index="index"></slot>
+  </div>
+</template>
+
+<!-- 父组件 -->
+<template>
+  <List>
+    <template #default="{ item, index }">
+      <div>{{ index }}: {{ item.name }}</div>
+    </template>
+  </List>
+</template>
+```
+
+## 组件注册
+
+### 全局组件
+**规则**：只注册真正全局使用的组件
+
+```typescript
+// main.ts
+import { createApp } from 'vue'
+import App from './App.vue'
+
+const app = createApp(App)
+
+// 全局组件
+app.component('GlobalButton', GlobalButton)
+app.component('GlobalIcon', GlobalIcon)
+
+app.mount('#app')
+```
+
+### 局部组件
+**规则**：大多数组件应该局部注册
+
+```vue
+<script setup lang="ts">
+import UserCard from '@/components/business/UserCard.vue'
+import ProductList from '@/components/business/ProductList.vue'
+</script>
+
+<template>
+  <div>
+    <UserCard />
+    <ProductList />
+  </div>
+</template>
+```
+
+## 总结
+
+- 使用 Composition API 和 `<script setup>`
+- Props 和 Emits 使用 TypeScript 定义
+- 保持组件结构清晰有序
+- 模板表达式保持简单
+- 合理使用计算属性和监听器
+- 正确使用生命周期钩子
+- 遵循组件通信规范

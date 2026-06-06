@@ -1,0 +1,342 @@
+---
+description: Vue 3 Composables 使用规范
+alwaysApply: true
+enabled: true
+---
+
+# Composables 使用规范
+
+## Composables 基础
+
+### 定义 Composable
+**规则**：使用 use 前缀，返回响应式数据和方法
+
+```typescript
+// composables/useCounter.ts
+import { ref, computed } from 'vue'
+
+export function useCounter(initialValue = 0) {
+  const count = ref(initialValue)
+  
+  const doubleCount = computed(() => count.value * 2)
+  
+  function increment() {
+    count.value++
+  }
+  
+  function decrement() {
+    count.value--
+  }
+  
+  function reset() {
+    count.value = initialValue
+  }
+  
+  return {
+    count,
+    doubleCount,
+    increment,
+    decrement,
+    reset
+  }
+}
+```
+
+### 命名规范
+```typescript
+✅ 正确
+useAuth.ts       -> export function useAuth()
+useRequest.ts    -> export function useRequest()
+useCounter.ts    -> export function useCounter()
+
+❌ 错误
+auth.ts          -> export function useAuth()
+use-auth.ts      -> export function useAuth()
+useAuth.ts       -> export function auth()
+```
+
+## 常见 Composables 模式
+
+### 1. 状态管理
+```typescript
+// composables/useToggle.ts
+export function useToggle(initialValue = false) {
+  const state = ref(initialValue)
+  
+  const toggle = () => {
+    state.value = !state.value
+  }
+  
+  const setTrue = () => {
+    state.value = true
+  }
+  
+  const setFalse = () => {
+    state.value = false
+  }
+  
+  return { state, toggle, setTrue, setFalse }
+}
+```
+
+### 2. 异步数据获取
+```typescript
+// composables/useRequest.ts
+export function useRequest<T>(fetcher: () => Promise<T>) {
+  const data = ref<T | null>(null)
+  const loading = ref(false)
+  const error = ref<Error | null>(null)
+  
+  async function execute() {
+    loading.value = true
+    error.value = null
+    
+    try {
+      data.value = await fetcher()
+    } catch (err) {
+      error.value = err instanceof Error ? err : new Error('请求失败')
+    } finally {
+      loading.value = false
+    }
+  }
+  
+  return { data, loading, error, execute }
+}
+
+// 使用
+const { data, loading, error, execute } = useRequest(() => 
+  get<User>('/users/1')
+)
+
+onMounted(() => {
+  execute()
+})
+```
+
+### 3. 事件监听
+```typescript
+// composables/useEventListener.ts
+export function useEventListener(
+  target: EventTarget,
+  event: string,
+  handler: EventListener
+) {
+  onMounted(() => {
+    target.addEventListener(event, handler)
+  })
+  
+  onUnmounted(() => {
+    target.removeEventListener(event, handler)
+  })
+}
+
+// 使用
+useEventListener(window, 'resize', () => {
+  console.log('窗口大小改变')
+})
+```
+
+### 4. 本地存储
+```typescript
+// composables/useLocalStorage.ts
+export function useLocalStorage<T>(key: string, defaultValue: T) {
+  const data = ref<T>(defaultValue)
+  
+  // 从存储加载
+  const loadFromStorage = () => {
+    const stored = localStorage.getItem(key)
+    if (stored) {
+      try {
+        data.value = JSON.parse(stored)
+      } catch {
+        data.value = defaultValue
+      }
+    }
+  }
+  
+  // 保存到存储
+  const saveToStorage = () => {
+    localStorage.setItem(key, JSON.stringify(data.value))
+  }
+  
+  // 监听变化并保存
+  watch(data, saveToStorage, { deep: true })
+  
+  // 初始化时加载
+  loadFromStorage()
+  
+  return data
+}
+
+// 使用
+const theme = useLocalStorage('theme', 'light')
+```
+
+## Composables 最佳实践
+
+### 1. 保持单一职责
+```typescript
+✅ 正确 - 每个 composable 只做一件事
+// useAuth.ts
+export function useAuth() {
+  // 只处理认证相关逻辑
+}
+
+// useUser.ts
+export function useUser() {
+  // 只处理用户信息相关逻辑
+}
+
+❌ 错误 - 职责过多
+export function useAuthAndUser() {
+  // 同时处理认证和用户信息
+}
+```
+
+### 2. 返回响应式对象
+```typescript
+✅ 正确
+export function useCounter() {
+  const count = ref(0)
+  const increment = () => count.value++
+  
+  return { count, increment }
+}
+
+❌ 错误
+export function useCounter() {
+  let count = 0  // 不是响应式的
+  const increment = () => count++
+  
+  return { count, increment }
+}
+```
+
+### 3. 提供清理逻辑
+```typescript
+✅ 正确
+export function useInterval(callback: () => void, delay: number) {
+  let timer: number | undefined
+  
+  onMounted(() => {
+    timer = window.setInterval(callback, delay)
+  })
+  
+  onUnmounted(() => {
+    if (timer) {
+      clearInterval(timer)
+    }
+  })
+}
+```
+
+### 4. 支持参数配置
+```typescript
+✅ 正确
+interface UseRequestOptions {
+  immediate?: boolean
+  onSuccess?: (data: any) => void
+  onError?: (error: Error) => void
+}
+
+export function useRequest<T>(
+  fetcher: () => Promise<T>,
+  options: UseRequestOptions = {}
+) {
+  const { immediate = true, onSuccess, onError } = options
+  
+  const data = ref<T | null>(null)
+  const loading = ref(false)
+  
+  async function execute() {
+    loading.value = true
+    try {
+      data.value = await fetcher()
+      onSuccess?.(data.value)
+    } catch (error) {
+      onError?.(error as Error)
+    } finally {
+      loading.value = false
+    }
+  }
+  
+  if (immediate) {
+    execute()
+  }
+  
+  return { data, loading, execute }
+}
+```
+
+## 组合多个 Composables
+
+```typescript
+// composables/useUserProfile.ts
+export function useUserProfile(userId: Ref<number>) {
+  // 组合其他 composables
+  const { data: user, loading, execute } = useRequest(() => 
+    get<User>(`/users/${userId.value}`)
+  )
+  
+  const { state: isEditing, toggle: toggleEdit } = useToggle()
+  
+  // 监听 userId 变化
+  watch(userId, () => {
+    execute()
+  })
+  
+  return {
+    user,
+    loading,
+    isEditing,
+    toggleEdit,
+    refresh: execute
+  }
+}
+```
+
+## TypeScript 支持
+
+### 泛型 Composable
+```typescript
+export function useList<T>(initialItems: T[] = []) {
+  const items = ref<T[]>(initialItems)
+  
+  function add(item: T) {
+    items.value.push(item)
+  }
+  
+  function remove(index: number) {
+    items.value.splice(index, 1)
+  }
+  
+  function clear() {
+    items.value = []
+  }
+  
+  return { items, add, remove, clear }
+}
+
+// 使用
+const { items, add } = useList<User>([])
+```
+
+### 类型推断
+```typescript
+export function useCounter(initialValue: number) {
+  const count = ref(initialValue)
+  // TypeScript 自动推断 count 类型为 Ref<number>
+  
+  return { count }
+}
+```
+
+## 总结
+
+- 使用 use 前缀命名
+- 保持单一职责
+- 返回响应式数据
+- 提供清理逻辑
+- 支持参数配置
+- 合理组合使用
+- 提供完整类型定义

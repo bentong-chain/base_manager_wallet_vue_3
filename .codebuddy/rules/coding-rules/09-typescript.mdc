@@ -1,0 +1,488 @@
+---
+description: Vue 3 TypeScript 规范
+alwaysApply: true
+enabled: true
+---
+
+# TypeScript 规范
+
+## 基础类型使用
+
+### 基本类型
+```typescript
+✅ 正确
+const name: string = 'John'
+const age: number = 25
+const isActive: boolean = true
+const items: string[] = ['a', 'b', 'c']
+const user: User = { id: 1, name: 'John' }
+
+❌ 错误
+const name: any = 'John'  // 避免使用 any
+const age = 25  // 简单类型可以省略，但建议显式声明
+```
+
+### 联合类型
+```typescript
+type Status = 'pending' | 'success' | 'error'
+type ID = string | number
+
+const status: Status = 'pending'
+const userId: ID = 123
+```
+
+### 可选类型
+```typescript
+interface User {
+  id: number
+  name: string
+  email?: string  // 可选属性
+  age?: number
+}
+
+function greet(name: string, title?: string): string {
+  return title ? `${title} ${name}` : name
+}
+```
+
+## 接口定义
+
+### 接口命名
+```typescript
+✅ 正确
+interface User {}
+interface UserInfo {}
+interface LoginRequest {}
+interface ApiResponse<T> {}
+
+❌ 错误
+interface IUser {}  // 不要使用 I 前缀
+interface user {}   // 应该大写开头
+```
+
+### 接口设计
+```typescript
+// 基础接口
+interface User {
+  id: number
+  username: string
+  email: string
+}
+
+// 扩展接口
+interface AdminUser extends User {
+  role: 'admin'
+  permissions: string[]
+}
+
+// 可选属性
+interface UserProfile {
+  user: User
+  avatar?: string
+  bio?: string
+}
+
+// 只读属性
+interface Config {
+  readonly apiUrl: string
+  readonly timeout: number
+}
+```
+
+## 类型别名
+
+### Type vs Interface
+```typescript
+// 使用 interface（推荐用于对象类型）
+interface User {
+  id: number
+  name: string
+}
+
+// 使用 type（用于联合类型、交叉类型等）
+type Status = 'pending' | 'success' | 'error'
+type ID = string | number
+type UserOrAdmin = User | Admin
+
+// 交叉类型
+type UserWithTimestamp = User & {
+  createdAt: Date
+  updatedAt: Date
+}
+```
+
+### 泛型类型
+```typescript
+// 泛型接口
+interface ApiResponse<T> {
+  code: number
+  data: T
+  message: string
+}
+
+// 泛型类型别名
+type Result<T, E = Error> = 
+  | { success: true; data: T }
+  | { success: false; error: E }
+
+// 使用
+const response: ApiResponse<User> = {
+  code: 200,
+  data: { id: 1, name: 'John' },
+  message: 'Success'
+}
+```
+
+## 函数类型
+
+### 函数声明
+```typescript
+// 函数声明
+function add(a: number, b: number): number {
+  return a + b
+}
+
+// 箭头函数
+const multiply = (a: number, b: number): number => a * b
+
+// 可选参数
+function greet(name: string, title?: string): string {
+  return title ? `${title} ${name}` : name
+}
+
+// 默认参数
+function createUser(name: string, age: number = 18): User {
+  return { id: Date.now(), name, age }
+}
+
+// 剩余参数
+function sum(...numbers: number[]): number {
+  return numbers.reduce((acc, n) => acc + n, 0)
+}
+```
+
+### 函数类型定义
+```typescript
+// 函数类型
+type Callback = (data: any) => void
+type Validator = (value: string) => boolean
+type Formatter<T> = (value: T) => string
+
+// 使用
+const onSuccess: Callback = (data) => {
+  console.log(data)
+}
+
+const validateEmail: Validator = (email) => {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+}
+```
+
+### 异步函数
+```typescript
+async function fetchUser(id: number): Promise<User> {
+  const response = await fetch(`/api/users/${id}`)
+  return response.json()
+}
+
+// 或使用类型别名
+type AsyncFunction<T> = () => Promise<T>
+
+const getUser: AsyncFunction<User> = async () => {
+  return await fetchUser(1)
+}
+```
+
+## Vue 组件类型
+
+### Props 类型
+```typescript
+interface Props {
+  userId: number
+  userName: string
+  isActive?: boolean
+  tags?: string[]
+  onUpdate?: (user: User) => void
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  isActive: true,
+  tags: () => []
+})
+```
+
+### Emits 类型
+```typescript
+const emit = defineEmits<{
+  'update:modelValue': [value: string]
+  'user-change': [user: User]
+  'submit': [data: FormData]
+}>()
+```
+
+### Ref 类型
+```typescript
+import type { Ref } from 'vue'
+
+const count: Ref<number> = ref(0)
+const user: Ref<User | null> = ref(null)
+const items: Ref<string[]> = ref([])
+
+// 或使用类型推断
+const count = ref(0)  // 自动推断为 Ref<number>
+const user = ref<User | null>(null)
+```
+
+### Computed 类型
+```typescript
+const doubleCount = computed<number>(() => count.value * 2)
+
+// 或使用类型推断
+const doubleCount = computed(() => count.value * 2)  // 自动推断
+```
+
+## 泛型使用
+
+### 泛型函数
+```typescript
+function identity<T>(value: T): T {
+  return value
+}
+
+function getProperty<T, K extends keyof T>(obj: T, key: K): T[K] {
+  return obj[key]
+}
+
+// 使用
+const num = identity<number>(42)
+const name = getProperty(user, 'name')
+```
+
+### 泛型接口
+```typescript
+interface Container<T> {
+  value: T
+  getValue(): T
+  setValue(value: T): void
+}
+
+class Box<T> implements Container<T> {
+  constructor(public value: T) {}
+  
+  getValue(): T {
+    return this.value
+  }
+  
+  setValue(value: T): void {
+    this.value = value
+  }
+}
+```
+
+### 泛型约束
+```typescript
+interface HasLength {
+  length: number
+}
+
+function logLength<T extends HasLength>(item: T): void {
+  console.log(item.length)
+}
+
+logLength('hello')  // ✅
+logLength([1, 2, 3])  // ✅
+logLength(123)  // ❌ 错误：number 没有 length 属性
+```
+
+## 类型断言
+
+### as 断言
+```typescript
+const input = document.querySelector('input') as HTMLInputElement
+const value = (input.value as string).trim()
+
+// 双重断言（谨慎使用）
+const value = (input as unknown as string)
+```
+
+### 非空断言
+```typescript
+const user: User | null = getUser()
+const name = user!.name  // 断言 user 不为 null
+
+// 更安全的方式
+const name = user?.name ?? 'Unknown'
+```
+
+## 类型守卫
+
+### typeof 守卫
+```typescript
+function process(value: string | number) {
+  if (typeof value === 'string') {
+    return value.toUpperCase()
+  } else {
+    return value.toFixed(2)
+  }
+}
+```
+
+### instanceof 守卫
+```typescript
+class User {
+  name: string
+}
+
+class Admin extends User {
+  role: string
+}
+
+function greet(user: User | Admin) {
+  if (user instanceof Admin) {
+    console.log(`Admin: ${user.name}, Role: ${user.role}`)
+  } else {
+    console.log(`User: ${user.name}`)
+  }
+}
+```
+
+### 自定义类型守卫
+```typescript
+interface User {
+  type: 'user'
+  name: string
+}
+
+interface Admin {
+  type: 'admin'
+  name: string
+  role: string
+}
+
+function isAdmin(user: User | Admin): user is Admin {
+  return user.type === 'admin'
+}
+
+function greet(user: User | Admin) {
+  if (isAdmin(user)) {
+    console.log(`Admin: ${user.role}`)
+  } else {
+    console.log(`User: ${user.name}`)
+  }
+}
+```
+
+## 工具类型
+
+### 内置工具类型
+```typescript
+// Partial - 所有属性可选
+type PartialUser = Partial<User>
+
+// Required - 所有属性必需
+type RequiredUser = Required<User>
+
+// Readonly - 所有属性只读
+type ReadonlyUser = Readonly<User>
+
+// Pick - 选择部分属性
+type UserBasic = Pick<User, 'id' | 'name'>
+
+// Omit - 排除部分属性
+type UserWithoutEmail = Omit<User, 'email'>
+
+// Record - 创建对象类型
+type UserMap = Record<string, User>
+
+// ReturnType - 获取函数返回类型
+type Result = ReturnType<typeof fetchUser>
+```
+
+### 自定义工具类型
+```typescript
+// 深度只读
+type DeepReadonly<T> = {
+  readonly [P in keyof T]: T[P] extends object
+    ? DeepReadonly<T[P]>
+    : T[P]
+}
+
+// 可空类型
+type Nullable<T> = T | null
+
+// 数组元素类型
+type ArrayElement<T> = T extends (infer E)[] ? E : never
+```
+
+## 最佳实践
+
+### 1. 避免使用 any
+```typescript
+✅ 正确
+function process(data: unknown) {
+  if (typeof data === 'string') {
+    return data.toUpperCase()
+  }
+}
+
+❌ 错误
+function process(data: any) {
+  return data.toUpperCase()
+}
+```
+
+### 2. 使用严格模式
+```json
+// tsconfig.json
+{
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true
+  }
+}
+```
+
+### 3. 提供完整的类型定义
+```typescript
+✅ 正确
+interface User {
+  id: number
+  name: string
+  email: string
+  createdAt: Date
+}
+
+async function fetchUser(id: number): Promise<User> {
+  const response = await fetch(`/api/users/${id}`)
+  return response.json()
+}
+
+❌ 错误
+async function fetchUser(id) {
+  const response = await fetch(`/api/users/${id}`)
+  return response.json()
+}
+```
+
+### 4. 使用类型推断
+```typescript
+✅ 正确
+const count = ref(0)  // 自动推断为 Ref<number>
+const items = reactive<string[]>([])
+
+// 复杂类型显式声明
+const user = ref<User | null>(null)
+```
+
+## 总结
+
+- 避免使用 any，使用 unknown
+- 使用 interface 定义对象类型
+- 使用 type 定义联合类型
+- 提供完整的类型定义
+- 合理使用泛型
+- 使用类型守卫
+- 利用工具类型
+- 启用严格模式

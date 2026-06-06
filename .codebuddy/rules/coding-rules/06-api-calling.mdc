@@ -1,0 +1,1316 @@
+---
+description: Vue 3 API 调用规范
+alwaysApply: true
+enabled: true
+---
+
+# API 调用规范
+
+## 请求链路概览
+
+**标准请求流程**：
+```
+页面 View 
+  → 页面逻辑 Composables / 页面内逻辑 
+    → API 模块 (modules/*.ts)
+      → 请求封装层 (client.ts)
+        → 认证签名 (auth.ts)
+          → 后端接口
+            → 响应处理
+              → 页面更新
+```
+
+**职责划分**：
+- **View 层**：展示数据、触发用户交互
+- **Composables 层**：封装可复用的业务逻辑和状态管理
+- **API 模块层**：定义具体的 API 调用函数
+- **请求封装层**：统一处理请求/响应、拦截器、错误处理
+- **认证签名层**：处理请求签名和加密
+
+## 目录结构
+
+```
+api/
+├── modules/          # API 模块（按业务划分）
+│   ├── user.ts       # 用户相关 API
+│   ├── product.ts    # 产品相关 API
+│   └── order.ts      # 订单相关 API
+├── client.ts         # HTTP 客户端封装
+├── auth.ts           # 认证签名逻辑
+├── types.ts          # 类型定义
+└── constants.ts      # 常量配置
+```
+
+## 第一层：请求封装层 (client.ts)
+
+### 统一的 HTTP 客户端
+**规则**：所有 API 调用必须通过封装的客户端
+
+```typescript
+// api/client.ts
+import axios from 'axios'
+import { useAuthStore } from '@/stores/modules/auth'
+import { buildAuthHeaderValues } from './auth'
+import { encryptWithPublicKey } from '@/utils/rsa'
+import type { ApiResult } from './types'
+
+// 创建 axios 实例
+const instance = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+  timeout: 10000
+})
+
+// 请求拦截器
+instance.interceptors.request.use(
+  (config) => {
+    // 可以在这里添加全局请求处理
+    return config
+  },
+  (error) => {
+    return Promise.reject(error)
+  }
+)
+
+// 响应拦截器
+instance.interceptors.response.use(
+  (response) => {
+    const result: ApiResult = response.data
+    
+    // 统一处理业务错误码
+    if (result.code !== 200) {
+      ElMessage.error(result.message || '请求失败')
+      return Promise.reject(new Error(result.message))
+    }
+    
+    return response
+  },
+  (error) => {
+    // 统一处理 HTTP 错误
+    if (error.response) {
+      const { status } = error.response
+      switch (status) {
+        case 401:
+          ElMessage.error('登录已过期，请重新登录')
+          router.push('/login')
+          break
+        case 403:
+          ElMessage.error('没有权限访问')
+          break
+        case 404:
+          ElMessage.error('请求的资源不存在')
+          break
+        case 500:
+          ElMessage.error('服务器错误，请稍后重试')
+          break
+        default:
+          ElMessage.error('请求失败')
+      }
+    } else if (error.request) {
+      ElMessage.error('网络连接失败，请检查网络')
+    }
+    
+    return Promise.reject(error)
+  }
+)
+
+/**
+ * GET 请求
+ * @param url - 请求路径
+ * @param params - 查询参数
+ * @returns 响应数据
+ */
+export async function get<T>(
+  url: string, 
+  params?: Record<string, unknown>
+): Promise<T> {
+  const authStore = useAuthStore()
+  
+  // 构建认证请求头
+  const headers = await buildAuthHeaderValues(
+    {
+      token: authStore.accessToken,
+      salt: authStore.currentSalt,
+      device: authStore.deviceId,
+      businessParams: params || {}
+    },
+    (plain) => encryptWithPublicKey(plain, authStore.currentPublicKey)
+  )
+  
+  const response = await instance.get<ApiResult<T>>(url, { params, headers })
+  return response.data.data as T
+}
+
+/**
+ * POST 请求
+ * @param url - 请求路径
+ * @param data - 请求体数据
+ * @returns 响应数据
+ */
+export async function post<T>(
+  url: string, 
+  data?: Record<string, unknown>
+): Promise<T> {
+  const authStore = useAuthStore()
+  
+  const headers = await buildAuthHeaderValues(
+    {
+      token: authStore.accessToken,
+      salt: authStore.currentSalt,
+      device: authStore.deviceId,
+      businessParams: data || {}
+    },
+    (plain) => encryptWithPublicKey(plain, authStore.currentPublicKey)
+  )
+  
+  const response = await instance.post<ApiResult<T>>(url, data, { headers })
+  return response.data.data as T
+}
+
+/**
+ * PUT 请求
+ */
+export async function put<T>(
+  url: string, 
+  data?: Record<string, unknown>
+): Promise<T> {
+  const authStore = useAuthStore()
+  
+  const headers = await buildAuthHeaderValues(
+    {
+      token: authStore.accessToken,
+      salt: authStore.currentSalt,
+      device: authStore.deviceId,
+      businessParams: data || {}
+    },
+    (plain) => encryptWithPublicKey(plain, authStore.currentPublicKey)
+  )
+  
+  const response = await instance.put<ApiResult<T>>(url, data, { headers })
+  return response.data.data as T
+}
+
+/**
+ * DELETE 请求
+ */
+export async function del<T>(
+  url: string, 
+  params?: Record<string, unknown>
+): Promise<T> {
+  const authStore = useAuthStore()
+  
+  const headers = await buildAuthHeaderValues(
+    {
+      token: authStore.accessToken,
+      salt: authStore.currentSalt,
+      device: authStore.deviceId,
+      businessParams: params || {}
+    },
+    (plain) => encryptWithPublicKey(plain, authStore.currentPublicKey)
+  )
+  
+  const response = await instance.delete<ApiResult<T>>(url, { params, headers })
+  return response.data.data as T
+}
+```
+
+## 第二层：API 模块层 (modules/*.ts)
+
+### API 模块定义
+**规则**：按业务模块组织 API 函数
+
+```typescript
+// api/modules/user.ts
+import { get, post, put, del } from '../client'
+import type { User, UserListParams, UserListResult } from '../types'
+
+/**
+ * 获取用户列表
+ */
+export function getUserList(params: UserListParams) {
+  return get<UserListResult>('/users', params)
+}
+
+/**
+ * 获取用户详情
+ */
+export function getUserDetail(id: number) {
+  return get<User>(`/users/${id}`)
+}
+
+/**
+ * 创建用户
+ */
+export function createUser(data: Partial<User>) {
+  return post<User>('/users', data)
+}
+
+/**
+ * 更新用户
+ */
+export function updateUser(id: number, data: Partial<User>) {
+  return put<User>(`/users/${id}`, data)
+}
+
+/**
+ * 删除用户
+ */
+export function deleteUser(id: number) {
+  return del<void>(`/users/${id}`)
+}
+```
+
+```typescript
+// api/modules/auth.ts
+import { post } from '../client'
+import type { LoginRequest, LoginResponse, RegisterRequest } from '../types'
+
+/**
+ * 用户登录
+ */
+export function login(data: LoginRequest) {
+  return post<LoginResponse>('/member/login', data)
+}
+
+/**
+ * 用户注册
+ */
+export function register(data: RegisterRequest) {
+  return post<void>('/member/register', data)
+}
+
+/**
+ * 用户登出
+ */
+export function logout() {
+  return post<void>('/member/logout')
+}
+
+/**
+ * 刷新 Token
+ */
+export function refreshToken() {
+  return post<LoginResponse>('/member/refresh-token')
+}
+```
+
+## 第三层：类型定义 (types.ts)
+
+### 统一响应结构
+```typescript
+// api/types.ts
+
+/**
+ * API 统一响应结构
+ */
+export interface ApiResult<T = unknown> {
+  code: number
+  subCode?: string
+  message?: string
+  data?: T
+}
+```
+
+### 请求类型定义
+```typescript
+/**
+ * 登录请求
+ */
+export interface LoginRequest {
+  username: string
+  password: string
+  device?: string
+}
+
+/**
+ * 注册请求
+ */
+export interface RegisterRequest {
+  username: string
+  password: string
+  name?: string
+}
+
+/**
+ * 用户列表查询参数
+ */
+export interface UserListParams {
+  page: number
+  pageSize: number
+  keyword?: string
+  status?: 'active' | 'inactive'
+}
+```
+
+### 响应类型定义
+```typescript
+/**
+ * 登录响应
+ */
+export interface LoginResponse {
+  accessToken: string
+  accessExpiresIn: number
+  uid: number
+  username: string
+  name?: string
+  publicKey: string
+  salt: string
+}
+
+/**
+ * 用户信息
+ */
+export interface User {
+  uid: number
+  username: string
+  name?: string
+  email?: string
+  phone?: string
+  avatar?: string
+  status: 'active' | 'inactive'
+  register_time?: number
+}
+
+/**
+ * 用户列表响应
+ */
+export interface UserListResult {
+  list: User[]
+  total: number
+  page: number
+  pageSize: number
+}
+```
+
+## 第四层：Composables 层（推荐）
+
+### 封装可复用的业务逻辑
+**规则**：将 API 调用和状态管理封装到 Composables 中
+
+```typescript
+// composables/useUserList.ts
+import { ref } from 'vue'
+import { getUserList, deleteUser } from '@/api/modules/user'
+import type { User, UserListParams } from '@/api/types'
+
+/**
+ * 用户列表管理
+ */
+export function useUserList() {
+  const loading = ref(false)
+  const users = ref<User[]>([])
+  const total = ref(0)
+  const error = ref<string | null>(null)
+
+  /**
+   * 获取用户列表
+   */
+  async function fetchUsers(params: UserListParams) {
+    loading.value = true
+    error.value = null
+
+    try {
+      const result = await getUserList(params)
+      users.value = result.list
+      total.value = result.total
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : '获取用户列表失败'
+      ElMessage.error(error.value)
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  /**
+   * 删除用户
+   */
+  async function removeUser(id: number) {
+    try {
+      await deleteUser(id)
+      ElMessage.success('删除成功')
+      // 从列表中移除
+      users.value = users.value.filter(u => u.uid !== id)
+      total.value--
+    } catch (err) {
+      ElMessage.error('删除失败')
+      throw err
+    }
+  }
+
+  return {
+    loading,
+    users,
+    total,
+    error,
+    fetchUsers,
+    removeUser
+  }
+}
+```
+
+```typescript
+// composables/useUserDetail.ts
+import { ref, watch } from 'vue'
+import { getUserDetail, updateUser } from '@/api/modules/user'
+import type { User } from '@/api/types'
+
+/**
+ * 用户详情管理
+ */
+export function useUserDetail(userId: Ref<number>) {
+  const loading = ref(false)
+  const user = ref<User | null>(null)
+  const error = ref<string | null>(null)
+
+  /**
+   * 获取用户详情
+   */
+  async function fetchUser() {
+    if (!userId.value) return
+
+    loading.value = true
+    error.value = null
+
+    try {
+      user.value = await getUserDetail(userId.value)
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : '获取用户详情失败'
+      ElMessage.error(error.value)
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  /**
+   * 更新用户信息
+   */
+  async function updateUserInfo(data: Partial<User>) {
+    if (!userId.value) return
+
+    try {
+      const updated = await updateUser(userId.value, data)
+      user.value = updated
+      ElMessage.success('更新成功')
+    } catch (err) {
+      ElMessage.error('更新失败')
+      throw err
+    }
+  }
+
+  // 监听 userId 变化自动获取
+  watch(userId, fetchUser, { immediate: true })
+
+  return {
+    loading,
+    user,
+    error,
+    fetchUser,
+    updateUserInfo
+  }
+}
+```
+
+## 第五层：View 层
+
+### 在页面组件中使用 Composables（推荐）
+```vue
+<!-- views/UserList.vue -->
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { useUserList } from '@/composables/useUserList'
+
+// 使用 composable
+const { loading, users, total, fetchUsers, removeUser } = useUserList()
+
+// 查询参数
+const queryParams = ref({
+  page: 1,
+  pageSize: 20,
+  keyword: ''
+})
+
+// 加载数据
+onMounted(() => {
+  loadData()
+})
+
+function loadData() {
+  fetchUsers(queryParams.value)
+}
+
+function handleSearch() {
+  queryParams.value.page = 1
+  loadData()
+}
+
+function handlePageChange(page: number) {
+  queryParams.value.page = page
+  loadData()
+}
+
+async function handleDelete(id: number) {
+  await ElMessageBox.confirm('确定要删除该用户吗？', '提示', {
+    type: 'warning'
+  })
+  
+  await removeUser(id)
+}
+</script>
+
+<template>
+  <div class="user-list">
+    <!-- 搜索栏 -->
+    <el-form inline>
+      <el-form-item>
+        <el-input
+          v-model="queryParams.keyword"
+          placeholder="搜索用户"
+          @keyup.enter="handleSearch"
+        />
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="handleSearch">搜索</el-button>
+      </el-form-item>
+    </el-form>
+
+    <!-- 用户列表 -->
+    <el-table v-loading="loading" :data="users">
+      <el-table-column prop="uid" label="ID" />
+      <el-table-column prop="username" label="用户名" />
+      <el-table-column prop="name" label="姓名" />
+      <el-table-column label="操作">
+        <template #default="{ row }">
+          <el-button size="small" @click="handleDelete(row.uid)">
+            删除
+          </el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <!-- 分页 -->
+    <el-pagination
+      :current-page="queryParams.page"
+      :page-size="queryParams.pageSize"
+      :total="total"
+      @current-change="handlePageChange"
+    />
+  </div>
+</template>
+```
+
+### 在页面组件中直接调用 API（简单场景）
+```vue
+<!-- views/UserDetail.vue -->
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { getUserDetail } from '@/api/modules/user'
+import type { User } from '@/api/types'
+
+const route = useRoute()
+const userId = computed(() => Number(route.params.id))
+
+const loading = ref(false)
+const user = ref<User | null>(null)
+
+onMounted(() => {
+  fetchUser()
+})
+
+async function fetchUser() {
+  loading.value = true
+  
+  try {
+    user.value = await getUserDetail(userId.value)
+  } catch (err) {
+    ElMessage.error('获取用户详情失败')
+  } finally {
+    loading.value = false
+  }
+}
+</script>
+
+<template>
+  <div v-loading="loading" class="user-detail">
+    <div v-if="user">
+      <h2>{{ user.name }}</h2>
+      <p>用户名：{{ user.username }}</p>
+      <p>邮箱：{{ user.email }}</p>
+    </div>
+  </div>
+</template>
+```
+
+## 在 Store 中调用 API（全局状态）
+
+### 适用场景
+- 需要跨组件共享的状态
+- 需要持久化的数据
+- 全局配置信息
+
+```typescript
+// stores/modules/auth.ts
+import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
+import { login, logout } from '@/api/modules/auth'
+import type { LoginRequest, LoginResponse } from '@/api/types'
+
+export const useAuthStore = defineStore('auth', () => {
+  // State
+  const accessToken = ref('')
+  const currentPublicKey = ref('')
+  const currentSalt = ref('')
+  const deviceId = ref('')
+
+  // Getters
+  const isLoggedIn = computed(() => !!accessToken.value)
+
+  // Actions
+  async function loginAction(credentials: LoginRequest) {
+    try {
+      const response = await login(credentials)
+      
+      // 保存认证信息
+      accessToken.value = response.accessToken
+      currentPublicKey.value = response.publicKey
+      currentSalt.value = response.salt
+      
+      ElMessage.success('登录成功')
+      return response
+    } catch (error) {
+      ElMessage.error('登录失败')
+      throw error
+    }
+  }
+
+  async function logoutAction() {
+    try {
+      await logout()
+    } finally {
+      // 清除认证信息
+      accessToken.value = ''
+      currentPublicKey.value = ''
+      currentSalt.value = ''
+    }
+  }
+
+  return {
+    accessToken,
+    currentPublicKey,
+    currentSalt,
+    deviceId,
+    isLoggedIn,
+    loginAction,
+    logoutAction
+  }
+})
+```
+
+## 错误处理策略
+
+### 三层错误处理
+
+#### 1. 请求封装层（client.ts）- 全局错误
+处理 HTTP 状态码错误和网络错误
+
+```typescript
+// api/client.ts
+instance.interceptors.response.use(
+  (response) => {
+    const result: ApiResult = response.data
+    
+    // 统一处理业务错误码
+    if (result.code !== 200) {
+      ElMessage.error(result.message || '请求失败')
+      return Promise.reject(new Error(result.message))
+    }
+    
+    return response
+  },
+  (error) => {
+    // HTTP 错误处理
+    if (error.response) {
+      const { status } = error.response
+      switch (status) {
+        case 401:
+          ElMessage.error('登录已过期，请重新登录')
+          router.push('/login')
+          break
+        case 403:
+          ElMessage.error('没有权限访问')
+          break
+        case 404:
+          ElMessage.error('请求的资源不存在')
+          break
+        case 500:
+          ElMessage.error('服务器错误，请稍后重试')
+          break
+      }
+    } else if (error.request) {
+      ElMessage.error('网络连接失败，请检查网络')
+    }
+    
+    return Promise.reject(error)
+  }
+)
+```
+
+#### 2. API 模块层 - 特定业务错误
+处理特定接口的业务逻辑错误
+
+```typescript
+// api/modules/auth.ts
+export async function login(data: LoginRequest) {
+  try {
+    return await post<LoginResponse>('/member/login', data)
+  } catch (error: any) {
+    // 处理特定业务错误
+    const subCode = error.response?.data?.subCode
+    
+    if (subCode === 'INVALID_CREDENTIALS') {
+      ElMessage.error('用户名或密码错误')
+    } else if (subCode === 'ACCOUNT_LOCKED') {
+      ElMessage.error('账号已被锁定，请联系管理员')
+    } else if (subCode === 'ACCOUNT_DISABLED') {
+      ElMessage.error('账号已被禁用')
+    }
+    
+    throw error
+  }
+}
+```
+
+#### 3. Composables/View 层 - 页面级错误
+处理页面特定的错误逻辑
+
+```typescript
+// composables/useUserList.ts
+export function useUserList() {
+  const error = ref<string | null>(null)
+
+  async function fetchUsers(params: UserListParams) {
+    loading.value = true
+    error.value = null
+
+    try {
+      const result = await getUserList(params)
+      users.value = result.list
+      total.value = result.total
+    } catch (err) {
+      // 页面级错误处理
+      error.value = err instanceof Error ? err.message : '获取用户列表失败'
+      
+      // 可以在这里添加特定的错误处理逻辑
+      if (err.response?.status === 403) {
+        // 跳转到无权限页面
+        router.push('/403')
+      }
+      
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  return { error, fetchUsers }
+}
+```
+
+## 请求优化
+
+### 1. 防抖和节流
+```typescript
+import { debounce, throttle } from 'lodash-es'
+
+// 防抖：搜索输入（用户停止输入后才发送请求）
+const searchUsers = debounce(async (keyword: string) => {
+  const users = await getUserList({ page: 1, pageSize: 20, keyword })
+  userList.value = users.list
+}, 300)
+
+// 节流：滚动加载（限制请求频率）
+const loadMore = throttle(async () => {
+  if (loading.value || !hasMore.value) return
+  
+  page.value++
+  const result = await getUserList({ page: page.value, pageSize: 20 })
+  userList.value.push(...result.list)
+}, 500)
+```
+
+### 2. 请求取消
+```typescript
+// composables/useRequest.ts
+import { ref, onUnmounted } from 'vue'
+
+export function useRequest<T>(fetcher: () => Promise<T>) {
+  const loading = ref(false)
+  const data = ref<T | null>(null)
+  const error = ref<Error | null>(null)
+  const controller = new AbortController()
+
+  async function execute() {
+    loading.value = true
+    error.value = null
+
+    try {
+      data.value = await fetcher()
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        error.value = err instanceof Error ? err : new Error('请求失败')
+      }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  function cancel() {
+    controller.abort()
+  }
+
+  // 组件卸载时自动取消请求
+  onUnmounted(() => {
+    cancel()
+  })
+
+  return { loading, data, error, execute, cancel }
+}
+```
+
+### 3. 请求缓存
+```typescript
+// utils/cache.ts
+class RequestCache {
+  private cache = new Map<string, { data: any; timestamp: number }>()
+  private ttl = 5 * 60 * 1000 // 5分钟
+
+  get<T>(key: string): T | null {
+    const cached = this.cache.get(key)
+    if (!cached) return null
+
+    // 检查是否过期
+    if (Date.now() - cached.timestamp > this.ttl) {
+      this.cache.delete(key)
+      return null
+    }
+
+    return cached.data
+  }
+
+  set(key: string, data: any) {
+    this.cache.set(key, {
+      data,
+      timestamp: Date.now()
+    })
+  }
+
+  clear() {
+    this.cache.clear()
+  }
+}
+
+export const requestCache = new RequestCache()
+
+// 使用缓存
+export async function getUserListWithCache(params: UserListParams) {
+  const cacheKey = `user-list-${JSON.stringify(params)}`
+  
+  // 尝试从缓存获取
+  const cached = requestCache.get<UserListResult>(cacheKey)
+  if (cached) {
+    return cached
+  }
+
+  // 请求数据
+  const result = await getUserList(params)
+  
+  // 存入缓存
+  requestCache.set(cacheKey, result)
+  
+  return result
+}
+```
+
+### 4. 并发请求
+```typescript
+// 并发执行多个独立请求
+async function loadPageData() {
+  loading.value = true
+
+  try {
+    const [users, products, orders] = await Promise.all([
+      getUserList({ page: 1, pageSize: 20 }),
+      getProductList({ page: 1, pageSize: 20 }),
+      getOrderList({ page: 1, pageSize: 20 })
+    ])
+
+    userList.value = users.list
+    productList.value = products.list
+    orderList.value = orders.list
+  } catch (error) {
+    ElMessage.error('加载数据失败')
+  } finally {
+    loading.value = false
+  }
+}
+```
+
+### 5. 请求重试
+```typescript
+// utils/retry.ts
+export async function retryRequest<T>(
+  fetcher: () => Promise<T>,
+  maxRetries = 3,
+  delay = 1000
+): Promise<T> {
+  let lastError: Error
+
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fetcher()
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error('请求失败')
+      
+      // 最后一次重试失败则抛出错误
+      if (i === maxRetries - 1) {
+        throw lastError
+      }
+
+      // 等待后重试
+      await new Promise(resolve => setTimeout(resolve, delay * (i + 1)))
+    }
+  }
+
+  throw lastError!
+}
+
+// 使用
+async function fetchUserWithRetry(id: number) {
+  return await retryRequest(() => getUserDetail(id), 3, 1000)
+}
+```
+
+## 认证与签名
+
+### 请求签名流程
+```typescript
+// api/auth.ts
+
+/**
+ * 生成随机 nonce
+ */
+export function generateNonceSrc(): string {
+  const arr = new Uint8Array(16)
+  crypto.getRandomValues(arr)
+  return Array.from(arr, (b) => b.toString(16).padStart(2, '0')).join('')
+}
+
+/**
+ * 构建签名
+ */
+export function buildSign(
+  paramString: string,
+  nonceSrc: string,
+  salt: string
+): string {
+  return sha256(paramString + nonceSrc + salt)
+}
+
+/**
+ * 构建参数字符串
+ */
+export function buildParamString(params: Record<string, any>): string {
+  return Object.keys(params)
+    .sort()
+    .map(key => `${key}=${params[key]}`)
+    .join('&')
+}
+
+/**
+ * 构建认证请求头
+ */
+export async function buildAuthHeaderValues(
+  input: AuthHeadersInput,
+  encryptNonce: (plain: string) => Promise<string>
+): Promise<AuthHeadersResult> {
+  const timestamp = String(Date.now())
+  const nonceSrc = generateNonceSrc()
+  
+  // 构建签名参数
+  const signParams = {
+    token: input.token,
+    timestamp,
+    device: input.device,
+    ...input.businessParams
+  }
+  
+  const paramString = buildParamString(signParams)
+  const sign = buildSign(paramString, nonceSrc, input.salt)
+  
+  // 加密 nonce
+  const nonceEncrypted = await encryptNonce(nonceSrc)
+  
+  return {
+    'X-Auth-Token': input.token,
+    'X-Auth-Timestamp': timestamp,
+    'X-Auth-Sign': sign,
+    'X-Auth-Nonce': nonceEncrypted,
+    'X-Auth-Device': input.device,
+  }
+}
+
+/**
+ * 认证请求头输入
+ */
+export interface AuthHeadersInput {
+  token: string
+  salt: string
+  device: string
+  businessParams: Record<string, any>
+}
+
+/**
+ * 认证请求头结果
+ */
+export interface AuthHeadersResult {
+  'X-Auth-Token': string
+  'X-Auth-Timestamp': string
+  'X-Auth-Sign': string
+  'X-Auth-Nonce': string
+  'X-Auth-Device': string
+}
+```
+
+## 最佳实践总结
+
+### 1. 分层清晰
+```
+✅ 正确的调用链路
+View → Composables → API Module → Client → Backend
+
+❌ 错误的调用方式
+View → Client 直接调用（跳过 API Module）
+View → Backend 直接调用（跳过所有封装）
+```
+
+### 2. 使用 TypeScript
+```typescript
+✅ 正确 - 完整的类型定义
+async function fetchUser(id: number): Promise<User> {
+  return await getUserDetail(id)
+}
+
+❌ 错误 - 缺少类型
+async function fetchUser(id) {
+  return await getUserDetail(id)
+}
+```
+
+### 3. 统一错误处理
+```typescript
+✅ 正确 - 三层错误处理
+// 1. Client 层：HTTP 错误
+// 2. API Module 层：业务错误
+// 3. Composables/View 层：页面错误
+
+❌ 错误 - 没有错误处理
+const data = await getUserDetail(id)  // 可能抛出异常
+```
+
+### 4. 管理加载状态
+```typescript
+✅ 正确 - 使用 finally
+async function fetchData() {
+  loading.value = true
+  try {
+    await getUserList(params)
+  } finally {
+    loading.value = false  // 确保重置
+  }
+}
+
+❌ 错误 - 可能不会重置
+async function fetchData() {
+  loading.value = true
+  await getUserList(params)
+  loading.value = false  // 出错时不会执行
+}
+```
+
+### 5. 参数验证
+```typescript
+✅ 正确 - 验证参数
+async function fetchUser(id: number) {
+  if (!id || id <= 0) {
+    throw new Error('无效的用户 ID')
+  }
+  return await getUserDetail(id)
+}
+
+❌ 错误 - 不验证参数
+async function fetchUser(id: number) {
+  return await getUserDetail(id)  // 可能传入无效值
+}
+```
+
+### 6. 使用 Composables 封装
+```typescript
+✅ 正确 - 封装到 Composables
+// composables/useUserList.ts
+export function useUserList() {
+  // 状态管理 + API 调用
+  return { loading, users, fetchUsers }
+}
+
+❌ 错误 - 在组件中直接调用
+// 每个组件都重复相同的逻辑
+const loading = ref(false)
+async function fetchUsers() { ... }
+```
+
+## 完整示例
+
+### 示例：用户管理功能
+
+#### 1. 类型定义
+```typescript
+// api/types.ts
+export interface User {
+  uid: number
+  username: string
+  name?: string
+  email?: string
+  status: 'active' | 'inactive'
+}
+
+export interface UserListParams {
+  page: number
+  pageSize: number
+  keyword?: string
+}
+
+export interface UserListResult {
+  list: User[]
+  total: number
+}
+```
+
+#### 2. API 模块
+```typescript
+// api/modules/user.ts
+import { get, post, put, del } from '../client'
+import type { User, UserListParams, UserListResult } from '../types'
+
+export function getUserList(params: UserListParams) {
+  return get<UserListResult>('/users', params)
+}
+
+export function getUserDetail(id: number) {
+  return get<User>(`/users/${id}`)
+}
+
+export function createUser(data: Partial<User>) {
+  return post<User>('/users', data)
+}
+
+export function updateUser(id: number, data: Partial<User>) {
+  return put<User>(`/users/${id}`, data)
+}
+
+export function deleteUser(id: number) {
+  return del<void>(`/users/${id}`)
+}
+```
+
+#### 3. Composable
+```typescript
+// composables/useUserList.ts
+import { ref } from 'vue'
+import { getUserList, deleteUser } from '@/api/modules/user'
+import type { User, UserListParams } from '@/api/types'
+
+export function useUserList() {
+  const loading = ref(false)
+  const users = ref<User[]>([])
+  const total = ref(0)
+
+  async function fetchUsers(params: UserListParams) {
+    loading.value = true
+    try {
+      const result = await getUserList(params)
+      users.value = result.list
+      total.value = result.total
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function removeUser(id: number) {
+    await deleteUser(id)
+    users.value = users.value.filter(u => u.uid !== id)
+    total.value--
+  }
+
+  return { loading, users, total, fetchUsers, removeUser }
+}
+```
+
+#### 4. View 组件
+```vue
+<!-- views/UserList.vue -->
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { useUserList } from '@/composables/useUserList'
+
+const { loading, users, total, fetchUsers, removeUser } = useUserList()
+
+const queryParams = ref({
+  page: 1,
+  pageSize: 20,
+  keyword: ''
+})
+
+onMounted(() => {
+  loadData()
+})
+
+function loadData() {
+  fetchUsers(queryParams.value)
+}
+
+async function handleDelete(id: number) {
+  await ElMessageBox.confirm('确定要删除吗？')
+  await removeUser(id)
+  ElMessage.success('删除成功')
+}
+</script>
+
+<template>
+  <div class="user-list">
+    <el-table v-loading="loading" :data="users">
+      <el-table-column prop="username" label="用户名" />
+      <el-table-column label="操作">
+        <template #default="{ row }">
+          <el-button @click="handleDelete(row.uid)">删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+  </div>
+</template>
+```
+
+## 总结
+
+**请求链路**：
+```
+View → Composables → API Module → Client → Auth → Backend
+```
+
+**核心原则**：
+- 分层清晰，职责明确
+- 统一封装，避免重复
+- 类型安全，完整定义
+- 错误处理，三层防护
+- 状态管理，响应式更新
+- 性能优化，合理缓存

@@ -1,0 +1,448 @@
+---
+description: Vue 3 路由规范
+alwaysApply: true
+enabled: true
+---
+
+# 路由规范
+
+## 路由配置
+
+### 基础路由定义
+```typescript
+// router/index.ts
+import { createRouter, createWebHistory } from 'vue-router'
+import type { RouteRecordRaw } from 'vue-router'
+
+const routes: RouteRecordRaw[] = [
+  {
+    path: '/',
+    redirect: '/home'
+  },
+  {
+    path: '/home',
+    name: 'Home',
+    component: () => import('@/views/Home.vue'),
+    meta: {
+      title: '首页',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: () => import('@/views/Login.vue'),
+    meta: {
+      title: '登录'
+    }
+  }
+]
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes
+})
+
+export default router
+```
+
+### 路由命名规范
+**规则**：
+- 路由名称：PascalCase
+- 路由路径：kebab-case
+
+```typescript
+✅ 正确
+{
+  path: '/user-profile',
+  name: 'UserProfile',
+  component: () => import('@/views/UserProfile.vue')
+}
+
+{
+  path: '/product-detail/:id',
+  name: 'ProductDetail',
+  component: () => import('@/views/ProductDetail.vue')
+}
+
+❌ 错误
+{
+  path: '/userProfile',  // 应该用短横线
+  name: 'userProfile',   // 应该大写开头
+  component: () => import('@/views/UserProfile.vue')
+}
+```
+
+## 路由懒加载
+
+### 组件懒加载
+**规则**：所有路由组件使用动态导入
+
+```typescript
+✅ 正确
+{
+  path: '/home',
+  component: () => import('@/views/Home.vue')
+}
+
+❌ 错误
+import Home from '@/views/Home.vue'
+{
+  path: '/home',
+  component: Home  // 不要直接导入
+}
+```
+
+### 路由分组
+```typescript
+// 按功能分组
+const userRoutes: RouteRecordRaw[] = [
+  {
+    path: '/user',
+    component: () => import('@/layouts/UserLayout.vue'),
+    children: [
+      {
+        path: 'profile',
+        name: 'UserProfile',
+        component: () => import('@/views/user/Profile.vue')
+      },
+      {
+        path: 'settings',
+        name: 'UserSettings',
+        component: () => import('@/views/user/Settings.vue')
+      }
+    ]
+  }
+]
+```
+
+## 路由元信息
+
+### Meta 字段定义
+```typescript
+// router/types.ts
+declare module 'vue-router' {
+  interface RouteMeta {
+    title?: string
+    requiresAuth?: boolean
+    roles?: string[]
+    icon?: string
+    hidden?: boolean
+  }
+}
+
+// 使用
+{
+  path: '/admin',
+  name: 'Admin',
+  component: () => import('@/views/Admin.vue'),
+  meta: {
+    title: '管理后台',
+    requiresAuth: true,
+    roles: ['admin']
+  }
+}
+```
+
+## 路由守卫
+
+### 全局前置守卫
+```typescript
+// router/index.ts
+import { useAuthStore } from '@/stores/modules/auth'
+
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore()
+  
+  // 设置页面标题
+  if (to.meta.title) {
+    document.title = `${to.meta.title} - 应用名称`
+  }
+  
+  // 检查是否需要登录
+  if (to.meta.requiresAuth && !authStore.isLoggedIn) {
+    next({ name: 'Login', query: { redirect: to.fullPath } })
+    return
+  }
+  
+  // 检查权限
+  if (to.meta.roles && !hasPermission(to.meta.roles)) {
+    next({ name: 'Forbidden' })
+    return
+  }
+  
+  next()
+})
+```
+
+### 全局后置守卫
+```typescript
+router.afterEach((to, from) => {
+  // 页面加载完成后的处理
+  // 例如：关闭加载动画
+  console.log(`导航到: ${to.path}`)
+})
+```
+
+### 路由独享守卫
+```typescript
+{
+  path: '/admin',
+  name: 'Admin',
+  component: () => import('@/views/Admin.vue'),
+  beforeEnter: (to, from, next) => {
+    const authStore = useAuthStore()
+    if (authStore.user?.role === 'admin') {
+      next()
+    } else {
+      next({ name: 'Forbidden' })
+    }
+  }
+}
+```
+
+### 组件内守卫
+```vue
+<script setup lang="ts">
+import { onBeforeRouteLeave, onBeforeRouteUpdate } from 'vue-router'
+
+// 离开路由前确认
+onBeforeRouteLeave((to, from) => {
+  if (hasUnsavedChanges.value) {
+    const answer = window.confirm('有未保存的更改，确定要离开吗？')
+    if (!answer) return false
+  }
+})
+
+// 路由更新时
+onBeforeRouteUpdate((to, from) => {
+  // 例如：同一组件不同参数
+  fetchData(to.params.id)
+})
+</script>
+```
+
+## 动态路由
+
+### 路由参数
+```typescript
+// 定义
+{
+  path: '/user/:id',
+  name: 'UserDetail',
+  component: () => import('@/views/UserDetail.vue')
+}
+
+// 使用
+<script setup lang="ts">
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+const userId = computed(() => route.params.id)
+
+watch(() => route.params.id, (newId) => {
+  fetchUser(newId)
+})
+</script>
+```
+
+### 查询参数
+```typescript
+// 导航时传递
+router.push({
+  name: 'UserList',
+  query: { page: 1, size: 20, keyword: 'test' }
+})
+
+// 组件中获取
+const route = useRoute()
+const page = computed(() => Number(route.query.page) || 1)
+const keyword = computed(() => route.query.keyword as string || '')
+```
+
+## 编程式导航
+
+### 基础导航
+```typescript
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+// 字符串路径
+router.push('/home')
+
+// 对象
+router.push({ path: '/home' })
+
+// 命名路由
+router.push({ name: 'Home' })
+
+// 带参数
+router.push({ name: 'UserDetail', params: { id: 123 } })
+
+// 带查询参数
+router.push({ path: '/search', query: { keyword: 'vue' } })
+```
+
+### 替换当前路由
+```typescript
+// 不会留下历史记录
+router.replace({ name: 'Home' })
+```
+
+### 前进/后退
+```typescript
+// 后退
+router.back()
+router.go(-1)
+
+// 前进
+router.forward()
+router.go(1)
+```
+
+## 路由最佳实践
+
+### 1. 路由结构清晰
+```typescript
+const routes: RouteRecordRaw[] = [
+  // 公共路由
+  {
+    path: '/login',
+    name: 'Login',
+    component: () => import('@/views/Login.vue')
+  },
+  
+  // 需要认证的路由
+  {
+    path: '/',
+    component: () => import('@/layouts/MainLayout.vue'),
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: 'home',
+        name: 'Home',
+        component: () => import('@/views/Home.vue')
+      },
+      {
+        path: 'profile',
+        name: 'Profile',
+        component: () => import('@/views/Profile.vue')
+      }
+    ]
+  },
+  
+  // 404 页面
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('@/views/NotFound.vue')
+  }
+]
+```
+
+### 2. 使用路由别名
+```typescript
+{
+  path: '/home',
+  alias: ['/index', '/'],
+  name: 'Home',
+  component: () => import('@/views/Home.vue')
+}
+```
+
+### 3. 路由重定向
+```typescript
+{
+  path: '/old-path',
+  redirect: '/new-path'
+}
+
+// 动态重定向
+{
+  path: '/search/:keyword',
+  redirect: to => {
+    return { path: '/search', query: { q: to.params.keyword } }
+  }
+}
+```
+
+### 4. 滚动行为
+```typescript
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    } else if (to.hash) {
+      return { el: to.hash, behavior: 'smooth' }
+    } else {
+      return { top: 0 }
+    }
+  }
+})
+```
+
+## 路由错误处理
+
+### 捕获路由错误
+```typescript
+router.onError((error) => {
+  console.error('路由错误:', error)
+  // 可以显示错误提示或跳转到错误页面
+})
+```
+
+### 导航失败处理
+```typescript
+import { isNavigationFailure, NavigationFailureType } from 'vue-router'
+
+router.push('/home').catch(failure => {
+  if (isNavigationFailure(failure, NavigationFailureType.aborted)) {
+    console.log('导航被中止')
+  } else if (isNavigationFailure(failure, NavigationFailureType.duplicated)) {
+    console.log('重复导航')
+  }
+})
+```
+
+## 路由性能优化
+
+### 1. 路由预加载
+```typescript
+// 鼠标悬停时预加载
+<router-link
+  :to="{ name: 'UserDetail', params: { id: user.id } }"
+  @mouseenter="preloadRoute"
+>
+  查看详情
+</router-link>
+
+function preloadRoute() {
+  router.resolve({ name: 'UserDetail' }).matched.forEach(record => {
+    if (record.components) {
+      Object.values(record.components).forEach(component => {
+        if (typeof component === 'function') {
+          component()
+        }
+      })
+    }
+  })
+}
+```
+
+### 2. 路由缓存
+```vue
+<template>
+  <router-view v-slot="{ Component }">
+    <keep-alive :include="cachedViews">
+      <component :is="Component" />
+    </keep-alive>
+  </router-view>
+</template>
+
+<script setup lang="ts">
+const cachedViews = ref(['Home', 'UserList'])
+</script>
+```
