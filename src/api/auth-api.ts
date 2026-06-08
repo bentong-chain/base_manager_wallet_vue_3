@@ -26,7 +26,9 @@ const AuthAPI = {
     });
 
     const decryptedAccessToken = aesBackendDecrypt(response.accessToken, AP_KEY);
-    const decryptedPublicKey = response.publicKey ? aesBackendDecrypt(response.publicKey, AP_KEY) : "";
+    const decryptedPublicKey = response.publicKey
+      ? aesBackendDecrypt(response.publicKey, AP_KEY)
+      : "";
     const decryptedSalt = response.salt ? aesBackendDecrypt(response.salt, AP_KEY) : "";
 
     // 解密后端返回的加密字段

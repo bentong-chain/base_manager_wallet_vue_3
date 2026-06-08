@@ -33,33 +33,26 @@
         </div>
 
         <div class="wallet-login">
-
-
           <div class="wallet-login__status">
             <div class="wallet-login__status-label">当前钱包</div>
             <div class="wallet-login__status-value">
-              {{ walletAddress ? shortAddress(walletAddress) : "未连接" }}
+              {{ walletAddress ? walletAddress : "未连接" }}
             </div>
           </div>
 
           <el-button
-            :loading="loading"
             type="primary"
             size="large"
             class="wallet-login__button"
-            @click="handleWalletLogin"
+            @click="connectWallet"
           >
             <el-icon><Connection /></el-icon>
             <span>{{ loadingText }}</span>
           </el-button>
 
           <div class="wallet-login__providers">
-            <el-button :disabled="loading" class="wallet-login__provider" @click="handleWalletLogin">
-              MetaMask
-            </el-button>
-            <el-button :disabled="loading" class="wallet-login__provider" @click="handleWalletLogin">
-              TokenPocket
-            </el-button>
+            <el-button class="wallet-login__provider" @click="connectWallet">MetaMask</el-button>
+            <el-button class="wallet-login__provider" @click="connectWallet">TokenPocket</el-button>
           </div>
         </div>
 
@@ -75,142 +68,93 @@
 </template>
 
 <script setup lang="ts">
+import { ref, watch } from "vue";
+import { useRouter } from "vue-router";
+import { useAppKit, useAppKitAccount, useDisconnect } from "@reown/appkit/vue";
 import { Connection } from "@element-plus/icons-vue";
 import logo from "@/assets/images/logo.png";
 import ThemeSwitch from "@/components/ThemeSwitch/index.vue";
 import { appConfig } from "@/settings";
-import { useAuthStore } from "@/store/modules/auth";
-import { useUserStore } from "@/store/modules/user";
-
-type EthereumProvider = {
-  request<T = unknown>(args: { method: string; params?: unknown[] }): Promise<T>;
-};
+import { useWalletStore } from "@/store/modules/wallet";
+import { useUserStore } from "@/store";
 
 const { t } = useI18n();
-const route = useRoute();
 const router = useRouter();
+const walletStore = useWalletStore();
 const userStore = useUserStore();
-const authStore = useAuthStore();
+
+const { open } = useAppKit();
+const accountData = useAppKitAccount();
+const { disconnect } = useDisconnect();
 
 const tenantEnabled = appConfig.tenantEnabled;
-const walletAddress = ref("");
-const loading = ref(false);
 const loadingText = ref("连接钱包并登录");
 
-const loginSignSubject = import.meta.env.VITE_ADMIN_LOGIN_SIGN_SUBJECT || "TJT Admin";
-const loginSignUri = import.meta.env.VITE_ADMIN_LOGIN_SIGN_URI || "http://localhost:9527";
-const loginSignTemplate =
-  import.meta.env.VITE_ADMIN_LOGIN_SIGN_TEMPLATE ||
-  [
-    "{loginSubject} wants you to sign in with your account:",
-    "{address}",
-    "",
-    "Sign in with account to the admin console.",
-    "",
-    "URI: {uri}",
-    "Login time: {loginTime}",
-  ].join("\n");
+const walletAddress = computed(() => {
+  return walletStore.walletAccount && walletStore.walletAccount.length >= 10
+    ? walletStore.walletAccount.slice(0, 6) + "..." + walletStore.walletAccount.slice(-4)
+    : "";
+});
 
-function getEthereumProvider(): EthereumProvider {
-  const ethereum = window.ethereum as EthereumProvider | undefined;
-  if (!ethereum) {
-    throw new Error("WALLET_NOT_FOUND");
-  }
-  return ethereum;
-}
+const connectWallet = async () => {
+  await open();
+};
 
-function buildAdminLoginSignText(address: string, signTime: number) {
-  const loginTime = String(signTime);
-  return loginSignTemplate
-    .replaceAll("{loginSubject}", loginSignSubject)
-    .replaceAll("{address}", address)
-    .replaceAll("{uri}", loginSignUri)
-    .replaceAll("{loginTime}", loginTime)
-    .replaceAll("{signTime}", loginTime);
-}
+// 监听连接的钱包地址变化
+watch(
+  () => accountData.value?.address,
+  async (newAddr, oldAddr) => {
+    // 当oldAddr有值且与newAddr不同时，表示地址发生了改变，才需要清除登录信息
+    if (oldAddr && newAddr !== oldAddr) {
+      console.log("退出", newAddr, oldAddr);
 
-async function connectWallet() {
-  loadingText.value = "连接钱包中...";
-  const ethereum = getEthereumProvider();
-  const accounts = await ethereum.request<string[]>({ method: "eth_requestAccounts" });
-  const address = accounts?.[0];
-  if (!address) {
-    throw new Error("WALLET_ADDRESS_EMPTY");
-  }
-  walletAddress.value = address;
-  return { ethereum, address };
-}
+      // 清空一下本地缓存登录信息
+      walletStore.clearData();
+      userStore.resetAllState();
+    }
 
-async function signLoginMessage(ethereum: EthereumProvider, address: string) {
-  loadingText.value = "请在钱包中确认签名";
-  const signTime = Date.now();
-  const signStr = buildAdminLoginSignText(address, signTime);
-  const loginSign = await ethereum.request<string>({
-    method: "personal_sign",
-    params: [signStr, address],
-  });
-  return { signTime, loginSign };
-}
+    // 钱包已经连接，且新地址与原地址不相同，表示地址发生了改变
+    if (newAddr && newAddr !== oldAddr) {
+      console.log("登录", newAddr, oldAddr);
+      if (walletStore.walletAccount === newAddr) {
+        console.log("地址相同，无需初始化");
+        return;
+      }
 
-async function handleWalletLogin() {
-  loading.value = true;
-  loadingText.value = "连接钱包并登录";
-  try {
-    const { ethereum, address } = await connectWallet();
-    const { signTime, loginSign } = await signLoginMessage(ethereum, address);
+      // 登录钱包
+      await walletStore
+        .login(newAddr)
+        .then(async (result) => {
+          console.log(result);
+          if (!result) {
+            console.log("登录失败");
 
-    loadingText.value = "登录中...";
-    await userStore.login({
-      address,
-      signTime,
-      loginSign,
-      device: authStore.deviceId,
-      deviceType: "web",
-    });
+            // 断开连接
+            await disconnect();
+            // 清空一下本地缓存登录信息
+            walletStore.clearData();
+            userStore.resetAllState();
 
-    const redirect = safeRedirect((route.query.redirect as string) || "/");
-    await router.replace(redirect);
-  } catch (error) {
-    handleLoginError(error);
-  } finally {
-    loading.value = false;
-    loadingText.value = "连接钱包并登录";
-  }
-}
+            return;
+          }
+          console.log("登录成功");
+          setTimeout(() => {
+            router.push("/notice");
+          }, 500);
+        })
+        .catch(async (err) => {
+          console.log("登录失败", err);
 
-function safeRedirect(raw: string) {
-  let redirect = "/";
-  try {
-    redirect = decodeURIComponent(String(raw)) || "/";
-  } catch {
-    redirect = "/";
-  }
-  return redirect.startsWith("/") ? redirect : "/";
-}
-
-function shortAddress(address: string) {
-  if (address.length <= 12) return address;
-  return `${address.slice(0, 6)}...${address.slice(-4)}`;
-}
-
-function handleLoginError(error: unknown) {
-  const message = error instanceof Error ? error.message : String(error || "");
-  if (message === "WALLET_NOT_FOUND") {
-    ElMessage.error("未检测到钱包插件，请安装 MetaMask 或 TokenPocket");
-    return;
-  }
-  if (message === "WALLET_ADDRESS_EMPTY") {
-    ElMessage.error("未获取到钱包地址");
-    return;
-  }
-  if (/user rejected|User denied|rejected|4001/i.test(message)) {
-    ElMessage.warning("已取消钱包连接或签名");
-    return;
-  }
-  if (message) {
-    ElMessage.error(message);
-  }
-}
+          // 断开连接
+          await disconnect();
+          // 清空一下本地缓存登录信息
+          walletStore.clearData();
+          userStore.resetAllState();
+        });
+    }
+  },
+  { immediate: true } // 立即执行
+);
 </script>
 
 <style lang="scss" scoped>

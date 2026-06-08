@@ -11,6 +11,8 @@ import { useDictStoreHook } from "@/store/modules/dict";
 import { useTagsViewStore } from "@/store";
 import { cleanupWebSocket } from "@/composables";
 import { DEFAULT_PUBLIC_KEY, DEFAULT_SALT } from "@/api/constants";
+import { useDisconnect } from "@reown/appkit/vue";
+import { useWalletStore } from "@/store/modules/wallet";
 
 const USE_SIGN_AUTH = import.meta.env.VITE_USE_SIGN_AUTH === "true";
 
@@ -90,7 +92,14 @@ export const useUserStore = defineStore("user", () => {
    * 登出
    */
   async function logout(): Promise<void> {
+    const { disconnect } = useDisconnect();
+    const walletStore = useWalletStore();
+
     await AuthAPI.logout();
+    // 断开连接
+    await disconnect();
+    // 清空一下本地缓存登录信息
+    walletStore.clearData();
     resetAllState();
   }
 
@@ -99,7 +108,9 @@ export const useUserStore = defineStore("user", () => {
    *
    * 统一处理所有清理工作，包括用户凭证、路由、缓存等
    */
-  function resetAllState(): void {
+  async function resetAllState(): Promise<void> {
+    console.log("重置所有系统状态");
+    const { disconnect } = useDisconnect();
     // 1. 重置用户状态
     resetUserState();
 
@@ -110,6 +121,9 @@ export const useUserStore = defineStore("user", () => {
 
     // 3. 清理 WebSocket 连接
     cleanupWebSocket();
+
+    // 断开连接
+    await disconnect();
   }
 
   /**

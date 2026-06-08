@@ -1,0 +1,2658 @@
+{
+  "name": "NodeBurnManager",
+  "decimals": 18,
+  "bscTest": "0xaEd9AfD544f6433E1973eFaf64fA77019102D8C8",
+  "bsc": "0xaEd9AfD544f6433E1973eFaf64fA77019102D8C8",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "Bound",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "DataError",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "EmptyNftSupply",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "EnforcedPause",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ExpectedPause",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "IdenticalAddress",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "available",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "requiredAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "InsufficientBalance",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "InsufficientOutputAmount",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "InvalidInitialization",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "InvalidRateConfig",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "MemberNotRegistered",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "lpAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "NftDividendUnclaimed",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NoPermission",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "NodeAlreadyInitialized",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NotInitializing",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NothingToClaim",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "OnlyNftContract",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "OnlyTaxProcessor",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnableInvalidOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "OwnableUnauthorizedAccount",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "ParentUnbound",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ReentrancyGuardReentrantCall",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        }
+      ],
+      "name": "SafeERC20FailedOperation",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "actualAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "minAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "SlippageExceeded",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ZeroAddress",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ZeroAmount",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "hopeAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "AdminLockedHopeAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "hopePaid",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "hopePaidUsdtValue",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "usdtPaid",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "isOut",
+          "type": "bool"
+        }
+      ],
+      "name": "BurnDividendClaimed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "hopeAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "usdtAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "BurnDividendSettled",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint16",
+              "name": "burnRate",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint16",
+              "name": "hopeDividendRate",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint16",
+              "name": "referralRate",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint16",
+              "name": "marketRate",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint16",
+              "name": "nftFloorRate",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint16",
+              "name": "charityRate",
+              "type": "uint16"
+            }
+          ],
+          "indexed": false,
+          "internalType": "struct NodeBurnManager.BurnRateConfig",
+          "name": "config",
+          "type": "tuple"
+        }
+      ],
+      "name": "BurnRateConfigUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "charityAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "bnbAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "CharityPaid",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "hope",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "usdt",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "router",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "nft",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "taxProcessor",
+          "type": "address"
+        }
+      ],
+      "name": "CoreAddressesUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "marketRewardAddress",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "charityAddress",
+          "type": "address"
+        }
+      ],
+      "name": "FundAddressesUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint32",
+          "name": "orderId",
+          "type": "uint32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "hopeAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "usdtValue",
+          "type": "uint256"
+        }
+      ],
+      "name": "HopeBurned",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint32",
+          "name": "id",
+          "type": "uint32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "hopeAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "perPrincipal",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "accPerPrincipal",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "source",
+          "type": "bytes32"
+        }
+      ],
+      "name": "HopeDividendAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "version",
+          "type": "uint64"
+        }
+      ],
+      "name": "Initialized",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "admin",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "state",
+          "type": "bool"
+        }
+      ],
+      "name": "LockHopeAdminUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "hopeAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "LockedHopeBurnedByNftTransfer",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "hopeAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "LockedHopeClaimed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "marketRewardAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "bnbAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "MarketRewardPaid",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint32",
+          "name": "uid",
+          "type": "uint32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "parent",
+          "type": "address"
+        }
+      ],
+      "name": "MemberRegistered",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "minBurnUsdt",
+          "type": "uint256"
+        }
+      ],
+      "name": "MinBurnUsdtUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "redeemBnb",
+          "type": "uint256"
+        }
+      ],
+      "name": "NftBurnedAndRedeemed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "lpAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "NftDividendClaimed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "bnbAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "newPoolBalance",
+          "type": "uint256"
+        }
+      ],
+      "name": "NftFloorPoolAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint32",
+          "name": "id",
+          "type": "uint32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "lpAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "perNft",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "accLpPerNft",
+          "type": "uint256"
+        }
+      ],
+      "name": "NftLpDividendAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "initialHopeAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "lockedHopeAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "initialHopeUsdtValue",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "lockedHopeUsdtValue",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "nftTokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "NodeInitialized",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "node",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "burner",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "hopeAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "NodeLockReleased",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "excessHope",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "excessUsdt",
+          "type": "uint256"
+        }
+      ],
+      "name": "OutExcessRedistributed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "Paused",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "points",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "reason",
+          "type": "bytes32"
+        }
+      ],
+      "name": "PointsAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "hopeAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "level",
+          "type": "uint8"
+        }
+      ],
+      "name": "ReferralRewardAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "hopeAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "ReferralRewardClaimed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "Unpaused",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint32",
+          "name": "id",
+          "type": "uint32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "usdtAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "perPrincipal",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "accPerPrincipal",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "source",
+          "type": "bytes32"
+        }
+      ],
+      "name": "UsdtDividendAdded",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "ACC_PRECISION",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "BPS",
+      "outputs": [
+        {
+          "internalType": "uint16",
+          "name": "",
+          "type": "uint16"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "DEAD",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MAX_UPLINE_DEPTH",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "hopeAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "addLockedHope",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "hopeAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "minUsdtValue",
+          "type": "uint256"
+        }
+      ],
+      "name": "burnHope",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        }
+      ],
+      "name": "burnOrders",
+      "outputs": [
+        {
+          "internalType": "uint32",
+          "name": "orderId",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint40",
+          "name": "burnedAt",
+          "type": "uint40"
+        },
+        {
+          "internalType": "uint256",
+          "name": "hopeAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "usdtValue",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "burnRateConfig",
+      "outputs": [
+        {
+          "internalType": "uint16",
+          "name": "burnRate",
+          "type": "uint16"
+        },
+        {
+          "internalType": "uint16",
+          "name": "hopeDividendRate",
+          "type": "uint16"
+        },
+        {
+          "internalType": "uint16",
+          "name": "referralRate",
+          "type": "uint16"
+        },
+        {
+          "internalType": "uint16",
+          "name": "marketRate",
+          "type": "uint16"
+        },
+        {
+          "internalType": "uint16",
+          "name": "nftFloorRate",
+          "type": "uint16"
+        },
+        {
+          "internalType": "uint16",
+          "name": "charityRate",
+          "type": "uint16"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "charityAddress",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "claimAndBurnNft",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "minHopeUsdtValue",
+          "type": "uint256"
+        }
+      ],
+      "name": "claimBurnDividends",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "claimNftDividend",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "claimReferralReward",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "claimReleasedLockedHope",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "getBurnInfo",
+      "outputs": [
+        {
+          "components": [
+            {
+              "components": [
+                {
+                  "internalType": "uint32",
+                  "name": "burnOrderCount",
+                  "type": "uint32"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "settledHopeDividendId",
+                  "type": "uint32"
+                },
+                {
+                  "internalType": "uint32",
+                  "name": "settledUsdtDividendId",
+                  "type": "uint32"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "isOut",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "burnedHopeTotal",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "burnedUsdtTotal",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "activePrincipalUsdt",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "directInviteBurnedHope",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "communityBurnedHope30",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "claimedDividendHope",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "claimedDividendHopeUsdt",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "claimedDividendUsdt",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "lastHopeAccPerPrincipal",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "lastUsdtAccPerPrincipal",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "pendingDividendHope",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "pendingDividendUsdt",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "referralRewardHope",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "claimedReferralRewardHope",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct NodeBurnManager.BurnInfo",
+              "name": "info",
+              "type": "tuple"
+            },
+            {
+              "internalType": "uint256",
+              "name": "totalDividendHope",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "totalDividendHopeUsdt",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "totalDividendUsdt",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "claimableDividendHope",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "claimableDividendHopeUsdt",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "claimableDividendUsdt",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct NodeBurnManager.BurnInfoView",
+          "name": "viewInfo",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "offset",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "limit",
+          "type": "uint256"
+        }
+      ],
+      "name": "getBurnOrderList",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint32",
+              "name": "orderId",
+              "type": "uint32"
+            },
+            {
+              "internalType": "uint40",
+              "name": "burnedAt",
+              "type": "uint40"
+            },
+            {
+              "internalType": "uint256",
+              "name": "hopeAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "usdtValue",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct NodeBurnManager.BurnOrder[]",
+          "name": "orders",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "uint256",
+          "name": "total",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "offset",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "limit",
+          "type": "uint256"
+        }
+      ],
+      "name": "getDirectInviteInfoList",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "account",
+              "type": "address"
+            },
+            {
+              "internalType": "uint32",
+              "name": "uid",
+              "type": "uint32"
+            },
+            {
+              "internalType": "uint40",
+              "name": "registeredAt",
+              "type": "uint40"
+            },
+            {
+              "internalType": "uint256",
+              "name": "burnedHopeTotal",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "burnedUsdtTotal",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "communityBurnedHope30",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct NodeBurnManager.DirectInviteInfo[]",
+          "name": "list",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "uint256",
+          "name": "total",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getPlatformNftStats",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "activeNftSupply",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "distributedLpTotal",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "claimedLpTotal",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "nftFloorPoolBnb",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct NodeBurnManager.PlatformNftStats",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "offset",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "limit",
+          "type": "uint256"
+        }
+      ],
+      "name": "getUserNftList",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "string",
+              "name": "tokenURI",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "claimedLp",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "pendingLp",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct NodeBurnManager.UserNftInfo[]",
+          "name": "list",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "uint256",
+          "name": "total",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "usdtAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "handleBurnDividendUSDT",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "lpAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "handleNftDividendLP",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "hope",
+      "outputs": [
+        {
+          "internalType": "contract IERC20Metadata",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "hopeAccPerPrincipal",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        }
+      ],
+      "name": "hopeDividendRecords",
+      "outputs": [
+        {
+          "internalType": "uint32",
+          "name": "id",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint40",
+          "name": "createdAt",
+          "type": "uint40"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "source",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "hopeAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "perPrincipal",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "accPerPrincipal",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "account",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "initialHopeAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "lockedHopeAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "initialHopeUsdtValue",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "lockedHopeUsdtValue",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct NodeBurnManager.LpNodeInitParams",
+          "name": "params",
+          "type": "tuple"
+        }
+      ],
+      "name": "initLpNode",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "account",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "initialHopeAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "lockedHopeAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "initialHopeUsdtValue",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "lockedHopeUsdtValue",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct NodeBurnManager.LpNodeInitParams[]",
+          "name": "paramsList",
+          "type": "tuple[]"
+        }
+      ],
+      "name": "initLpNodeBatch",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "tokenIds",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "hopeAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "usdtAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "swapV2RouterAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "nftAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "taxProcessorAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "marketRewardAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "charityAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "minBurnUsdt",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct NodeBurnManager.InitParams",
+          "name": "params",
+          "type": "tuple"
+        }
+      ],
+      "name": "initialize",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "latestHopeDividendId",
+      "outputs": [
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "latestNftDividendId",
+      "outputs": [
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "latestUid",
+      "outputs": [
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "latestUsdtDividendId",
+      "outputs": [
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "lockHopeAdmins",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "lpToken",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "marketRewardAddress",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "members",
+      "outputs": [
+        {
+          "internalType": "uint32",
+          "name": "uid",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint32",
+          "name": "directInviteCount",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint32",
+          "name": "indirectInviteCount",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint32",
+          "name": "communityCount30",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint40",
+          "name": "registeredAt",
+          "type": "uint40"
+        },
+        {
+          "internalType": "bool",
+          "name": "isNode",
+          "type": "bool"
+        },
+        {
+          "internalType": "address",
+          "name": "parent",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "points",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "minBurnUsdt",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "nft",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "nftAccLpPerNft",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "nftDividendInfos",
+      "outputs": [
+        {
+          "internalType": "uint32",
+          "name": "lastSettledDividendId",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "lastAccLpPerNft",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "claimedLp",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "nftFloorPoolBnb",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        }
+      ],
+      "name": "nftLpDividendRecords",
+      "outputs": [
+        {
+          "internalType": "uint32",
+          "name": "id",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint40",
+          "name": "createdAt",
+          "type": "uint40"
+        },
+        {
+          "internalType": "uint256",
+          "name": "lpAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "perNft",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "accLpPerNft",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "nodeLockInfos",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "lockedHopeTotal",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "releasedHope",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "claimedHope",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "burnedHope",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "onNftTransfer",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pause",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "paused",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pendingHopeDividendPool",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "pendingNftDividend",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "lpAmount",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pendingNftLpDividendPool",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pendingUsdtDividendPool",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "platformBurnStats",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "burnedHopeTotal",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "burnedUsdtTotal",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "activePrincipalUsdtTotal",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "distributedHopeTotal",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "distributedUsdtTotal",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "platformLockStats",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "lockedHopeTotal",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "releasedHopeTotal",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "burnedHopeTotal",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "claimedHopeTotal",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "platformMemberStats",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "totalMembers",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "platformNftStats",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "activeNftSupply",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "distributedLpTotal",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "claimedLpTotal",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "nftFloorPoolBnb",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "hopeAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "quoteHopeToUsdt",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "usdtValue",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "parent",
+          "type": "address"
+        }
+      ],
+      "name": "register",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint16",
+              "name": "burnRate",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint16",
+              "name": "hopeDividendRate",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint16",
+              "name": "referralRate",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint16",
+              "name": "marketRate",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint16",
+              "name": "nftFloorRate",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint16",
+              "name": "charityRate",
+              "type": "uint16"
+            }
+          ],
+          "internalType": "struct NodeBurnManager.BurnRateConfig",
+          "name": "config",
+          "type": "tuple"
+        }
+      ],
+      "name": "setBurnRateConfig",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "hopeAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "usdtAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "swapV2RouterAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "nftAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "taxProcessorAddress",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct NodeBurnManager.CoreAddressConfig",
+          "name": "config",
+          "type": "tuple"
+        }
+      ],
+      "name": "setCoreAddresses",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_marketRewardAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_charityAddress",
+          "type": "address"
+        }
+      ],
+      "name": "setFundAddresses",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "admin",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "state",
+          "type": "bool"
+        }
+      ],
+      "name": "setLockHopeAdmin",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_minBurnUsdt",
+          "type": "uint256"
+        }
+      ],
+      "name": "setMinBurnUsdt",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "swapV2Router",
+      "outputs": [
+        {
+          "internalType": "contract IUniswapV2Router02",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "swapV2RouterAddress",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "taxProcessor",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "unpause",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "usdt",
+      "outputs": [
+        {
+          "internalType": "contract IERC20Metadata",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "usdtAccPerPrincipal",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        }
+      ],
+      "name": "usdtDividendRecords",
+      "outputs": [
+        {
+          "internalType": "uint32",
+          "name": "id",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint40",
+          "name": "createdAt",
+          "type": "uint40"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "source",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "usdtAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "perPrincipal",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "accPerPrincipal",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "wBNB",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "receive"
+    }
+  ]
+}

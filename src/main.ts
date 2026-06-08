@@ -36,6 +36,24 @@ import { setupPermissionGuard } from "@/router/guards/permission";
 // ===== 业务服务 =====
 import { setupWebSocket } from "@/composables";
 
+// ─────────────────────────────────────────────────────────────────────────────
+// appkit导入
+// ─────────────────────────────────────────────────────────────────────────────
+import { createAppKit } from "@reown/appkit/vue";
+import { EthersAdapter } from "@reown/appkit-adapter-ethers";
+import { bsc, bscTestnet } from "@reown/appkit/networks";
+
+// 1. Get projectId from https://dashboard.reown.com
+const projectId = "d068a0faa05452359cf16e24f0ab7483";
+
+// 2. Create your application's metadata object
+const metadata = {
+  name: "My Website",
+  description: "My Website description",
+  url: "http://localhost:5173/", // url must match your domain & subdomain
+  icons: ["https://avatars.mywebsite.com/"],
+};
+
 // 创建 Vue 应用实例
 const app = createApp(App);
 
@@ -58,6 +76,19 @@ setupPermissionGuard();
 
 // 5️⃣ WebSocket 初始化
 setupWebSocket();
+
+// 初始化 Reown AppKit
+createAppKit({
+  adapters: [new EthersAdapter()],
+  networks: [bsc, bscTestnet],
+  defaultNetwork: bscTestnet,
+  metadata,
+  projectId,
+  features: {
+    analytics: true, // Optional - defaults to your Cloud configuration
+  },
+  defaultAccountTypes: { eip155: "eoa" },
+});
 
 // 6️⃣ 挂载应用
 app.mount("#app");

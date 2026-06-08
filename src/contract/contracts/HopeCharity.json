@@ -1,0 +1,703 @@
+{
+  "name": "HopeCharity",
+  "decimals": 18,
+  "bscTest": "0xaEd9AfD544f6433E1973eFaf64fA77019102D8C8",
+  "bsc": "0xaEd9AfD544f6433E1973eFaf64fA77019102D8C8",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "EmptyMetadataUri",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "EnforcedPause",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ExceedLimit",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ExpectedPause",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "InvalidExecutedAt",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "InvalidInitialization",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NoPermission",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NotInitializing",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnableInvalidOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "OwnableUnauthorizedAccount",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "phaseId",
+          "type": "uint256"
+        }
+      ],
+      "name": "PhaseNotFound",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "SameState",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ZeroAddress",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ZeroAmount",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "phaseId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "executedAt",
+          "type": "uint64"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "usdtAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "metadataUri",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "metadataHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "payoutTxHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "publishedBy",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "publishedAt",
+          "type": "uint64"
+        }
+      ],
+      "name": "CharityPhasePublished",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "version",
+          "type": "uint64"
+        }
+      ],
+      "name": "Initialized",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "state",
+          "type": "bool"
+        }
+      ],
+      "name": "OperatorUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "Paused",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "Unpaused",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "MAX_METADATA_URI_LEN",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MAX_PHASES_PER_PAGE",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "completedPhaseCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "phaseId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getPhase",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint64",
+              "name": "executedAt",
+              "type": "uint64"
+            },
+            {
+              "internalType": "uint64",
+              "name": "publishedAt",
+              "type": "uint64"
+            },
+            {
+              "internalType": "address",
+              "name": "publishedBy",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "phaseId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "usdtAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "metadataHash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "payoutTxHash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "string",
+              "name": "metadataUri",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct HopeCharity.CharityPhase",
+          "name": "phase",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getPhaseCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "total",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "offset",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "limit",
+          "type": "uint256"
+        }
+      ],
+      "name": "getPhaseList",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint64",
+              "name": "executedAt",
+              "type": "uint64"
+            },
+            {
+              "internalType": "uint64",
+              "name": "publishedAt",
+              "type": "uint64"
+            },
+            {
+              "internalType": "address",
+              "name": "publishedBy",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "phaseId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "usdtAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "metadataHash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "payoutTxHash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "string",
+              "name": "metadataUri",
+              "type": "string"
+            }
+          ],
+          "internalType": "struct HopeCharity.CharityPhase[]",
+          "name": "list",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "uint256",
+          "name": "total",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getPlatformStats",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "completedPhaseCount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "totalUsdtSpent",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct HopeCharity.PlatformStats",
+          "name": "stats",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "admin",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "operator",
+              "type": "address"
+            }
+          ],
+          "internalType": "struct HopeCharity.InitParams",
+          "name": "params",
+          "type": "tuple"
+        }
+      ],
+      "name": "initialize",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "nextPhaseId",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "operators",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pause",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "paused",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "phaseIds",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "phases",
+      "outputs": [
+        {
+          "internalType": "uint64",
+          "name": "executedAt",
+          "type": "uint64"
+        },
+        {
+          "internalType": "uint64",
+          "name": "publishedAt",
+          "type": "uint64"
+        },
+        {
+          "internalType": "address",
+          "name": "publishedBy",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "phaseId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "usdtAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "metadataHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "payoutTxHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "string",
+          "name": "metadataUri",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint64",
+          "name": "executedAt",
+          "type": "uint64"
+        },
+        {
+          "internalType": "uint256",
+          "name": "usdtAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "metadataUri",
+          "type": "string"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "metadataHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "payoutTxHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "publishPhase",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "phaseId",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "state",
+          "type": "bool"
+        }
+      ],
+      "name": "setOperator",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "totalUsdtSpent",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "unpause",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ]
+}
