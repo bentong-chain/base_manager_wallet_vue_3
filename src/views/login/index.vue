@@ -32,9 +32,36 @@
           </div>
         </div>
 
-        <transition name="fade-slide" mode="out-in">
-          <component :is="formComponents[component]" v-model="component" class="auth-panel__form" />
-        </transition>
+        <div class="wallet-login">
+
+
+          <div class="wallet-login__status">
+            <div class="wallet-login__status-label">当前钱包</div>
+            <div class="wallet-login__status-value">
+              {{ walletAddress ? shortAddress(walletAddress) : "未连接" }}
+            </div>
+          </div>
+
+          <el-button
+            :loading="loading"
+            type="primary"
+            size="large"
+            class="wallet-login__button"
+            @click="handleWalletLogin"
+          >
+            <el-icon><Connection /></el-icon>
+            <span>{{ loadingText }}</span>
+          </el-button>
+
+          <div class="wallet-login__providers">
+            <el-button :disabled="loading" class="wallet-login__provider" @click="handleWalletLogin">
+              MetaMask
+            </el-button>
+            <el-button :disabled="loading" class="wallet-login__provider" @click="handleWalletLogin">
+              TokenPocket
+            </el-button>
+          </div>
+        </div>
 
         <footer class="auth-panel__footer">
           <el-text size="small">
@@ -48,24 +75,142 @@
 </template>
 
 <script setup lang="ts">
+import { Connection } from "@element-plus/icons-vue";
 import logo from "@/assets/images/logo.png";
-import { appConfig } from "@/settings";
 import ThemeSwitch from "@/components/ThemeSwitch/index.vue";
+import { appConfig } from "@/settings";
+import { useAuthStore } from "@/store/modules/auth";
+import { useUserStore } from "@/store/modules/user";
 
-// type LayoutMap = "login" | "register" | "resetPwd";
-
-type LayoutMap = "login" | "resetPwd";
+type EthereumProvider = {
+  request<T = unknown>(args: { method: string; params?: unknown[] }): Promise<T>;
+};
 
 const { t } = useI18n();
-const component = ref<LayoutMap>("login");
+const route = useRoute();
+const router = useRouter();
+const userStore = useUserStore();
+const authStore = useAuthStore();
 
 const tenantEnabled = appConfig.tenantEnabled;
+const walletAddress = ref("");
+const loading = ref(false);
+const loadingText = ref("连接钱包并登录");
 
-const formComponents = {
-  login: defineAsyncComponent(() => import("./components/Login.vue")),
-  // register: defineAsyncComponent(() => import("./components/Register.vue")),
-  resetPwd: defineAsyncComponent(() => import("./components/ResetPwd.vue")),
-};
+const loginSignSubject = import.meta.env.VITE_ADMIN_LOGIN_SIGN_SUBJECT || "TJT Admin";
+const loginSignUri = import.meta.env.VITE_ADMIN_LOGIN_SIGN_URI || "http://localhost:9527";
+const loginSignTemplate =
+  import.meta.env.VITE_ADMIN_LOGIN_SIGN_TEMPLATE ||
+  [
+    "{loginSubject} wants you to sign in with your account:",
+    "{address}",
+    "",
+    "Sign in with account to the admin console.",
+    "",
+    "URI: {uri}",
+    "Login time: {loginTime}",
+  ].join("\n");
+
+function getEthereumProvider(): EthereumProvider {
+  const ethereum = window.ethereum as EthereumProvider | undefined;
+  if (!ethereum) {
+    throw new Error("WALLET_NOT_FOUND");
+  }
+  return ethereum;
+}
+
+function buildAdminLoginSignText(address: string, signTime: number) {
+  const loginTime = String(signTime);
+  return loginSignTemplate
+    .replaceAll("{loginSubject}", loginSignSubject)
+    .replaceAll("{address}", address)
+    .replaceAll("{uri}", loginSignUri)
+    .replaceAll("{loginTime}", loginTime)
+    .replaceAll("{signTime}", loginTime);
+}
+
+async function connectWallet() {
+  loadingText.value = "连接钱包中...";
+  const ethereum = getEthereumProvider();
+  const accounts = await ethereum.request<string[]>({ method: "eth_requestAccounts" });
+  const address = accounts?.[0];
+  if (!address) {
+    throw new Error("WALLET_ADDRESS_EMPTY");
+  }
+  walletAddress.value = address;
+  return { ethereum, address };
+}
+
+async function signLoginMessage(ethereum: EthereumProvider, address: string) {
+  loadingText.value = "请在钱包中确认签名";
+  const signTime = Date.now();
+  const signStr = buildAdminLoginSignText(address, signTime);
+  const loginSign = await ethereum.request<string>({
+    method: "personal_sign",
+    params: [signStr, address],
+  });
+  return { signTime, loginSign };
+}
+
+async function handleWalletLogin() {
+  loading.value = true;
+  loadingText.value = "连接钱包并登录";
+  try {
+    const { ethereum, address } = await connectWallet();
+    const { signTime, loginSign } = await signLoginMessage(ethereum, address);
+
+    loadingText.value = "登录中...";
+    await userStore.login({
+      address,
+      signTime,
+      loginSign,
+      device: authStore.deviceId,
+      deviceType: "web",
+    });
+
+    const redirect = safeRedirect((route.query.redirect as string) || "/");
+    await router.replace(redirect);
+  } catch (error) {
+    handleLoginError(error);
+  } finally {
+    loading.value = false;
+    loadingText.value = "连接钱包并登录";
+  }
+}
+
+function safeRedirect(raw: string) {
+  let redirect = "/";
+  try {
+    redirect = decodeURIComponent(String(raw)) || "/";
+  } catch {
+    redirect = "/";
+  }
+  return redirect.startsWith("/") ? redirect : "/";
+}
+
+function shortAddress(address: string) {
+  if (address.length <= 12) return address;
+  return `${address.slice(0, 6)}...${address.slice(-4)}`;
+}
+
+function handleLoginError(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error || "");
+  if (message === "WALLET_NOT_FOUND") {
+    ElMessage.error("未检测到钱包插件，请安装 MetaMask 或 TokenPocket");
+    return;
+  }
+  if (message === "WALLET_ADDRESS_EMPTY") {
+    ElMessage.error("未获取到钱包地址");
+    return;
+  }
+  if (/user rejected|User denied|rejected|4001/i.test(message)) {
+    ElMessage.warning("已取消钱包连接或签名");
+    return;
+  }
+  if (message) {
+    ElMessage.error(message);
+  }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -75,7 +220,6 @@ const formComponents = {
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: auto;
   min-height: 100vh;
   padding: clamp(1rem, 3vw, 2rem);
   overflow: hidden;
@@ -108,14 +252,6 @@ const formComponents = {
   border: 1px solid rgba(22, 93, 255, 0.15);
   border-radius: 999px;
   box-shadow: 0 10px 30px rgba(22, 93, 255, 0.12);
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
-
-  &:hover {
-    box-shadow: 0 16px 40px rgba(22, 93, 255, 0.18);
-    transform: translateY(-2px);
-  }
 
   .toolbar-item {
     display: flex;
@@ -130,199 +266,29 @@ const formComponents = {
       background-color: var(--el-fill-color);
     }
   }
-
-  @media (max-width: 640px) {
-    position: fixed;
-    top: 12px;
-    right: 16px;
-    z-index: 20;
-    align-self: flex-end;
-    justify-content: center;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    background-color: rgba(24, 28, 43, 0.8);
-    border-color: rgba(64, 128, 255, 0.3);
-  }
-}
-
-/* 应用内暗黑主题下顶部设置面板的深色样式 */
-.dark .auth-view__toolbar {
-  background-color: rgba(24, 28, 43, 0.9);
-  border-color: rgba(64, 128, 255, 0.35);
-  box-shadow:
-    0 10px 30px rgba(0, 0, 0, 0.7),
-    0 0 0 1px rgba(90, 140, 255, 0.25) inset;
 }
 
 .auth-view__wrapper {
   display: grid;
   flex: 1;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: clamp(1.5rem, 3vw, 3rem);
-  align-items: stretch;
-  padding: clamp(1.5rem, 2vw, 2.5rem);
-}
-
-.auth-feature {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: clamp(1.5rem, 3vw, 3rem);
-  color: var(--el-text-color-primary);
-  animation: featureFade 0.8s ease-out;
-}
-
-.dark .auth-feature {
-  color: rgba(240, 245, 255, 0.92);
-}
-
-@media (max-width: 768px) {
-  .auth-view__wrapper {
-    display: block;
-    padding: 1.25rem 0.75rem 1.75rem;
-  }
-
-  .auth-feature {
-    display: none;
-  }
-
-  .auth-panel {
-    width: 100%;
-    margin-inline: 0;
-    box-shadow:
-      0 12px 32px rgba(22, 93, 255, 0.18),
-      0 2px 8px rgba(22, 93, 255, 0.12);
-  }
-}
-
-.auth-feature__badge {
-  display: inline-flex;
-  gap: 0.5rem;
   align-items: center;
-  width: fit-content;
-  padding: 0.3rem 0.9rem;
-  font-size: 0.875rem;
-  color: rgba(22, 93, 255, 0.95);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  background: rgba(22, 93, 255, 0.1);
-  border-radius: 999px;
-
-  @media (prefers-color-scheme: dark) {
-    color: rgba(160, 190, 255, 0.95);
-    background: rgba(64, 128, 255, 0.12);
-  }
-}
-
-.auth-feature__dot {
-  width: 0.5rem;
-  height: 0.5rem;
-  background: #165dff;
-  border-radius: 50%;
-  box-shadow: 0 0 12px rgba(22, 93, 255, 0.7);
-
-  @media (prefers-color-scheme: dark) {
-    background: #7aa2ff;
-  }
-}
-
-.auth-feature__title {
-  margin: 1.5rem 0 0.5rem;
-  font-size: clamp(2rem, 4vw, 2.75rem);
-  font-weight: 600;
-  line-height: 1.2;
-}
-
-.auth-feature__subtitle {
-  margin-bottom: 1.5rem;
-  font-size: 1rem;
-  line-height: 1.7;
-  color: var(--el-text-color-regular);
-
-  @media (prefers-color-scheme: dark) {
-    color: rgba(220, 230, 255, 0.75);
-  }
-}
-
-.auth-feature__highlights {
-  display: grid;
-  gap: 0.75rem;
-  padding: 0;
-  margin: 0;
-  list-style: none;
-
-  li {
-    display: flex;
-    gap: 0.5rem;
-    align-items: flex-start;
-    padding: 0.75rem 1rem;
-    font-weight: 500;
-    color: var(--el-text-color-primary);
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(64, 128, 255, 0.08);
-    border-radius: 12px;
-    backdrop-filter: blur(6px);
-
-    span {
-      font-size: 0.75rem;
-      line-height: 1.6;
-      color: rgba(22, 93, 255, 0.8);
-    }
-  }
-
-  @media (prefers-color-scheme: dark) {
-    li {
-      color: rgba(230, 236, 255, 0.85);
-      background: rgba(18, 22, 36, 0.7);
-      border-color: rgba(98, 149, 255, 0.18);
-
-      span {
-        color: rgba(122, 162, 255, 0.9);
-      }
-    }
-  }
+  justify-items: center;
+  padding: clamp(1.5rem, 2vw, 2.5rem);
 }
 
 .auth-panel {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  align-self: center;
-  justify-content: flex-start;
-  justify-self: end;
   width: min(420px, 100%);
-  min-height: auto;
   padding: clamp(1.5rem, 3vw, 2rem);
-  margin-inline: auto;
   background: rgba(255, 255, 255, 0.95);
   border: 1px solid rgba(22, 93, 255, 0.1);
-  border-radius: 24px;
+  border-radius: 16px;
   box-shadow:
     0 16px 48px rgba(22, 93, 255, 0.12),
-    0 4px 16px rgba(22, 93, 255, 0.08),
-    0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+    0 4px 16px rgba(22, 93, 255, 0.08);
   backdrop-filter: blur(20px);
-  animation: panelLift 0.7s ease;
-
-  @media (prefers-color-scheme: dark) {
-    background: rgba(18, 20, 32, 0.88);
-    border-color: rgba(64, 128, 255, 0.25);
-    box-shadow:
-      0 20px 60px rgba(0, 0, 0, 0.6),
-      0 4px 16px rgba(0, 0, 0, 0.4),
-      0 0 0 1px rgba(90, 140, 255, 0.12) inset;
-  }
-}
-
-/* 应用内暗黑主题（例如 html/body 上挂 .dark 类）下的登录表单样式 */
-.dark .auth-panel {
-  background: rgba(26, 32, 48, 0.9);
-  border-color: rgba(86, 140, 255, 0.28);
-  box-shadow:
-    0 20px 60px rgba(0, 0, 0, 0.58),
-    0 4px 16px rgba(0, 0, 0, 0.36),
-    0 0 0 1px rgba(110, 150, 255, 0.16) inset;
 }
 
 .auth-panel__brand {
@@ -331,12 +297,8 @@ const formComponents = {
   align-items: center;
   justify-content: space-between;
   padding-bottom: 0.875rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   border-bottom: 1px solid rgba(22, 93, 255, 0.06);
-
-  @media (prefers-color-scheme: dark) {
-    border-color: rgba(64, 128, 255, 0.12);
-  }
 }
 
 .auth-panel__logo-wrap {
@@ -346,17 +308,8 @@ const formComponents = {
   width: 52px;
   height: 52px;
   background: radial-gradient(circle at 30% 20%, #ffffff, #e6efff);
-  border-radius: 18px;
-  box-shadow:
-    0 8px 20px rgba(22, 93, 255, 0.16),
-    0 0 0 1px rgba(255, 255, 255, 0.8) inset;
-
-  @media (prefers-color-scheme: dark) {
-    background: radial-gradient(circle at 30% 20%, #1f2438, #141827);
-    box-shadow:
-      0 8px 20px rgba(0, 0, 0, 0.7),
-      0 0 0 1px rgba(90, 140, 255, 0.3) inset;
-  }
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(22, 93, 255, 0.16);
 }
 
 .auth-panel__logo {
@@ -396,37 +349,62 @@ const formComponents = {
   font-size: 0.78rem;
 }
 
-.auth-panel__form {
+.wallet-login {
+  display: grid;
+  gap: 1rem;
+}
+
+.wallet-login__title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 650;
+  text-align: center;
+}
+
+.wallet-login__status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0.875rem;
+  background: var(--el-fill-color-lighter);
+  border: 1px solid var(--el-border-color-lighter);
+  border-radius: 8px;
+}
+
+.wallet-login__status-label {
+  color: var(--el-text-color-secondary);
+}
+
+.wallet-login__status-value {
+  max-width: 180px;
+  overflow: hidden;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wallet-login__button {
   width: 100%;
-  max-width: 100%;
-  margin-inline: auto;
+  min-height: 44px;
 
-  :deep(.el-form-item) {
-    margin-bottom: 1rem;
+  span {
+    margin-left: 0.35rem;
   }
+}
 
-  :deep(.el-input__wrapper) {
-    box-shadow: 0 0 0 1px var(--el-border-color) inset;
-    transition: all 0.2s ease;
+.wallet-login__providers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
 
-    &:hover {
-      box-shadow: 0 0 0 1px var(--el-border-color-hover) inset;
-    }
-
-    &.is-focus {
-      box-shadow: 0 0 0 1px var(--el-color-primary) inset;
-    }
-  }
-
-  :deep(.el-card) {
-    background: transparent;
-    box-shadow: none;
+  .wallet-login__provider {
+    margin: 0;
   }
 }
 
 .auth-panel__footer {
   padding-top: 0.875rem;
-  margin-top: 0.125rem;
   font-size: 0.875rem;
   text-align: center;
   border-top: 1px solid rgba(22, 93, 255, 0.06);
@@ -435,66 +413,35 @@ const formComponents = {
     margin-left: 0.25rem;
     color: rgba(22, 93, 255, 0.85);
     text-decoration: none;
-    transition: color 0.2s ease;
-
-    &:hover {
-      color: rgba(22, 93, 255, 1);
-    }
-  }
-
-  @media (prefers-color-scheme: dark) {
-    border-color: rgba(64, 128, 255, 0.12);
-
-    a {
-      color: rgba(140, 170, 255, 0.88);
-
-      &:hover {
-        color: rgba(160, 190, 255, 1);
-      }
-    }
   }
 }
 
-@keyframes featureFade {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+.dark {
+  .auth-view__toolbar,
+  .auth-panel {
+    background-color: rgba(24, 28, 43, 0.9);
+    border-color: rgba(64, 128, 255, 0.35);
   }
 }
 
-@keyframes panelLift {
-  from {
-    opacity: 0;
-    transform: translateY(30px) scale(0.98);
+@media (max-width: 640px) {
+  .auth-view {
+    padding: 1rem;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
+
+  .auth-view__toolbar {
+    position: fixed;
+    top: 12px;
+    right: 16px;
+    z-index: 20;
   }
-}
 
-.fade-slide-enter-active,
-.fade-slide-leave-active {
-  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-}
+  .auth-view__wrapper {
+    padding: 4rem 0 1.5rem;
+  }
 
-.fade-slide-enter-from {
-  opacity: 0;
-  transform: translateX(-40px) scale(0.95);
-}
-
-.fade-slide-leave-to {
-  opacity: 0;
-  transform: translateX(40px) scale(0.95);
-}
-
-.fade-slide-enter-to,
-.fade-slide-leave-from {
-  opacity: 1;
-  transform: translateX(0) scale(1);
+  .wallet-login__providers {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

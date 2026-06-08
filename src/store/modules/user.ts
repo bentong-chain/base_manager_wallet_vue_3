@@ -23,17 +23,17 @@ export const useUserStore = defineStore("user", () => {
   /**
    * 登录
    * 签名模式且后端返回 publicKey/salt 时，解密后写入 authStore；否则走原有 AuthStorage
-   * 对接 api.json：AdminLoginRequest 含 username, password, device?, deviceType?
+   * 对接管理员钱包签名登录：address、signTime、loginSign、device、deviceType
    */
   async function login(loginRequest: LoginRequest): Promise<void> {
     const authStore = useAuthStore(store);
     const payload: LoginRequest = {
       ...loginRequest,
-      device: loginRequest.device ?? authStore.deviceId,
+      device: loginRequest.device || authStore.deviceId,
       deviceType: loginRequest.deviceType ?? "web",
     };
     const res = await AuthAPI.login(payload);
-    rememberMe.value = loginRequest.rememberMe ?? false;
+    rememberMe.value = false;
 
     if (USE_SIGN_AUTH) {
       const { accessToken, publicKey, salt } = res;

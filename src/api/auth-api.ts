@@ -10,26 +10,24 @@ const AuthAPI = {
   /** 管理员登录：POST /api/admin/auth/login（不携带 token，使用默认公钥与 salt） */
   async login(data: LoginRequest) {
     const payload: Record<string, unknown> = {
-      username: data.username,
-      password: data.password,
+      address: data.address,
+      signTime: data.signTime,
+      loginSign: data.loginSign,
+      device: data.device,
+      deviceType: data.deviceType ?? "web",
     };
-    if (data.captchaKey != null) payload.captchaKey = data.captchaKey;
-    if (data.captchaAnswer != null) payload.captchaAnswer = data.captchaAnswer;
-    if (data.device != null) payload.device = data.device;
-    if (data.deviceType != null) payload.deviceType = data.deviceType;
 
     const response = await request<any, LoginResponse>({
       url: `${AUTH_BASE_URL}/v1/admin/auth/login`,
       method: "post",
       data: payload,
       headers: { Authorization: NO_AUTH_HEADER_VALUE },
+      withCredentials: true,
     });
 
-    console.log("[auth-api] 原始响应:", response);
     const decryptedAccessToken = aesBackendDecrypt(response.accessToken, AP_KEY);
-    const decryptedPublicKey = aesBackendDecrypt(response.publicKey, AP_KEY);
-    const decryptedSalt = aesBackendDecrypt(response.salt, AP_KEY);
-    console.log("[auth-api] 解密后:", { decryptedAccessToken, decryptedPublicKey, decryptedSalt });
+    const decryptedPublicKey = response.publicKey ? aesBackendDecrypt(response.publicKey, AP_KEY) : "";
+    const decryptedSalt = response.salt ? aesBackendDecrypt(response.salt, AP_KEY) : "";
 
     // 解密后端返回的加密字段
     return {

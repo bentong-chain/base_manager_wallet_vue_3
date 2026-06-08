@@ -11,6 +11,12 @@ declare global {
   type ExcelResult = import("@/types/api").ExcelResult;
   type TagView = import("@/types/ui").TagView;
   type AppSettings = import("@/types/ui").AppSettings;
+
+  interface Window {
+    ethereum?: {
+      request<T = unknown>(args: { method: string; params?: unknown[] }): Promise<T>;
+    };
+  }
 }
 
 export {};
