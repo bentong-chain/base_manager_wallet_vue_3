@@ -45,6 +45,8 @@ export const SubCode = {
   TOKEN_INVALID: "TOKEN_INVALID",
   /** 缺少 Token 或设备标识 */
   TOKEN_OR_DEVICE_MISSING: "TOKEN_OR_DEVICE_MISSING",
+  /** 未授权（无权限访问或认证失败） */
+  UNAUTHORIZED: "UNAUTHORIZED",
   /** Refresh Token 无效或已过期，需重新登录 */
   REFRESH_TOKEN_INVALID: "REFRESH_TOKEN_INVALID",
 } as const;

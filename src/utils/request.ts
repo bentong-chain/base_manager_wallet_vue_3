@@ -248,7 +248,9 @@ http.interceptors.response.use(
       if (USE_SIGN_AUTH) {
         const authStore = useAuthStore(store);
         const needRefresh =
-          subCode === SubCode.TOKEN_EXPIRED || code === ApiCodeEnum.ACCESS_TOKEN_INVALID;
+          subCode === SubCode.TOKEN_EXPIRED ||
+          subCode === SubCode.UNAUTHORIZED ||
+          code === ApiCodeEnum.ACCESS_TOKEN_INVALID;
 
         if (needRefresh && config && !config._retry) {
           if (isRefreshing) {
