@@ -75,7 +75,7 @@ export function useLoginForm() {
     }
   }
 
-  function checkCapsLock(event: KeyboardEvent): void {
+  function checkCapsLock(event: Event | KeyboardEvent): void {
     if (event instanceof KeyboardEvent) {
       isCapsLock.value = event.getModifierState("CapsLock");
     }

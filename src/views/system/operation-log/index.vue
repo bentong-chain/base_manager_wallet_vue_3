@@ -88,25 +88,25 @@
     >
       <el-descriptions :column="1" border>
         <el-descriptions-item label="操作人">
-          {{ currentLog.operatorName || currentLog.operatorUid || "-" }}
+          {{ currentLog?.operatorName || currentLog?.operatorUid || "-" }}
         </el-descriptions-item>
         <el-descriptions-item label="操作类型">
-          {{ currentLog.operationType || "-" }}
+          {{ currentLog?.operationType || "-" }}
         </el-descriptions-item>
         <el-descriptions-item label="请求路径">
-          {{ currentLog.requestUri || "-" }}
+          {{ currentLog?.requestUri || "-" }}
         </el-descriptions-item>
         <el-descriptions-item label="请求方法">
-          {{ currentLog.method || "-" }}
+          {{ currentLog?.method || "-" }}
         </el-descriptions-item>
         <el-descriptions-item label="IP">
-          {{ currentLog.ip || "-" }}
+          {{ currentLog?.ip || "-" }}
         </el-descriptions-item>
         <el-descriptions-item label="操作时间">
-          {{ currentLog.createTime || "-" }}
+          {{ currentLog?.createTime || "-" }}
         </el-descriptions-item>
-        <el-descriptions-item v-if="currentLog.content" label="内容">
-          {{ currentLog.content }}
+        <el-descriptions-item v-if="currentLog?.content" label="内容">
+          {{ currentLog?.content }}
         </el-descriptions-item>
       </el-descriptions>
     </el-dialog>
@@ -120,8 +120,8 @@ defineOptions({
 });
 
 import type { FormInstance } from "element-plus";
-import type { OperationLogItem, OperationLogQueryParams } from "@/types/api";
-import { getAdminOperationLogList } from "@/api/system/operation-log";
+import type { OperationLogItem, OperationLogQueryParams } from "@/types/api/operation-log";
+import OperationLogAPI from "@/api/system/operation-log";
 
 const queryFormRef = ref<FormInstance>();
 
@@ -167,7 +167,7 @@ const total = ref(0);
 const loading = ref(false);
 
 const detailDialog = reactive({ visible: false });
-const currentLog = ref<OperationLogItem>({});
+const currentLog = ref<OperationLogItem | null>(null);
 
 function handleQuery(): void {
   if (timeRange.value && timeRange.value.length === 2) {
@@ -184,7 +184,7 @@ function handleQuery(): void {
 async function fetchData(): Promise<void> {
   loading.value = true;
   try {
-    const res = await getAdminOperationLogList(queryParams);
+    const res = await OperationLogAPI.getAdminOperationLogList(queryParams);
     pageData.value = res?.list ?? [];
     total.value = res?.total ?? 0;
   } finally {

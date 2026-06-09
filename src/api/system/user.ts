@@ -209,7 +209,7 @@ const UserAPI = {
     const raw = (data ?? {}) as Record<string, unknown>;
     const profile = mapAuthInfoToProfileDetail(raw);
     const userStore = useUserStoreHook();
-    const userInfoRef = userStore.userInfo as Ref<UserInfo>;
+    const userInfoRef = userStore.userInfo as unknown as Ref<UserInfo>;
     if (userInfoRef?.value && (profile.avatar !== undefined || profile.nickname !== undefined)) {
       if (profile.avatar !== undefined) userInfoRef.value.avatar = profile.avatar;
       if (profile.nickname !== undefined) userInfoRef.value.nickname = profile.nickname;

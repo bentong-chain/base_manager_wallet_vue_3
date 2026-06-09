@@ -1,6 +1,6 @@
 {
-  "name": "vue3-element-admin",
-  "description": "后台管理系统 Vue3 版本",
+  "name": "admin-system",
+  "description": "后台管理系统",
   "version": "1.0.0",
   "private": true,
   "type": "module",

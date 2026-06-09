@@ -169,17 +169,17 @@
 <script setup lang="ts">
 import type { FormInstance, FormRules } from "element-plus";
 import type { PermissionTreeNode, PermissionForm, ResourceType } from "@/types/api/permission";
-import { createPermission, updatePermission } from "@/api/system/permission";
+import Permission from "@/api/system/permission";
 
 interface Props {
   /** 弹窗是否可见 */
-  visible: boolean;
+  visible?: boolean;
   /** 是否编辑模式 */
-  isEdit: boolean;
+  isEdit?: boolean;
   /** 编辑的权限数据 */
   editData?: PermissionTreeNode | null;
   /** 权限树数据（用于父权限选择） */
-  treeData: PermissionTreeNode[];
+  treeData?: PermissionTreeNode[];
   /** 默认父权限 ID */
   defaultParentId?: number;
 }
@@ -401,11 +401,11 @@ async function handleSubmit() {
 
     if (props.isEdit && formData.id) {
       // 编辑模式
-      await updatePermission(formData.id, formData);
+      await Permission.updatePermission(formData.id, formData);
       ElMessage.success("更新成功");
     } else {
       // 新增模式
-      await createPermission(formData);
+      await Permission.createPermission(formData);
       ElMessage.success("新增成功");
     }
 

@@ -1,7 +1,7 @@
 import { ref, reactive } from "vue";
 import { ElMessage } from "element-plus";
 import UserAPI from "@/api/system/user";
-import { getAdminRoleList } from "@/api/system/role";
+import Role from "@/api/system/role";
 import type { AdminUserListItem, OptionItem } from "@/types/api";
 
 /**
@@ -25,7 +25,7 @@ export function useAssignRolesDialog(onSuccess?: () => void) {
   async function loadRoleOptions(): Promise<void> {
     if (roleOptions.value.length > 0) return;
     try {
-      const res = await getAdminRoleList({ pageNum: 1, pageSize: 500, status: 1 });
+      const res = await Role.getAdminRoleList({ pageNum: 1, pageSize: 500, status: 1 });
       roleOptions.value = (res?.list ?? []).map((item) => ({
         value: item.id ?? 0,
         label: item.roleName ?? String(item.id ?? ""),

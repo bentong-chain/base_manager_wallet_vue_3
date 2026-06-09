@@ -109,12 +109,7 @@ defineOptions({
 });
 
 import type { PermissionTreeNode } from "@/types/api/permission";
-import {
-  getPermissionTree,
-  getPermissionDetail,
-  updatePermissionStatus,
-  deletePermission,
-} from "@/api/system/permission";
+import Permission from "@/api/system/permission";
 import PermissionForm from "./components/PermissionForm.vue";
 
 const filterStatus = ref<number | undefined>(undefined);
@@ -134,7 +129,7 @@ async function loadTree(): Promise<void> {
   if (filterStatus.value != undefined) {
     params.status = filterStatus.value;
   }
-  const tree = await getPermissionTree(params);
+  const tree = await Permission.getPermissionTree(params);
   permissionTreeData.value = Array.isArray(tree) ? tree : [];
 }
 
@@ -150,7 +145,7 @@ function handleAdd() {
 async function onEdit(data: PermissionTreeNode) {
   try {
     loading.value = true;
-    const detail = await getPermissionDetail(data.id);
+    const detail = await Permission.getPermissionDetail(data.id);
     editData.value = detail;
     isEdit.value = true;
     loading.value = false;
@@ -175,7 +170,7 @@ async function onUpdateStatus(data: PermissionTreeNode) {
     // 调用更新状态 API
     try {
       loading.value = true;
-      await updatePermissionStatus(data.id, { status: newStatus });
+      await Permission.updatePermissionStatus(data.id, { status: newStatus });
       ElMessage.success(`${action}成功`);
       await loadTree();
     } catch {
@@ -200,7 +195,7 @@ async function onDelete(data: PermissionTreeNode) {
     // 调用删除 API
     try {
       loading.value = true;
-      await deletePermission(data.id);
+      await Permission.deletePermission(data.id);
       ElMessage.success("删除成功");
       await loadTree();
     } catch {

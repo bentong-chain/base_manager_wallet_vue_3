@@ -175,16 +175,8 @@ import type {
   AdminRoleSaveRequest,
   PermissionTreeNode,
 } from "@/types/api";
-import {
-  getAdminRoleList,
-  getAdminRoleDetail,
-  createAdminRole,
-  updateAdminRole,
-  deleteAdminRole,
-  getAdminRolePermissionIds,
-  assignAdminRolePermissions,
-} from "@/api/system/role";
-import { getPermissionTree } from "@/api/system/permission";
+import Role from "@/api/system/role";
+import Permission from "@/api/system/permission";
 
 const queryFormRef = ref<FormInstance>();
 const formRef = ref<FormInstance>();
@@ -240,7 +232,7 @@ function handleQuery(): void {
 async function fetchData(): Promise<void> {
   loading.value = true;
   try {
-    const res = await getAdminRoleList(queryParams);
+    const res = await Role.getAdminRoleList(queryParams);
     pageData.value = res?.list ?? [];
     total.value = res?.total ?? 0;
   } finally {
@@ -263,7 +255,7 @@ async function openDialog(id?: number | string): Promise<void> {
   dialogState.title = id ? "编辑角色" : "新增角色";
   if (id) {
     try {
-      const detail = await getAdminRoleDetail(id);
+      const detail = await Role.getAdminRoleDetail(id);
       Object.assign(formData, {
         id: detail?.id != null ? Number(detail.id) : undefined,
         roleCode: detail?.roleCode ?? "",
@@ -312,10 +304,10 @@ function handleSubmit(): void {
     try {
       const payload = buildRolePayload();
       if (formData.id != null) {
-        await updateAdminRole(formData.id, payload);
+        await Role.updateAdminRole(formData.id, payload);
         ElMessage.success("更新成功");
       } else {
-        await createAdminRole(payload);
+        await Role.createAdminRole(payload);
         ElMessage.success("新增成功");
       }
       closeDialog();
@@ -335,9 +327,9 @@ async function openAssignPermissionsDialog(row: AdminRoleListItem): Promise<void
   assignPermissionsDialog.loading = true;
   permissionTreeData.value = [];
   try {
-    const tree = await getPermissionTree();
+    const tree = await Permission.getPermissionTree();
     permissionTreeData.value = Array.isArray(tree) ? tree : [];
-    const ids = await getAdminRolePermissionIds(roleId);
+    const ids = await Role.getAdminRolePermissionIds(roleId);
     await nextTick();
     const idsArr = Array.isArray(ids) ? ids : [];
     idsArr.forEach((menuId) => permissionTreeRef.value!.setChecked(menuId, true, false));
@@ -359,7 +351,7 @@ async function handleAssignPermissionsSubmit(): Promise<void> {
   const checked = permissionTreeRef.value?.getCheckedKeys() ?? [];
   const permissionIds = [...(checked as number[]), ...(halfChecked as number[])];
   try {
-    await assignAdminRolePermissions(roleId, { permissionIds });
+    await Role.assignAdminRolePermissions(roleId, { permissionIds });
     ElMessage.success("分配权限成功");
     closeAssignPermissionsDialog();
   } catch {
@@ -374,7 +366,7 @@ function handleDelete(id: number | string): void {
     type: "warning",
   }).then(async () => {
     try {
-      await deleteAdminRole(id);
+      await Role.deleteAdminRole(id);
       ElMessage.success("删除成功");
       fetchData();
     } catch {
@@ -395,7 +387,7 @@ function handleBatchDelete(): void {
   }).then(async () => {
     try {
       for (const id of selectIds.value) {
-        await deleteAdminRole(id);
+        await Role.deleteAdminRole(id);
       }
       ElMessage.success("删除成功");
       fetchData();

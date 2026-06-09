@@ -5,11 +5,13 @@
 /** API 响应结构 */
 export interface ApiResponse<T = any> {
   /** 响应码 */
-  code: string;
+  code: number | string;
   /** 响应数据 */
   data: T;
   /** 响应消息 */
-  msg: string;
+  msg?: string;
+  /** 响应消息（兼容字段） */
+  message?: string;
 }
 
 /** 基础查询参数 */

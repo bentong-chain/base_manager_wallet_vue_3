@@ -81,7 +81,7 @@ defineOptions({
 
 import { dayjs } from "element-plus";
 import LogAPI from "@/api/system/log";
-import type { OperationLogItem, OperationLogQueryParams } from "@/types/api";
+import type { OperationLogItem, OperationLogQueryParams } from "@/types/api/operation-log";
 import type { FormInstance } from "element-plus";
 
 const queryFormRef = ref<FormInstance>();
