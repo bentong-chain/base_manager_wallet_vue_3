@@ -59,7 +59,7 @@
         <footer class="auth-panel__footer">
           <el-text size="small">
             Copyright © 2026
-            <a href="#" target="_blank">备案号</a>
+            <!-- <a href="#" target="_blank">备案号</a> -->
           </el-text>
         </footer>
       </section>
