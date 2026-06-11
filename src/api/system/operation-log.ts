@@ -1,8 +1,8 @@
-import request from "@/utils/request";
-import type { PageResult } from "@/types/api";
-import type { OperationLogItem, OperationLogQueryParams } from "@/types/api/operation-log";
+import request from '@/utils/request';
+import type { PageResult } from '@/types/api';
+import type { OperationLogItem, OperationLogQueryParams } from '@/types/api/operation-log';
 
-const OPERATION_LOG_BASE_URL = "/api/v1/admin/operation-log";
+const OPERATION_LOG_BASE_URL = '/api/v1/admin/operation-log';
 
 const OperationLogAPI = {
   /**
@@ -27,7 +27,7 @@ const OperationLogAPI = {
     }
 
     const operationType =
-      queryParams?.operationType != null && String(queryParams.operationType).trim() !== ""
+      queryParams?.operationType != null && String(queryParams.operationType).trim() !== ''
         ? String(queryParams.operationType).trim()
         : undefined;
     if (operationType !== undefined) {
@@ -35,7 +35,7 @@ const OperationLogAPI = {
     }
 
     const startTime =
-      queryParams?.startTime != null && String(queryParams.startTime).trim() !== ""
+      queryParams?.startTime != null && String(queryParams.startTime).trim() !== ''
         ? String(queryParams.startTime).trim()
         : undefined;
     if (startTime !== undefined) {
@@ -43,7 +43,7 @@ const OperationLogAPI = {
     }
 
     const endTime =
-      queryParams?.endTime != null && String(queryParams.endTime).trim() !== ""
+      queryParams?.endTime != null && String(queryParams.endTime).trim() !== ''
         ? String(queryParams.endTime).trim()
         : undefined;
     if (endTime !== undefined) {
@@ -52,7 +52,7 @@ const OperationLogAPI = {
 
     return request<any, PageResult<OperationLogItem>>({
       url: `${OPERATION_LOG_BASE_URL}/list`,
-      method: "get",
+      method: 'get',
       params: cleaned,
     });
   },

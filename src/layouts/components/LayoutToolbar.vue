@@ -53,7 +53,7 @@
               {{ t("navbar.profile") }}
             </el-dropdown-item> -->
             <el-dropdown-item divided @click="logout">
-              {{ t("navbar.logout") }}
+              {{ t('navbar.logout') }}
             </el-dropdown-item>
           </el-dropdown-menu>
         </template>
@@ -68,20 +68,20 @@
 </template>
 
 <script setup lang="ts">
-import { useI18n } from "vue-i18n";
-import { useRoute, useRouter } from "vue-router";
-import { defaults } from "@/settings";
-import { DeviceEnum, SidebarColor, ThemeMode, LayoutMode } from "@/enums/settings";
-import { useAppStore, useSettingsStore, useUserStore } from "@/store";
+import { useI18n } from 'vue-i18n';
+import { useRoute, useRouter } from 'vue-router';
+import { defaults } from '@/settings';
+import { DeviceEnum, SidebarColor, ThemeMode, LayoutMode } from '@/enums/settings';
+import { useAppStore, useSettingsStore, useUserStore } from '@/store';
 
 // 导入子组件
-import CommandPalette from "@/components/CommandPalette/index.vue";
-import Fullscreen from "@/components/Fullscreen/index.vue";
-import SizeSelect from "@/components/SizeSelect/index.vue";
-import LangSelect from "@/components/LangSelect/index.vue";
-import NoticeDropdown from "@/components/NoticeDropdown/index.vue";
-import TenantSwitcher from "@/components/TenantSwitcher/index.vue";
-import { useTenantStoreHook } from "@/store/modules/tenant";
+import CommandPalette from '@/components/CommandPalette/index.vue';
+import Fullscreen from '@/components/Fullscreen/index.vue';
+import SizeSelect from '@/components/SizeSelect/index.vue';
+import LangSelect from '@/components/LangSelect/index.vue';
+import NoticeDropdown from '@/components/NoticeDropdown/index.vue';
+import TenantSwitcher from '@/components/TenantSwitcher/index.vue';
+import { useTenantStoreHook } from '@/store/modules/tenant';
 
 const { t } = useI18n();
 const appStore = useAppStore();
@@ -99,7 +99,7 @@ const DEFAULT_AVATAR =
 const avatarUrl = computed(() => {
   const avatar = userStore.userInfo?.avatar?.trim();
   if (avatar) {
-    return avatar.includes("?") ? avatar : `${avatar}?imageView2/1/w/56/h/56`;
+    return avatar.includes('?') ? avatar : `${avatar}?imageView2/1/w/56/h/56`;
   }
   return DEFAULT_AVATAR;
 });
@@ -125,11 +125,11 @@ const showTenantSwitcher = computed(() => {
 function handleTenantChange(tenantId: number) {
   tenantStore.switchTenant(tenantId).then(
     () => {
-      ElMessage.success("切换租户成功");
-      window.location.href = "/";
+      ElMessage.success('切换租户成功');
+      window.location.href = '/';
     },
     (error: any) => {
-      ElMessage.error(error.message || "切换租户失败");
+      ElMessage.error(error.message || '切换租户失败');
     }
   );
 }
@@ -147,7 +147,7 @@ const navbarActionsClass = computed(() => {
 
   // 暗黑主题下，所有布局都使用白色文字
   if (theme === ThemeMode.DARK) {
-    return "navbar-actions--white-text";
+    return 'navbar-actions--white-text';
   }
 
   // 明亮主题下
@@ -157,24 +157,24 @@ const navbarActionsClass = computed(() => {
     // - 如果侧边栏是极简白色，使用深色文字
     if (layout === LayoutMode.TOP || layout === LayoutMode.MIX) {
       if (sidebarColorScheme === SidebarColor.CLASSIC_BLUE) {
-        return "navbar-actions--white-text";
+        return 'navbar-actions--white-text';
       } else {
-        return "navbar-actions--dark-text";
+        return 'navbar-actions--dark-text';
       }
     }
   }
 
-  return "navbar-actions--dark-text";
+  return 'navbar-actions--dark-text';
 });
 
 /**
  * 退出登录
  */
 function logout() {
-  ElMessageBox.confirm("确定注销并退出系统吗？", "提示", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning",
+  ElMessageBox.confirm('确定注销并退出系统吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
     lockScroll: false,
   }).then(() => {
     userStore.logout().then(() => {
@@ -236,7 +236,7 @@ function handleSettingsClick() {
     }
 
     // 图标样式
-    :deep([class^="i-svg:"]) {
+    :deep([class^='i-svg:']) {
       font-size: 18px;
       line-height: 1;
       color: var(--el-text-color-regular);
@@ -246,7 +246,7 @@ function handleSettingsClick() {
     &:hover {
       background: var(--el-fill-color-light);
 
-      :deep([class^="i-svg:"]) {
+      :deep([class^='i-svg:']) {
         color: var(--el-color-primary);
       }
     }
@@ -278,14 +278,14 @@ function handleSettingsClick() {
 // 白色文字样式（用于深色背景：暗黑主题、顶部布局、混合布局等）
 .navbar-actions--white-text {
   .navbar-actions__item {
-    :deep([class^="i-svg:"]) {
+    :deep([class^='i-svg:']) {
       color: color-mix(in srgb, var(--el-color-white) 85%, transparent);
     }
 
     &:hover {
       background: color-mix(in srgb, var(--el-color-white) 10%, transparent);
 
-      :deep([class^="i-svg:"]) {
+      :deep([class^='i-svg:']) {
         color: var(--el-color-white);
       }
     }
@@ -314,14 +314,14 @@ function handleSettingsClick() {
 // 深色文字样式（用于浅色背景：明亮主题下的左侧布局等）
 .navbar-actions--dark-text {
   .navbar-actions__item {
-    :deep([class^="i-svg:"]) {
+    :deep([class^='i-svg:']) {
       color: var(--el-text-color-regular) !important;
     }
 
     &:hover {
       background: rgba(0, 0, 0, 0.04);
 
-      :deep([class^="i-svg:"]) {
+      :deep([class^='i-svg:']) {
         color: var(--el-color-primary) !important;
       }
     }
@@ -349,7 +349,7 @@ function handleSettingsClick() {
 
 // 确保下拉菜单中的图标不受影响
 ::v-deep(.el-dropdown-menu) {
-  [class^="i-svg:"] {
+  [class^='i-svg:'] {
     color: var(--el-text-color-regular) !important;
 
     &:hover {

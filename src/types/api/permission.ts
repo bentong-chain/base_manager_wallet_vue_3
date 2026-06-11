@@ -83,10 +83,10 @@ export interface PermissionTreeNode {
 }
 
 /** 资源类型 */
-export type ResourceType = "CATALOG" | "MENU" | "API";
+export type ResourceType = 'CATALOG' | 'MENU' | 'API';
 
 /** HTTP 方法 */
-export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
 /** 新增权限请求 */
 export interface CreatePermissionRequest {

@@ -17,8 +17,8 @@
 </template>
 
 <script setup lang="ts">
-import { useAppStore } from "@/store/modules/app";
-import { LanguageEnum } from "@/enums/settings";
+import { useAppStore } from '@/store/modules/app';
+import { LanguageEnum } from '@/enums/settings';
 
 defineProps({
   size: {
@@ -28,8 +28,8 @@ defineProps({
 });
 
 const langOptions = [
-  { label: "中文", value: LanguageEnum.ZH_CN },
-  { label: "English", value: LanguageEnum.EN },
+  { label: '中文', value: LanguageEnum.ZH_CN },
+  { label: 'English', value: LanguageEnum.EN },
 ];
 
 const appStore = useAppStore();
@@ -38,12 +38,12 @@ const { locale, t } = useI18n();
 /**
  * 处理语言切换
  *
- * @param lang  语言（zh-cn、en�?
+ * @param lang  语言（zh-cn、en�?
  */
 function handleLanguageChange(lang: string) {
   locale.value = lang;
   appStore.changeLanguage(lang);
 
-  ElMessage.success(t("langSelect.message.success"));
+  ElMessage.success(t('langSelect.message.success'));
 }
 </script>

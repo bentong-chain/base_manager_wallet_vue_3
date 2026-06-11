@@ -1,14 +1,14 @@
-import request from "@/utils/request";
-import type { GeneratorPreviewItem, TableQueryParams, TableItem, GenConfigForm } from "@/types/api";
+import request from '@/utils/request';
+import type { GeneratorPreviewItem, TableQueryParams, TableItem, GenConfigForm } from '@/types/api';
 
-const GENERATOR_BASE_URL = "/api/v1/codegen";
+const GENERATOR_BASE_URL = '/api/v1/codegen';
 
 const GeneratorAPI = {
   /** 获取数据表分页列表 */
   getTablePage(params: TableQueryParams) {
     return request<any, PageResult<TableItem>>({
       url: `${GENERATOR_BASE_URL}/table`,
-      method: "get",
+      method: 'get',
       params,
     });
   },
@@ -17,7 +17,7 @@ const GeneratorAPI = {
   getGenConfig(tableName: string) {
     return request<any, GenConfigForm>({
       url: `${GENERATOR_BASE_URL}/${tableName}/config`,
-      method: "get",
+      method: 'get',
     });
   },
 
@@ -25,13 +25,13 @@ const GeneratorAPI = {
   saveGenConfig(tableName: string, data: GenConfigForm) {
     return request({
       url: `${GENERATOR_BASE_URL}/${tableName}/config`,
-      method: "post",
+      method: 'post',
       data,
     });
   },
 
   /** 获取代码生成预览数据 */
-  getPreviewData(tableName: string, pageType?: "classic" | "curd", type?: "ts" | "js") {
+  getPreviewData(tableName: string, pageType?: 'classic' | 'curd', type?: 'ts' | 'js') {
     const params: Record<string, string> = {};
     if (pageType) {
       params.pageType = pageType;
@@ -41,7 +41,7 @@ const GeneratorAPI = {
     }
     return request<any, GeneratorPreviewItem[]>({
       url: `${GENERATOR_BASE_URL}/${tableName}/preview`,
-      method: "get",
+      method: 'get',
       params: Object.keys(params).length ? params : undefined,
     });
   },
@@ -50,7 +50,7 @@ const GeneratorAPI = {
   resetGenConfig(tableName: string) {
     return request({
       url: `${GENERATOR_BASE_URL}/${tableName}/config`,
-      method: "delete",
+      method: 'delete',
     });
   },
 
@@ -59,7 +59,7 @@ const GeneratorAPI = {
    * @param url
    * @param fileName
    */
-  download(tableName: string, pageType?: "classic" | "curd", type?: "ts" | "js") {
+  download(tableName: string, pageType?: 'classic' | 'curd', type?: 'ts' | 'js') {
     const params: Record<string, string> = {};
     if (pageType) {
       params.pageType = pageType;
@@ -69,11 +69,11 @@ const GeneratorAPI = {
     }
     return request({
       url: `${GENERATOR_BASE_URL}/${tableName}/download`,
-      method: "get",
+      method: 'get',
       params: Object.keys(params).length ? params : undefined,
-      responseType: "blob",
+      responseType: 'blob',
     }).then((response) => {
-      const contentDisposition = response?.headers?.["content-disposition"] as string | undefined;
+      const contentDisposition = response?.headers?.['content-disposition'] as string | undefined;
       let fileName = `${tableName}.zip`;
       if (contentDisposition) {
         // content-disposition: attachment; filename=xxx.zip
@@ -87,8 +87,8 @@ const GeneratorAPI = {
         }
       }
 
-      const blob = new Blob([response.data], { type: "application/zip" });
-      const a = document.createElement("a");
+      const blob = new Blob([response.data], { type: 'application/zip' });
+      const a = document.createElement('a');
       const url = window.URL.createObjectURL(blob);
       a.href = url;
       a.download = fileName;

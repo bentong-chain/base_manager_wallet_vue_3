@@ -167,9 +167,9 @@
 </template>
 
 <script setup lang="ts">
-import type { FormInstance, FormRules } from "element-plus";
-import type { PermissionTreeNode, PermissionForm, ResourceType } from "@/types/api/permission";
-import Permission from "@/api/system/permission";
+import type { FormInstance, FormRules } from 'element-plus';
+import type { PermissionTreeNode, PermissionForm, ResourceType } from '@/types/api/permission';
+import Permission from '@/api/system/permission';
 
 interface Props {
   /** 弹窗是否可见 */
@@ -194,20 +194,20 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   /** 更新 visible 属性 */
-  "update:visible": [value: boolean];
+  'update:visible': [value: boolean];
   /** 提交成功 */
   success: [];
 }>();
 
-const propsOptions = { label: "permissionName", value: "id", children: "children" };
+const propsOptions = { label: 'permissionName', value: 'id', children: 'children' };
 const formRef = ref<FormInstance>();
 const submitLoading = ref(false);
 
 // 表单数据
 const formData = reactive<PermissionForm>({
-  permissionName: "",
-  permissionCode: "",
-  resourceType: "MENU" as ResourceType,
+  permissionName: '',
+  permissionCode: '',
+  resourceType: 'MENU' as ResourceType,
   uri: undefined,
   method: undefined,
   routePath: undefined,
@@ -223,41 +223,41 @@ const formData = reactive<PermissionForm>({
 // 表单验证规则
 const rules: FormRules = {
   permissionName: [
-    { required: true, message: "请输入权限名称", trigger: "blur" },
-    { min: 2, max: 100, message: "长度在 2 到 100 个字符", trigger: "blur" },
+    { required: true, message: '请输入权限名称', trigger: 'blur' },
+    { min: 2, max: 100, message: '长度在 2 到 100 个字符', trigger: 'blur' },
   ],
   permissionCode: [
-    { required: true, message: "请输入权限编码", trigger: "blur" },
-    { min: 2, max: 100, message: "长度在 2 到 100 个字符", trigger: "blur" },
+    { required: true, message: '请输入权限编码', trigger: 'blur' },
+    { min: 2, max: 100, message: '长度在 2 到 100 个字符', trigger: 'blur' },
   ],
-  resourceType: [{ required: true, message: "请选择资源类型", trigger: "change" }],
-  parentId: [{ required: true, message: "请选择父权限", trigger: "change" }],
+  resourceType: [{ required: true, message: '请选择资源类型', trigger: 'change' }],
+  parentId: [{ required: true, message: '请选择父权限', trigger: 'change' }],
   routePath: [
     {
       required: true,
-      trigger: "blur",
+      trigger: 'blur',
       validator: (_rule, value, callback) => {
         // API 类型不需要路由路径
-        if (formData.resourceType === "API") {
-          callback(new Error("请输入路由路径"));
+        if (formData.resourceType === 'API') {
+          callback(new Error('请输入路由路径'));
           return;
         }
 
         // 检查是否为空
         if (!value || !value.trim()) {
-          callback(new Error("请输入路由路径"));
+          callback(new Error('请输入路由路径'));
           return;
         }
 
         // 检查是否以 "/" 开头且有实际内容
-        if (!value.startsWith("/")) {
+        if (!value.startsWith('/')) {
           callback(new Error("路由路径必须以 '/' 开头"));
           return;
         }
 
         // 检查是否只有 "/"（需要至少一个字符的路径）
-        if (value.length < 2 || value === "/") {
-          callback(new Error("请输入有效的路由路径，例如 /system"));
+        if (value.length < 2 || value === '/') {
+          callback(new Error('请输入有效的路由路径，例如 /system'));
           return;
         }
 
@@ -268,11 +268,11 @@ const rules: FormRules = {
   component: [
     {
       required: true,
-      message: "请输入组件路径",
-      trigger: "blur",
+      message: '请输入组件路径',
+      trigger: 'blur',
       validator: (_rule, _value, callback) => {
-        if (formData.resourceType === "MENU" && !formData.component) {
-          callback(new Error("请输入组件路径"));
+        if (formData.resourceType === 'MENU' && !formData.component) {
+          callback(new Error('请输入组件路径'));
         } else {
           callback();
         }
@@ -282,11 +282,11 @@ const rules: FormRules = {
   uri: [
     {
       required: true,
-      message: "请输入接口路径",
-      trigger: "blur",
+      message: '请输入接口路径',
+      trigger: 'blur',
       validator: (_rule, _value, callback) => {
-        if (formData.resourceType === "API" && !formData.uri) {
-          callback(new Error("请输入接口路径"));
+        if (formData.resourceType === 'API' && !formData.uri) {
+          callback(new Error('请输入接口路径'));
         } else {
           callback();
         }
@@ -296,11 +296,11 @@ const rules: FormRules = {
   method: [
     {
       required: true,
-      message: "请选择 HTTP 方法",
-      trigger: "change",
+      message: '请选择 HTTP 方法',
+      trigger: 'change',
       validator: (_rule, _value, callback) => {
-        if (formData.resourceType === "API" && !formData.method) {
-          callback(new Error("请选择 HTTP 方法"));
+        if (formData.resourceType === 'API' && !formData.method) {
+          callback(new Error('请选择 HTTP 方法'));
         } else {
           callback();
         }
@@ -310,11 +310,11 @@ const rules: FormRules = {
   icon: [
     {
       required: true,
-      message: "请输入菜单图标",
-      trigger: "blur",
+      message: '请输入菜单图标',
+      trigger: 'blur',
       validator: (_rule, _value, callback) => {
-        if (formData.resourceType !== "API" && !formData.icon) {
-          callback(new Error("请输入菜单图标"));
+        if (formData.resourceType !== 'API' && !formData.icon) {
+          callback(new Error('请输入菜单图标'));
         } else {
           callback();
         }
@@ -326,14 +326,14 @@ const rules: FormRules = {
 // 弹窗可见性双向绑定
 const dialogVisible = computed({
   get: () => props.visible,
-  set: (value) => emit("update:visible", value),
+  set: (value) => emit('update:visible', value),
 });
 
 // 重置表单
 function resetForm() {
-  formData.permissionName = "";
-  formData.permissionCode = "";
-  formData.resourceType = "MENU";
+  formData.permissionName = '';
+  formData.permissionCode = '';
+  formData.resourceType = 'MENU';
   formData.uri = undefined;
   formData.method = undefined;
   formData.routePath = undefined;
@@ -351,9 +351,9 @@ function initFormData() {
   if (props.isEdit && props.editData) {
     // 编辑模式：填充数据
     formData.id = props.editData.id;
-    formData.permissionName = props.editData.permissionName || "";
-    formData.permissionCode = props.editData.permissionCode || "";
-    formData.resourceType = (props.editData.resourceType as ResourceType) || "MENU";
+    formData.permissionName = props.editData.permissionName || '';
+    formData.permissionCode = props.editData.permissionCode || '';
+    formData.resourceType = (props.editData.resourceType as ResourceType) || 'MENU';
     formData.uri = props.editData.uri || undefined;
     formData.method = (props.editData.method as any) || undefined;
     formData.routePath = props.editData.routePath || undefined;
@@ -402,20 +402,20 @@ async function handleSubmit() {
     if (props.isEdit && formData.id) {
       // 编辑模式
       await Permission.updatePermission(formData.id, formData);
-      ElMessage.success("更新成功");
+      ElMessage.success('更新成功');
     } else {
       // 新增模式
       await Permission.createPermission(formData);
-      ElMessage.success("新增成功");
+      ElMessage.success('新增成功');
     }
 
     // 关闭弹窗
     handleClose();
     // 通知父组件刷新
-    emit("success");
+    emit('success');
   } catch (error) {
-    if (error instanceof Error && error.message !== "Validation failed") {
-      ElMessage.error(props.isEdit ? "更新失败" : "新增失败");
+    if (error instanceof Error && error.message !== 'Validation failed') {
+      ElMessage.error(props.isEdit ? '更新失败' : '新增失败');
     }
   } finally {
     submitLoading.value = false;

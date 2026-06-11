@@ -2,7 +2,7 @@
  * Tenant Plan 租户套餐类型定义
  */
 
-import type { BaseQueryParams } from "./common";
+import type { BaseQueryParams } from './common';
 
 /** 租户套餐分页查询参数 */
 export interface TenantPlanQueryParams extends BaseQueryParams {

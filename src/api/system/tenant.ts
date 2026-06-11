@@ -1,4 +1,4 @@
-import request from "@/utils/request";
+import request from '@/utils/request';
 import type {
   TenantCreateForm,
   TenantForm,
@@ -6,9 +6,9 @@ import type {
   TenantCreateResult,
   TenantQueryParams,
   TenantItem,
-} from "@/types/api";
+} from '@/types/api';
 
-const TENANT_BASE_URL = "/api/v1/tenants";
+const TENANT_BASE_URL = '/api/v1/tenants';
 
 /**
  * 租户信息
@@ -21,7 +21,7 @@ const TenantAPI = {
   getTenantList() {
     return request<any, TenantInfo[]>({
       url: `${TENANT_BASE_URL}/options`,
-      method: "get",
+      method: 'get',
     });
   },
 
@@ -31,7 +31,7 @@ const TenantAPI = {
   getCurrentTenant() {
     return request<any, TenantInfo>({
       url: `${TENANT_BASE_URL}/current`,
-      method: "get",
+      method: 'get',
     });
   },
 
@@ -43,7 +43,7 @@ const TenantAPI = {
   switchTenant(tenantId: number) {
     return request<any, TenantInfo>({
       url: `${TENANT_BASE_URL}/${tenantId}/switch`,
-      method: "post",
+      method: 'post',
     });
   },
 
@@ -51,7 +51,7 @@ const TenantAPI = {
   getPage(queryParams?: TenantQueryParams) {
     return request<any, PageResult<TenantItem>>({
       url: `${TENANT_BASE_URL}`,
-      method: "get",
+      method: 'get',
       params: queryParams,
     });
   },
@@ -60,7 +60,7 @@ const TenantAPI = {
   getFormData(tenantId: string) {
     return request<any, TenantForm>({
       url: `${TENANT_BASE_URL}/${tenantId}/form`,
-      method: "get",
+      method: 'get',
     });
   },
 
@@ -68,7 +68,7 @@ const TenantAPI = {
   create(data: TenantCreateForm) {
     return request<any, TenantCreateResult>({
       url: `${TENANT_BASE_URL}`,
-      method: "post",
+      method: 'post',
       data,
     });
   },
@@ -77,7 +77,7 @@ const TenantAPI = {
   update(tenantId: string, data: TenantForm) {
     return request({
       url: `${TENANT_BASE_URL}/${tenantId}`,
-      method: "put",
+      method: 'put',
       data,
     });
   },
@@ -86,7 +86,7 @@ const TenantAPI = {
   deleteByIds(ids: string) {
     return request({
       url: `${TENANT_BASE_URL}/${ids}`,
-      method: "delete",
+      method: 'delete',
     });
   },
 
@@ -94,7 +94,7 @@ const TenantAPI = {
   updateStatus(tenantId: string, status: number) {
     return request({
       url: `${TENANT_BASE_URL}/${tenantId}/status`,
-      method: "put",
+      method: 'put',
       params: { status },
     });
   },
@@ -103,7 +103,7 @@ const TenantAPI = {
   getTenantMenuIds(tenantId: number) {
     return request<any, number[]>({
       url: `${TENANT_BASE_URL}/${tenantId}/menuIds`,
-      method: "get",
+      method: 'get',
     });
   },
 
@@ -111,7 +111,7 @@ const TenantAPI = {
   updateTenantMenus(tenantId: number, menuIds: number[]) {
     return request({
       url: `${TENANT_BASE_URL}/${tenantId}/menus`,
-      method: "put",
+      method: 'put',
       data: menuIds,
     });
   },

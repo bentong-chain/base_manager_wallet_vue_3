@@ -23,7 +23,7 @@ function extractFileName(contentDisposition: string): string {
   const fallbackRegex = /filename=([^;]+)/;
   const fallbackMatches = fallbackRegex.exec(contentDisposition);
   if (fallbackMatches && fallbackMatches[1]) {
-    return decodeURI(fallbackMatches[1].replace(/"/g, ""));
+    return decodeURI(fallbackMatches[1].replace(/"/g, ''));
   }
 
   return `download_${Date.now()}`;
@@ -47,7 +47,7 @@ function extractFileName(contentDisposition: string): string {
 export function downloadFile(response: any, customFileName?: string): void {
   try {
     const fileData = response.data;
-    const contentDisposition = response.headers["content-disposition"];
+    const contentDisposition = response.headers['content-disposition'];
     const fileName = customFileName || extractFileName(contentDisposition);
 
     // 创建 Blob 对象
@@ -55,7 +55,7 @@ export function downloadFile(response: any, customFileName?: string): void {
 
     // 创建下载链接
     const downloadUrl = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
+    const link = document.createElement('a');
     link.href = downloadUrl;
     link.download = fileName;
 
@@ -67,7 +67,7 @@ export function downloadFile(response: any, customFileName?: string): void {
     document.body.removeChild(link);
     window.URL.revokeObjectURL(downloadUrl);
   } catch (error) {
-    console.error("文件下载失败:", error);
+    console.error('文件下载失败:', error);
     throw error;
   }
 }

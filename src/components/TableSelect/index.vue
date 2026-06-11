@@ -142,9 +142,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, computed } from "vue";
-import { useResizeObserver } from "@vueuse/core";
-import type { FormInstance, PopoverProps, TableInstance } from "element-plus";
+import { ref, reactive, computed } from 'vue';
+import { useResizeObserver } from '@vueuse/core';
+import type { FormInstance, PopoverProps, TableInstance } from 'element-plus';
 
 // 对象类型
 export type IObject = Record<string, any>;
@@ -155,7 +155,7 @@ export interface ISelectConfig<T = any> {
   // 占位符
   placeholder?: string;
   // popover组件属性
-  popover?: Partial<Omit<PopoverProps, "visible" | "v-model:visible">>;
+  popover?: Partial<Omit<PopoverProps, 'visible' | 'v-model:visible'>>;
   // 列表的网络请求函数 (需返回 Promise)
   indexAction: (_queryParams: T) => Promise<any>;
   // 主键 (跨页选择必填, 默认为 id)
@@ -165,7 +165,7 @@ export interface ISelectConfig<T = any> {
   // 表单项
   formItems: Array<{
     // 组件类型(如 input, select 等)
-    type?: "input" | "select" | "tree-select" | "date-picker";
+    type?: 'input' | 'select' | 'tree-select' | 'date-picker';
     // 标签文本
     label: string;
     // 键名
@@ -179,7 +179,7 @@ export interface ISelectConfig<T = any> {
   }>;
   // 列选项
   tableColumns: Array<{
-    type?: "default" | "selection" | "index" | "expand";
+    type?: 'default' | 'selection' | 'index' | 'expand';
     label?: string;
     prop?: string;
     width?: string | number;
@@ -192,7 +192,7 @@ const props = withDefaults(
     text?: string;
   }>(),
   {
-    text: "",
+    text: '',
   }
 );
 
@@ -202,13 +202,13 @@ const emit = defineEmits<{
 }>();
 
 // 主键
-const pk = props.selectConfig.pk ?? "id";
+const pk = props.selectConfig.pk ?? 'id';
 // 是否多选
 const isMultiple = props.selectConfig.multiple === true;
 // 宽度
-const width = props.selectConfig.width ?? "100%";
+const width = props.selectConfig.width ?? '100%';
 // 占位符
-const placeholder = props.selectConfig.placeholder ?? "请选择";
+const placeholder = props.selectConfig.placeholder ?? '请选择';
 // 是否显示弹出框
 const popoverVisible = ref(false);
 // 加载状态
@@ -240,7 +240,7 @@ useResizeObserver(tableSelectRef, (entries) => {
 const formRef = ref<FormInstance>();
 // 初始化搜索条件
 for (const item of props.selectConfig.formItems) {
-  queryParams[item.prop] = item.initialValue ?? "";
+  queryParams[item.prop] = item.initialValue ?? '';
 }
 // 重置操作
 function handleReset() {
@@ -274,7 +274,7 @@ function fetchPageData(isRestart = false) {
 const tableRef = ref<TableInstance>();
 // 数据刷新后是否保留选项
 for (const item of props.selectConfig.tableColumns) {
-  if (item.type === "selection") {
+  if (item.type === 'selection') {
     item.reserveSelection = true;
     break;
   }
@@ -282,7 +282,7 @@ for (const item of props.selectConfig.tableColumns) {
 // 选择
 const selectedItems = ref<IObject[]>([]);
 const confirmText = computed(() => {
-  return selectedItems.value.length > 0 ? `已选${selectedItems.value.length}条` : "请选择";
+  return selectedItems.value.length > 0 ? `已选${selectedItems.value.length}条` : '请选择';
 });
 function handleSelect(selection: any[]) {
   if (isMultiple || selection.length === 0) {
@@ -318,11 +318,11 @@ function handleShow() {
 // 确定
 function handleConfirm() {
   if (selectedItems.value.length === 0) {
-    ElMessage.error("请选择数据");
+    ElMessage.error('请选择数据');
     return;
   }
   popoverVisible.value = false;
-  emit("confirmClick", selectedItems.value);
+  emit('confirmClick', selectedItems.value);
 }
 // 清空
 function handleClear() {

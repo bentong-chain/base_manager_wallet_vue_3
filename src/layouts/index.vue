@@ -6,13 +6,13 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute } from "vue-router";
-import { useLayout } from "./useLayout";
-import { LayoutMode } from "@/enums/settings";
-import LeftLayout from "./LeftLayout.vue";
-import TopLayout from "./TopLayout.vue";
-import MixLayout from "./MixLayout.vue";
-import Settings from "./components/LayoutSettings.vue";
+import { useRoute } from 'vue-router';
+import { useLayout } from './useLayout';
+import { LayoutMode } from '@/enums/settings';
+import LeftLayout from './LeftLayout.vue';
+import TopLayout from './TopLayout.vue';
+import MixLayout from './MixLayout.vue';
+import Settings from './components/LayoutSettings.vue';
 
 const route = useRoute();
 const { currentLayout, showSettings } = useLayout();

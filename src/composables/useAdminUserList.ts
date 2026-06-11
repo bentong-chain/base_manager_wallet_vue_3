@@ -1,9 +1,9 @@
-import { ref, reactive } from "vue";
-import { ElMessage, ElMessageBox } from "element-plus";
-import { dayjs } from "element-plus";
-import type { FormInstance } from "element-plus";
-import UserAPI from "@/api/system/user";
-import type { AdminUserListItem, AdminUserQueryParams } from "@/types/api";
+import { ref, reactive } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { dayjs } from 'element-plus';
+import type { FormInstance } from 'element-plus';
+import UserAPI from '@/api/system/user';
+import type { AdminUserListItem, AdminUserQueryParams } from '@/types/api';
 
 /**
  * 管理员用户列表 Composable
@@ -13,7 +13,7 @@ export function useAdminUserList() {
   const queryParams = reactive<AdminUserQueryParams>({
     pageNum: 1,
     pageSize: 10,
-    username: "",
+    username: '',
     status: undefined,
     roleId: undefined,
   });
@@ -28,28 +28,28 @@ export function useAdminUserList() {
       ...row,
       createTime:
         row.createTime ??
-        (row.createdAt ? dayjs(row.createdAt).format("YYYY-MM-DD HH:mm:ss") : undefined),
+        (row.createdAt ? dayjs(row.createdAt).format('YYYY-MM-DD HH:mm:ss') : undefined),
     };
   }
 
   function formatRoleNames(row: AdminUserListItem): string {
     if (row.roleNames) return row.roleNames;
     if (Array.isArray(row.roleIds) && row.roleIds.length > 0) {
-      return row.roleIds.join(", ");
+      return row.roleIds.join(', ');
     }
-    return "-";
+    return '-';
   }
 
   function formatCreateTime(row: AdminUserListItem & { createdAt?: string }): string {
     const t = row.createTime ?? row.createdAt;
-    if (!t) return "-";
-    return dayjs(t).format("YYYY-MM-DD HH:mm:ss");
+    if (!t) return '-';
+    return dayjs(t).format('YYYY-MM-DD HH:mm:ss');
   }
 
   function buildListParams(): AdminUserQueryParams {
     const { pageNum, pageSize, username, status, roleId } = queryParams;
     const params: AdminUserQueryParams = { pageNum, pageSize };
-    if (username != null && String(username).trim() !== "") {
+    if (username != null && String(username).trim() !== '') {
       params.username = username.trim();
     }
     if (status !== undefined && status !== null && (status === 0 || status === 1 || status === 2)) {
@@ -94,14 +94,14 @@ export function useAdminUserList() {
   }
 
   function handleDelete(id: number | string): void {
-    ElMessageBox.confirm("确认删除该用户吗？", "提示", {
-      confirmButtonText: "确定",
-      cancelButtonText: "取消",
-      type: "warning",
+    ElMessageBox.confirm('确认删除该用户吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
     }).then(async () => {
       try {
         await UserAPI.deleteAdmin(id);
-        ElMessage.success("删除成功");
+        ElMessage.success('删除成功');
         fetchData();
       } catch {
         // 错误已由 request 拦截器统一提示
@@ -110,14 +110,14 @@ export function useAdminUserList() {
   }
 
   function handleRemovePermanently(id: number | string): void {
-    ElMessageBox.confirm("彻底删除后不可恢复，确认吗？", "提示", {
-      confirmButtonText: "确定",
-      cancelButtonText: "取消",
-      type: "warning",
+    ElMessageBox.confirm('彻底删除后不可恢复，确认吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
     }).then(async () => {
       try {
         await UserAPI.removePermanently(id);
-        ElMessage.success("彻底删除成功");
+        ElMessage.success('彻底删除成功');
         fetchData();
       } catch {
         // 错误已由 request 拦截器统一提示
@@ -127,19 +127,19 @@ export function useAdminUserList() {
 
   function handleBatchDelete(): void {
     if (selectIds.value.length === 0) {
-      ElMessage.warning("请选择要删除的项");
+      ElMessage.warning('请选择要删除的项');
       return;
     }
-    ElMessageBox.confirm("确认删除所选用户吗？", "提示", {
-      confirmButtonText: "确定",
-      cancelButtonText: "取消",
-      type: "warning",
+    ElMessageBox.confirm('确认删除所选用户吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
     }).then(async () => {
       try {
         for (const id of selectIds.value) {
           await UserAPI.deleteAdmin(id);
         }
-        ElMessage.success("删除成功");
+        ElMessage.success('删除成功');
         fetchData();
       } catch {
         // 错误已由 request 拦截器统一提示
@@ -153,7 +153,7 @@ export function useAdminUserList() {
     const newStatus = row.status === 1 ? 0 : 1;
     try {
       await UserAPI.updateAdminStatus(Number(uid), newStatus);
-      ElMessage.success(newStatus === 1 ? "已启用" : "已禁用");
+      ElMessage.success(newStatus === 1 ? '已启用' : '已禁用');
       fetchData();
     } catch {
       // 错误已由 request 拦截器统一提示

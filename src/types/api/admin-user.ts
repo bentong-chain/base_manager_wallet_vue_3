@@ -2,7 +2,7 @@
  * 管理员用户类型定义（与 api.json 管理员用户管理接口对齐）
  */
 
-import type { BaseQueryParams } from "./common";
+import type { BaseQueryParams } from './common';
 
 /** 管理员用户列表项 */
 export interface AdminUserListItem {

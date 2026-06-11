@@ -1,14 +1,14 @@
-import { store } from "@/store";
-import TenantAPI from "@/api/system/tenant";
-import type { TenantInfo } from "@/types/api";
-import { STORAGE_KEYS } from "@/constants";
-import AuthAPI from "@/api/auth-api";
-import { AuthStorage } from "@/utils/auth";
+import { store } from '@/store';
+import TenantAPI from '@/api/system/tenant';
+import type { TenantInfo } from '@/types/api';
+import { STORAGE_KEYS } from '@/constants';
+import AuthAPI from '@/api/auth-api';
+import { AuthStorage } from '@/utils/auth';
 
 /**
  * 租户 Store
  */
-export const useTenantStore = defineStore("tenant", () => {
+export const useTenantStore = defineStore('tenant', () => {
   // 当前租户ID
   const currentTenantId = ref<number | null>(null);
   // 当前租户信息
@@ -32,7 +32,7 @@ export const useTenantStore = defineStore("tenant", () => {
       try {
         currentTenant.value = JSON.parse(savedTenantInfo);
       } catch (e) {
-        console.error("解析租户信息失败", e);
+        console.error('解析租户信息失败', e);
       }
     }
   }
@@ -70,7 +70,7 @@ export const useTenantStore = defineStore("tenant", () => {
       tenantList.value.length > 0 &&
       !tenantList.value.some((t) => t.id === currentTenantId.value)
     ) {
-      console.debug("[Tenant] 本地租户已不可用，清除并重新选择:", currentTenantId.value);
+      console.debug('[Tenant] 本地租户已不可用，清除并重新选择:', currentTenantId.value);
       clearLocalTenant();
     }
 
@@ -97,7 +97,7 @@ export const useTenantStore = defineStore("tenant", () => {
       // 3.3 兜底：默认选中第一个（即使有多个租户，也保证 TenantSwitcher 有默认选中）
       if (currentTenantId.value == null) {
         setCurrentTenant(tenantList.value[0]);
-        console.debug("[Tenant] 默认选中第一个租户:", tenantList.value[0].name);
+        console.debug('[Tenant] 默认选中第一个租户:', tenantList.value[0].name);
       }
     }
   }
@@ -142,7 +142,7 @@ export const useTenantStore = defineStore("tenant", () => {
       return;
     }
 
-    throw new Error("切换租户后无法获取租户信息");
+    throw new Error('切换租户后无法获取租户信息');
   }
 
   /**
@@ -164,7 +164,7 @@ export const useTenantStore = defineStore("tenant", () => {
     try {
       return await TenantAPI.getCurrentTenant();
     } catch (error) {
-      console.debug("[Tenant] 获取当前租户失败，尝试本地/默认选择:", error);
+      console.debug('[Tenant] 获取当前租户失败，尝试本地/默认选择:', error);
       return null;
     }
   }

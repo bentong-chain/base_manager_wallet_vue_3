@@ -71,33 +71,33 @@
 </template>
 
 <script setup lang="ts">
-import type { LocationQueryRaw, RouteRecordRaw } from "vue-router";
-import { useWindowSize } from "@vueuse/core";
-import { useLayout } from "./useLayout";
-import { useAppStore, usePermissionStore, useSettingsStore } from "@/store";
-import { isExternal } from "@/utils/index";
-import { translateRouteTitle } from "@/lang/utils";
-import { SidebarColor } from "@/enums/settings";
-import { ElIcon } from "element-plus";
-import BaseLayout from "./BaseLayout.vue";
-import LayoutLogo from "./components/LayoutLogo.vue";
-import LayoutToolbar from "./components/LayoutToolbar.vue";
-import LayoutTagsView from "./components/LayoutTagsView.vue";
-import LayoutMain from "./components/LayoutMain.vue";
-import LayoutSidebarItem from "./components/LayoutSidebarItem.vue";
-import Hamburger from "@/components/Hamburger/index.vue";
-import variables from "@/styles/variables.module.scss";
+import type { LocationQueryRaw, RouteRecordRaw } from 'vue-router';
+import { useWindowSize } from '@vueuse/core';
+import { useLayout } from './useLayout';
+import { useAppStore, usePermissionStore, useSettingsStore } from '@/store';
+import { isExternal } from '@/utils/index';
+import { translateRouteTitle } from '@/lang/utils';
+import { SidebarColor } from '@/enums/settings';
+import { ElIcon } from 'element-plus';
+import BaseLayout from './BaseLayout.vue';
+import LayoutLogo from './components/LayoutLogo.vue';
+import LayoutToolbar from './components/LayoutToolbar.vue';
+import LayoutTagsView from './components/LayoutTagsView.vue';
+import LayoutMain from './components/LayoutMain.vue';
+import LayoutSidebarItem from './components/LayoutSidebarItem.vue';
+import Hamburger from '@/components/Hamburger/index.vue';
+import variables from '@/styles/variables.module.scss';
 
 // 菜单图标渲染组件
 const MenuIcon = defineComponent({
   props: { icon: String },
   setup(props) {
-    const isElIcon = computed(() => props.icon?.startsWith("el-icon"));
-    const iconName = computed(() => props.icon?.replace("el-icon-", ""));
+    const isElIcon = computed(() => props.icon?.startsWith('el-icon'));
+    const iconName = computed(() => props.icon?.replace('el-icon-', ''));
 
     return () => {
       if (!props.icon) {
-        return h("div", { class: "i-svg:menu" });
+        return h('div', { class: 'i-svg:menu' });
       }
 
       // Element Plus 图标
@@ -106,7 +106,7 @@ const MenuIcon = defineComponent({
       }
 
       // SVG 图标
-      return h("div", { class: `i-svg:${props.icon}` });
+      return h('div', { class: `i-svg:${props.icon}` });
     };
   },
 });
@@ -127,7 +127,7 @@ const isLogoCollapsed = computed(() => width.value < 768);
 // 是否使用深色菜单配色（暗色主题或经典蓝侧边栏）
 const useMenuColors = computed(
   () =>
-    settingsStore.theme === "dark" || settingsStore.sidebarColorScheme === SidebarColor.CLASSIC_BLUE
+    settingsStore.theme === 'dark' || settingsStore.sidebarColorScheme === SidebarColor.CLASSIC_BLUE
 );
 
 // 顶部菜单项（处理单子菜单显示优化）
@@ -160,19 +160,19 @@ const topMenuItems = computed(() => {
 // 左侧菜单激活路径
 const activeSideMenuPath = computed(() => {
   const { meta, path } = route;
-  return typeof meta?.activeMenu === "string" ? meta.activeMenu : path;
+  return typeof meta?.activeMenu === 'string' ? meta.activeMenu : path;
 });
 
 // 解析左侧菜单路径
 function resolvePath(routePath: string) {
   if (isExternal(routePath)) return routePath;
-  if (routePath.startsWith("/")) return activeTopMenuPath.value + routePath;
+  if (routePath.startsWith('/')) return activeTopMenuPath.value + routePath;
   return `${activeTopMenuPath.value}/${routePath}`;
 }
 
 // 从路径提取顶级菜单路径
 function extractTopMenuPath(path: string): string {
-  return path.split("/").filter(Boolean).length > 1 ? path.match(/^\/[^/]+/)?.[0] || "/" : "/";
+  return path.split('/').filter(Boolean).length > 1 ? path.match(/^\/[^/]+/)?.[0] || '/' : '/';
 }
 
 // 顶部菜单点击
@@ -195,7 +195,7 @@ function navigateToFirstMenu(menus: RouteRecordRaw[]) {
     router.push({
       name: first.name,
       query:
-        typeof first.meta?.params === "object"
+        typeof first.meta?.params === 'object'
           ? (first.meta.params as LocationQueryRaw)
           : undefined,
     });

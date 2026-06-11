@@ -9,8 +9,8 @@
  * @author 有来技术团队
  */
 
-import { useDictSync } from "./useDictSync";
-import { useOnlineCount } from "./useOnlineCount";
+import { useDictSync } from './useDictSync';
+import { useOnlineCount } from './useOnlineCount';
 
 /**
  * 初始化所有 WebSocket 服务
@@ -55,7 +55,7 @@ export function cleanupWebSocket() {
 }
 
 // 导出所有 WebSocket 相关的 composables
-export { useDictSync } from "./useDictSync";
-export { useOnlineCount } from "./useOnlineCount";
-export { useStomp } from "./useStomp";
-export type { DictMessage, DictChangeMessage, DictChangeCallback } from "./useDictSync";
+export { useDictSync } from './useDictSync';
+export { useOnlineCount } from './useOnlineCount';
+export { useStomp } from './useStomp';
+export type { DictMessage, DictChangeMessage, DictChangeCallback } from './useDictSync';

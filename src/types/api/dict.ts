@@ -2,7 +2,7 @@
  * Dict 字典类型定义
  */
 
-import type { BaseQueryParams } from "./common";
+import type { BaseQueryParams } from './common';
 
 /** 字典分页查询参数 */
 
@@ -78,7 +78,7 @@ export interface DictItemForm {
   /** 排序 */
   sort?: number;
   /** 标签类型 */
-  tagType?: "success" | "warning" | "info" | "primary" | "danger" | "";
+  tagType?: 'success' | 'warning' | 'info' | 'primary' | 'danger' | '';
 }
 
 /** 字典项选项 */
@@ -88,5 +88,5 @@ export interface DictItemOption {
   /** 字典项标签 */
   label: string;
   /** 标签类型 */
-  tagType?: "success" | "warning" | "info" | "primary" | "danger" | "";
+  tagType?: 'success' | 'warning' | 'info' | 'primary' | 'danger' | '';
 }

@@ -48,7 +48,7 @@
         <el-table-column type="index" label="序号" width="60" />
         <el-table-column label="操作人" min-width="100">
           <template #default="scope">
-            {{ scope.row.operatorName || scope.row.operatorUid || "-" }}
+            {{ scope.row.operatorName || scope.row.operatorUid || '-' }}
           </template>
         </el-table-column>
         <el-table-column label="操作类型" prop="operationType" width="120" />
@@ -88,22 +88,22 @@
     >
       <el-descriptions :column="1" border>
         <el-descriptions-item label="操作人">
-          {{ currentLog?.operatorName || currentLog?.operatorUid || "-" }}
+          {{ currentLog?.operatorName || currentLog?.operatorUid || '-' }}
         </el-descriptions-item>
         <el-descriptions-item label="操作类型">
-          {{ currentLog?.operationType || "-" }}
+          {{ currentLog?.operationType || '-' }}
         </el-descriptions-item>
         <el-descriptions-item label="请求路径">
-          {{ currentLog?.requestUri || "-" }}
+          {{ currentLog?.requestUri || '-' }}
         </el-descriptions-item>
         <el-descriptions-item label="请求方法">
-          {{ currentLog?.method || "-" }}
+          {{ currentLog?.method || '-' }}
         </el-descriptions-item>
         <el-descriptions-item label="IP">
-          {{ currentLog?.ip || "-" }}
+          {{ currentLog?.ip || '-' }}
         </el-descriptions-item>
         <el-descriptions-item label="操作时间">
-          {{ currentLog?.createTime || "-" }}
+          {{ currentLog?.createTime || '-' }}
         </el-descriptions-item>
         <el-descriptions-item v-if="currentLog?.content" label="内容">
           {{ currentLog?.content }}
@@ -115,13 +115,13 @@
 
 <script setup lang="ts">
 defineOptions({
-  name: "SystemOperationLog",
+  name: 'SystemOperationLog',
   inheritAttrs: false,
 });
 
-import type { FormInstance } from "element-plus";
-import type { OperationLogItem, OperationLogQueryParams } from "@/types/api/operation-log";
-import OperationLogAPI from "@/api/system/operation-log";
+import type { FormInstance } from 'element-plus';
+import type { OperationLogItem, OperationLogQueryParams } from '@/types/api/operation-log';
+import OperationLogAPI from '@/api/system/operation-log';
 
 const queryFormRef = ref<FormInstance>();
 
@@ -134,7 +134,7 @@ const timeRange = ref<[string, string] | null>(null);
 
 const shortcuts = [
   {
-    text: "今天",
+    text: '今天',
     value: () => {
       const start = new Date();
       start.setHours(0, 0, 0, 0);
@@ -143,7 +143,7 @@ const shortcuts = [
     },
   },
   {
-    text: "最近一周",
+    text: '最近一周',
     value: () => {
       const end = new Date();
       const start = new Date();
@@ -152,7 +152,7 @@ const shortcuts = [
     },
   },
   {
-    text: "最近一月",
+    text: '最近一月',
     value: () => {
       const end = new Date();
       const start = new Date();

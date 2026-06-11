@@ -1,10 +1,10 @@
-import type { RouteRecordRaw } from "vue-router";
-import NProgress from "@/plugins/nprogress";
-import router from "@/router";
-import { usePermissionStore, useUserStore } from "@/store";
-import { useTenantStoreHook } from "@/store/modules/tenant";
-import { isTenantEnabled } from "@/utils/tenant";
-import { addRecentMenu } from "@/composables/useRecentMenus";
+import type { RouteRecordRaw } from 'vue-router';
+import NProgress from '@/plugins/nprogress';
+import router from '@/router';
+import { usePermissionStore, useUserStore } from '@/store';
+import { useTenantStoreHook } from '@/store/modules/tenant';
+import { isTenantEnabled } from '@/utils/tenant';
+import { addRecentMenu } from '@/composables/useRecentMenus';
 
 /**
  * 路由权限守卫
@@ -18,19 +18,19 @@ function getLoginRedirectTarget(to: {
   query: Record<string, unknown>;
 }): string {
   // 若当前已在登录页，不要用 fullPath 作为 redirect（会变成 /login?redirect=/login?redirect=... 循环）
-  if (to.path === "/login") {
+  if (to.path === '/login') {
     const raw = to.query.redirect;
-    const decoded = typeof raw === "string" ? decodeURIComponent(raw) : "";
-    if (decoded && decoded.startsWith("/") && !decoded.startsWith("/login")) {
+    const decoded = typeof raw === 'string' ? decodeURIComponent(raw) : '';
+    if (decoded && decoded.startsWith('/') && !decoded.startsWith('/login')) {
       return decoded;
     }
-    return "/";
+    return '/';
   }
   return to.fullPath;
 }
 
 export function setupPermissionGuard() {
-  const whiteList = ["/login"];
+  const whiteList = ['/login'];
 
   router.beforeEach(async (to, _from) => {
     NProgress.start();
@@ -49,8 +49,8 @@ export function setupPermissionGuard() {
       }
 
       // 已登录访问登录页，重定向到首页
-      if (to.path === "/login") {
-        return { path: "/" };
+      if (to.path === '/login') {
+        return { path: '/' };
       }
 
       const permissionStore = usePermissionStore();
@@ -67,7 +67,7 @@ export function setupPermissionGuard() {
 
         const dynamicRoutes = await permissionStore.generateRoutes();
         dynamicRoutes.forEach((route: RouteRecordRaw) => {
-          router.addRoute("/", route);
+          router.addRoute('/', route);
         });
 
         return { ...to, replace: true };
@@ -75,7 +75,7 @@ export function setupPermissionGuard() {
 
       // 路由 404 检查
       if (to.matched.length === 0) {
-        return "/404";
+        return '/404';
       }
 
       // 动态标题
@@ -86,10 +86,10 @@ export function setupPermissionGuard() {
 
       return;
     } catch (error) {
-      console.error("Route guard error:", error);
+      console.error('Route guard error:', error);
       await useUserStore().resetAllState();
       NProgress.done();
-      return "/login";
+      return '/login';
     }
   });
 
@@ -100,10 +100,10 @@ export function setupPermissionGuard() {
     if (to.path) {
       const title =
         (to.meta?.title as string) ||
-        (typeof to.name === "string" ? to.name : "") ||
-        to.path.split("/").filter(Boolean).pop() ||
+        (typeof to.name === 'string' ? to.name : '') ||
+        to.path.split('/').filter(Boolean).pop() ||
         to.path;
-      const icon = typeof to.meta?.icon === "string" ? to.meta.icon : undefined;
+      const icon = typeof to.meta?.icon === 'string' ? to.meta.icon : undefined;
       addRecentMenu(to.path, title, icon);
     }
   });

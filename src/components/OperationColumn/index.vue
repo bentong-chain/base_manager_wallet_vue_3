@@ -28,9 +28,9 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  label: "操作",
-  fixed: "right",
-  align: "center",
+  label: '操作',
+  fixed: 'right',
+  align: 'center',
 });
 
 const count = ref(0);
@@ -41,9 +41,9 @@ const calculateWidth = () => {
 
   let totalWidth = 0;
   maxWidth.value = 80; // 重置为初始值
-  const els = document.getElementsByClassName("operation-button");
+  const els = document.getElementsByClassName('operation-button');
   Array.from(els).forEach((el) => {
-    const buttons = el.querySelectorAll(".el-button");
+    const buttons = el.querySelectorAll('.el-button');
     totalWidth = Array.from(buttons).reduce((prev, button) => {
       // 14 是按钮之间的距离
       // 组成：按钮的左边距(Element Plus默认为12px)+按钮的padding(Element Plus默认为2px)

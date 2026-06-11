@@ -161,7 +161,7 @@
             <template #icon>
               <Switch />
             </template>
-            {{ menuExpanded ? "收缩" : "展开" }}
+            {{ menuExpanded ? '收缩' : '展开' }}
           </el-button>
           <el-checkbox v-model="menuParentChildLinked" class="ml-5" @change="handleMenuLinkChange">
             父子联动
@@ -211,21 +211,21 @@
 
 <script setup lang="ts">
 defineOptions({
-  name: "TenantPlan",
+  name: 'TenantPlan',
   inheritAttrs: false,
 });
 
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from "element-plus";
-import { useDebounceFn } from "@vueuse/core";
-import MenuAPI from "@/api/system/menu";
-import TenantPlanAPI from "@/api/system/tenant-plan";
+import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus';
+import { useDebounceFn } from '@vueuse/core';
+import MenuAPI from '@/api/system/menu';
+import TenantPlanAPI from '@/api/system/tenant-plan';
 import type {
   TenantPlanForm,
   TenantPlanItem,
   TenantPlanQueryParams,
   OptionItem,
-} from "@/types/api";
-import { MenuScopeEnum } from "@/enums/business";
+} from '@/types/api';
+import { MenuScopeEnum } from '@/enums/business';
 
 // 表单引用
 const queryFormRef = ref<FormInstance>();
@@ -237,7 +237,7 @@ const menuTreeRef = ref();
 const queryParams = reactive<TenantPlanQueryParams>({
   pageNum: 1,
   pageSize: 10,
-  keywords: "",
+  keywords: '',
 });
 
 // 列表数据
@@ -248,31 +248,31 @@ const loading = ref(false);
 
 // 弹窗状态
 const dialogState = reactive({
-  title: "",
+  title: '',
   visible: false,
 });
 
 // 表单数据
 const formData = reactive<TenantPlanForm>({
   id: undefined,
-  name: "",
-  code: "",
+  name: '',
+  code: '',
   status: 1,
   sort: 1,
-  remark: "",
+  remark: '',
 });
 
 // 验证规则
 const rules: FormRules = {
-  name: [{ required: true, message: "请输入套餐名称", trigger: "blur" }],
-  code: [{ required: true, message: "请输入套餐编码", trigger: "blur" }],
-  status: [{ required: true, message: "请选择状态", trigger: "change" }],
+  name: [{ required: true, message: '请输入套餐名称', trigger: 'blur' }],
+  code: [{ required: true, message: '请输入套餐编码', trigger: 'blur' }],
+  status: [{ required: true, message: '请选择状态', trigger: 'change' }],
 };
 
 // 菜单配置弹窗状态
 const planMenuDialogVisible = ref(false);
 const checkedPlan = ref<{ id?: number; name?: string }>({});
-const menuKeywords = ref("");
+const menuKeywords = ref('');
 const menuExpanded = ref(true);
 const menuParentChildLinked = ref(true);
 
@@ -315,7 +315,7 @@ function handleResetQuery(): void {
 async function openDialog(planId?: number): Promise<void> {
   dialogState.visible = true;
   if (planId) {
-    dialogState.title = "修改套餐";
+    dialogState.title = '修改套餐';
     const data = await TenantPlanAPI.getFormData(String(planId));
     Object.assign(formData, data);
     if (formData.status == null) {
@@ -325,14 +325,14 @@ async function openDialog(planId?: number): Promise<void> {
       formData.sort = 1;
     }
   } else {
-    dialogState.title = "新增套餐";
+    dialogState.title = '新增套餐';
     Object.assign(formData, {
       id: undefined,
-      name: "",
-      code: "",
+      name: '',
+      code: '',
       status: 1,
       sort: 1,
-      remark: "",
+      remark: '',
     });
   }
 }
@@ -346,11 +346,11 @@ function closeDialog(): void {
   dataFormRef.value?.clearValidate();
   Object.assign(formData, {
     id: undefined,
-    name: "",
-    code: "",
+    name: '',
+    code: '',
     status: 1,
     sort: 1,
-    remark: "",
+    remark: '',
   });
 }
 
@@ -368,10 +368,10 @@ const handleSubmit = useDebounceFn(async (): Promise<void> => {
   try {
     if (formData.id) {
       await TenantPlanAPI.update(String(formData.id), formData);
-      ElMessage.success("修改成功");
+      ElMessage.success('修改成功');
     } else {
       await TenantPlanAPI.create(formData);
-      ElMessage.success("新增成功");
+      ElMessage.success('新增成功');
     }
     closeDialog();
     handleResetQuery();
@@ -386,15 +386,15 @@ const handleSubmit = useDebounceFn(async (): Promise<void> => {
  */
 function handleDelete(planId?: number): void {
   if (!planId) return;
-  ElMessageBox.confirm("确认删除该租户套餐吗？", "警告", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning",
+  ElMessageBox.confirm('确认删除该租户套餐吗？', '警告', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
   }).then(() => {
     loading.value = true;
     TenantPlanAPI.deleteByIds(String(planId))
       .then(() => {
-        ElMessage.success("删除成功");
+        ElMessage.success('删除成功');
         handleResetQuery();
       })
       .finally(() => {
@@ -429,7 +429,7 @@ async function openPlanMenuDialog(row: TenantPlanItem): Promise<void> {
  */
 function closePlanMenuDialog(): void {
   planMenuDialogVisible.value = false;
-  menuKeywords.value = "";
+  menuKeywords.value = '';
   menuExpanded.value = true;
   menuParentChildLinked.value = true;
   menuTreeRef.value?.setCheckedKeys([], false);
@@ -480,7 +480,7 @@ async function handlePlanMenuSubmit(): Promise<void> {
   loading.value = true;
   try {
     await TenantPlanAPI.updatePlanMenus(planId, checkedMenuIds);
-    ElMessage.success("菜单配置成功");
+    ElMessage.success('菜单配置成功');
     planMenuDialogVisible.value = false;
   } finally {
     loading.value = false;

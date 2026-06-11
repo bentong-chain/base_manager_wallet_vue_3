@@ -4,7 +4,7 @@
  * @module utils/rsa
  */
 
-import JSEncrypt from "jsencrypt";
+import JSEncrypt from 'jsencrypt';
 
 /**
  * 使用 RSA 公钥（Base64）加密明文，返回 Base64 密文
@@ -22,7 +22,7 @@ export function encryptWithPublicKey(plainText: string, publicKeyBase64: string)
     if (encrypted) {
       resolve(encrypted);
     } else {
-      reject(new Error("RSA encrypt failed"));
+      reject(new Error('RSA encrypt failed'));
     }
   });
 }

@@ -93,16 +93,16 @@
           <template #default="scope">
             <div class="flex-x-start">
               <span>创建时间：</span>
-              <span>{{ scope.row.createTime || "-" }}</span>
+              <span>{{ scope.row.createTime || '-' }}</span>
             </div>
 
             <div v-if="scope.row.publishStatus === 1" class="flex-x-start">
               <span>发布时间：</span>
-              <span>{{ scope.row.publishTime || "-" }}</span>
+              <span>{{ scope.row.publishTime || '-' }}</span>
             </div>
             <div v-else-if="scope.row.publishStatus === -1" class="flex-x-start">
               <span>撤回时间：</span>
-              <span>{{ scope.row.revokeTime || "-" }}</span>
+              <span>{{ scope.row.revokeTime || '-' }}</span>
             </div>
           </template>
         </el-table-column>
@@ -273,14 +273,14 @@
 
 <script setup lang="ts">
 defineOptions({
-  name: "Notice",
+  name: 'Notice',
   inheritAttrs: false,
 });
 
-import NoticeAPI from "@/api/system/notice";
-import type { NoticeItem, NoticeForm, NoticeQueryParams, NoticeDetail } from "@/types/api";
-import UserAPI from "@/api/system/user";
-import type { FormInstance, FormRules } from "element-plus";
+import NoticeAPI from '@/api/system/notice';
+import type { NoticeItem, NoticeForm, NoticeQueryParams, NoticeDetail } from '@/types/api';
+import UserAPI from '@/api/system/user';
+import type { FormInstance, FormRules } from 'element-plus';
 
 // 表单引用
 const queryFormRef = ref<FormInstance>();
@@ -301,35 +301,35 @@ const selectIds = ref<number[]>([]);
 
 // 弹窗状态
 const dialogState = reactive({
-  title: "",
+  title: '',
   visible: false,
   fullscreen: false,
 });
 
 // 表单数据
 const formData = reactive<NoticeForm>({
-  level: "L",
+  level: 'L',
   targetType: 1,
 });
 
 // 验证规则
 const rules: FormRules = {
-  title: [{ required: true, message: "请输入通知标题", trigger: "blur" }],
+  title: [{ required: true, message: '请输入通知标题', trigger: 'blur' }],
   content: [
     {
       required: true,
-      message: "请输入通知内容",
-      trigger: "blur",
+      message: '请输入通知内容',
+      trigger: 'blur',
       validator: (rule, value: string, callback) => {
-        if (!value.replace(/<[^>]+>/g, "").trim()) {
-          callback(new Error("请输入通知内容"));
+        if (!value.replace(/<[^>]+>/g, '').trim()) {
+          callback(new Error('请输入通知内容'));
         } else {
           callback();
         }
       },
     },
   ],
-  type: [{ required: true, message: "请选择通知类型", trigger: "change" }],
+  type: [{ required: true, message: '请选择通知类型', trigger: 'change' }],
 };
 
 // 详情弹窗状态
@@ -389,7 +389,7 @@ function openDialog(id?: string): void {
 
   dialogState.visible = true;
   if (id) {
-    dialogState.title = "修改公告";
+    dialogState.title = '修改公告';
     NoticeAPI.getFormData(id).then((data) => {
       Object.assign(formData, {
         ...data,
@@ -399,8 +399,8 @@ function openDialog(id?: string): void {
       });
     });
   } else {
-    Object.assign(formData, { level: "L", targetType: 1, targetUsers: [] });
-    dialogState.title = "新增公告";
+    Object.assign(formData, { level: 'L', targetType: 1, targetUsers: [] });
+    dialogState.title = '新增公告';
   }
 }
 
@@ -410,7 +410,7 @@ function openDialog(id?: string): void {
  */
 function handlePublish(id: string): void {
   NoticeAPI.publish(id).then(() => {
-    ElMessage.success("发布成功");
+    ElMessage.success('发布成功');
     fetchData();
   });
 }
@@ -421,7 +421,7 @@ function handlePublish(id: string): void {
  */
 function handleRevoke(id: string): void {
   NoticeAPI.revoke(id).then(() => {
-    ElMessage.success("撤回成功");
+    ElMessage.success('撤回成功');
     fetchData();
   });
 }
@@ -442,7 +442,7 @@ function handleSubmit(): void {
       if (id) {
         NoticeAPI.update(id, payload)
           .then(() => {
-            ElMessage.success("修改成功");
+            ElMessage.success('修改成功');
             closeDialog();
             handleResetQuery();
           })
@@ -450,7 +450,7 @@ function handleSubmit(): void {
       } else {
         NoticeAPI.create(payload)
           .then(() => {
-            ElMessage.success("新增成功");
+            ElMessage.success('新增成功');
             closeDialog();
             handleResetQuery();
           })
@@ -471,7 +471,7 @@ function closeDialog(): void {
   formData.id = undefined;
   formData.targetType = 1;
   formData.targetUsers = [];
-  formData.content = "";
+  formData.content = '';
 }
 
 /**
@@ -486,20 +486,20 @@ function normalizeTargetUsers(value?: unknown): number[] {
   if (Array.isArray(value)) {
     return toNumberArray(value);
   }
-  if (typeof value === "string") {
+  if (typeof value === 'string') {
     try {
       const parsed = JSON.parse(value);
       if (Array.isArray(parsed)) {
         return toNumberArray(parsed);
       }
       return value
-        .split(",")
+        .split(',')
         .filter(Boolean)
         .map((v) => Number(v))
         .filter((v) => Number.isFinite(v));
     } catch {
       return value
-        .split(",")
+        .split(',')
         .filter(Boolean)
         .map((v) => Number(v))
         .filter((v) => Number.isFinite(v));
@@ -520,28 +520,28 @@ function toggleDialogFullscreen(): void {
  * @param id 通知ID
  */
 function handleDelete(id?: number): void {
-  const deleteIds = [id || selectIds.value].join(",");
+  const deleteIds = [id || selectIds.value].join(',');
   if (!deleteIds) {
-    ElMessage.warning("请勾选删除项");
+    ElMessage.warning('请勾选删除项');
     return;
   }
 
-  ElMessageBox.confirm("确认删除已选中的数据项吗？", "警告", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning",
+  ElMessageBox.confirm('确认删除已选中的数据项吗？', '警告', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
   }).then(
     () => {
       loading.value = true;
       NoticeAPI.deleteByIds(deleteIds)
         .then(() => {
-          ElMessage.success("删除成功");
+          ElMessage.success('删除成功');
           handleResetQuery();
         })
         .finally(() => (loading.value = false));
     },
     () => {
-      ElMessage.info("已取消删除");
+      ElMessage.info('已取消删除');
     }
   );
 }

@@ -5,22 +5,22 @@
  * @module store/modules/auth
  */
 
-import { defineStore } from "pinia";
-import { ref, computed } from "vue";
-import { aesEncrypt, aesDecrypt } from "@/utils/crypto";
-import { AP_KEY, DEFAULT_SALT, DEFAULT_PUBLIC_KEY } from "@/api/constants";
-import type { UserInfo } from "@/types/api";
+import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
+import { aesEncrypt, aesDecrypt } from '@/utils/crypto';
+import { AP_KEY, DEFAULT_SALT, DEFAULT_PUBLIC_KEY } from '@/api/constants';
+import type { UserInfo } from '@/types/api';
 
-const CREDENTIALS_KEY = "auth_credentials";
-const DEVICE_KEY = "auth_device";
+const CREDENTIALS_KEY = 'auth_credentials';
+const DEVICE_KEY = 'auth_device';
 
-export const useAuthStore = defineStore("auth", () => {
+export const useAuthStore = defineStore('auth', () => {
   // ─────────────────────────────────────────────────────────────────────────────
   // State
   // ─────────────────────────────────────────────────────────────────────────────
 
   /** Access Token */
-  const accessToken = ref("");
+  const accessToken = ref('');
 
   /** RSA 公钥（登录后为服务端返回值，否则为默认值） */
   const publicKey = ref(DEFAULT_PUBLIC_KEY);
@@ -71,7 +71,7 @@ export const useAuthStore = defineStore("auth", () => {
     if (encrypted) {
       try {
         const raw = aesDecrypt(encrypted, AP_KEY);
-        const parts = raw.split("|");
+        const parts = raw.split('|');
         if (parts.length === 3) {
           accessToken.value = parts[0];
           salt.value = parts[1];
@@ -88,7 +88,7 @@ export const useAuthStore = defineStore("auth", () => {
    * 不含 refreshToken，它由 Cookie 管理
    */
   function saveToStorage() {
-    const raw = [accessToken.value, salt.value, publicKey.value].join("|");
+    const raw = [accessToken.value, salt.value, publicKey.value].join('|');
     const encrypted = aesEncrypt(raw, AP_KEY);
     sessionStorage.setItem(CREDENTIALS_KEY, encrypted);
   }
@@ -122,7 +122,7 @@ export const useAuthStore = defineStore("auth", () => {
    * refreshToken Cookie 由服务端 Set-Cookie: Max-Age=0 清除
    */
   function clearAuth() {
-    accessToken.value = "";
+    accessToken.value = '';
     publicKey.value = DEFAULT_PUBLIC_KEY;
     salt.value = DEFAULT_SALT;
     sessionStorage.removeItem(CREDENTIALS_KEY);

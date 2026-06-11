@@ -36,7 +36,7 @@
           <div class="wallet-login__status">
             <div class="wallet-login__status-label">当前钱包</div>
             <div class="wallet-login__status-value">
-              {{ walletAddress ? walletAddress : "未连接" }}
+              {{ walletAddress ? walletAddress : '未连接' }}
             </div>
           </div>
 
@@ -68,15 +68,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
-import { useRouter } from "vue-router";
-import { useAppKit, useAppKitAccount, useDisconnect } from "@reown/appkit/vue";
-import { Connection } from "@element-plus/icons-vue";
-import logo from "@/assets/images/logo.png";
-import ThemeSwitch from "@/components/ThemeSwitch/index.vue";
-import { appConfig } from "@/settings";
-import { useWalletStore } from "@/store/modules/wallet";
-import { useUserStore } from "@/store";
+import { ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import { useAppKit, useAppKitAccount, useDisconnect } from '@reown/appkit/vue';
+import { Connection } from '@element-plus/icons-vue';
+import logo from '@/assets/images/logo.png';
+import ThemeSwitch from '@/components/ThemeSwitch/index.vue';
+import { appConfig } from '@/settings';
+import { useWalletStore } from '@/store/modules/wallet';
+import { useUserStore } from '@/store';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -88,12 +88,12 @@ const accountData = useAppKitAccount();
 const { disconnect } = useDisconnect();
 
 const tenantEnabled = appConfig.tenantEnabled;
-const loadingText = ref("连接钱包并登录");
+const loadingText = ref('连接钱包并登录');
 
 const walletAddress = computed(() => {
   return walletStore.walletAccount && walletStore.walletAccount.length >= 10
-    ? walletStore.walletAccount.slice(0, 6) + "..." + walletStore.walletAccount.slice(-4)
-    : "";
+    ? walletStore.walletAccount.slice(0, 6) + '...' + walletStore.walletAccount.slice(-4)
+    : '';
 });
 
 const connectWallet = async () => {
@@ -106,7 +106,7 @@ watch(
   async (newAddr, oldAddr) => {
     // 当oldAddr有值且与newAddr不同时，表示地址发生了改变，才需要清除登录信息
     if (oldAddr && newAddr !== oldAddr) {
-      console.log("退出", newAddr, oldAddr);
+      console.log('退出', newAddr, oldAddr);
 
       // 清空一下本地缓存登录信息
       walletStore.clearData();
@@ -115,9 +115,9 @@ watch(
 
     // 钱包已经连接，且新地址与原地址不相同，表示地址发生了改变
     if (newAddr && newAddr !== oldAddr) {
-      console.log("登录", newAddr, oldAddr);
+      console.log('登录', newAddr, oldAddr);
       if (walletStore.walletAccount === newAddr) {
-        console.log("地址相同，无需初始化");
+        console.log('地址相同，无需初始化');
         return;
       }
 
@@ -127,7 +127,7 @@ watch(
         .then(async (result) => {
           console.log(result);
           if (!result) {
-            console.log("登录失败");
+            console.log('登录失败');
 
             // 断开连接
             await disconnect();
@@ -137,13 +137,13 @@ watch(
 
             return;
           }
-          console.log("登录成功");
+          console.log('登录成功');
           setTimeout(() => {
-            router.push("/notice");
+            router.push('/notice');
           }, 500);
         })
         .catch(async (err) => {
-          console.log("登录失败", err);
+          console.log('登录失败', err);
 
           // 断开连接
           await disconnect();
@@ -173,8 +173,8 @@ watch(
     position: fixed;
     inset: 0;
     z-index: -2;
-    content: "";
-    background: url("@/assets/images/login-bg.svg") center/cover no-repeat;
+    content: '';
+    background: url('@/assets/images/login-bg.svg') center/cover no-repeat;
   }
 
   &::after {
@@ -182,7 +182,7 @@ watch(
     inset: 0;
     z-index: -1;
     pointer-events: none;
-    content: "";
+    content: '';
     background: linear-gradient(120deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0));
   }
 }

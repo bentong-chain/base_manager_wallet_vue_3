@@ -55,14 +55,14 @@
 </template>
 
 <script setup lang="ts">
-import path from "path-browserify";
-import { RouteRecordRaw } from "vue-router";
-import { isExternal } from "@/utils";
-import { translateRouteTitle } from "@/lang/utils";
-import { ElIcon } from "element-plus";
+import path from 'path-browserify';
+import { RouteRecordRaw } from 'vue-router';
+import { isExternal } from '@/utils';
+import { translateRouteTitle } from '@/lang/utils';
+import { ElIcon } from 'element-plus';
 
 defineOptions({
-  name: "LayoutSidebarItem",
+  name: 'LayoutSidebarItem',
   inheritAttrs: false,
 });
 
@@ -70,12 +70,12 @@ defineOptions({
 const MenuIcon = defineComponent({
   props: { icon: String },
   setup(props) {
-    const isElIcon = computed(() => props.icon?.startsWith("el-icon"));
-    const iconName = computed(() => props.icon?.replace("el-icon-", ""));
+    const isElIcon = computed(() => props.icon?.startsWith('el-icon'));
+    const iconName = computed(() => props.icon?.replace('el-icon-', ''));
 
     return () => {
       if (!props.icon) {
-        return h("div", { class: "i-svg:menu" });
+        return h('div', { class: 'i-svg:menu' });
       }
 
       // Element Plus 图标
@@ -84,7 +84,7 @@ const MenuIcon = defineComponent({
       }
 
       // SVG 图标
-      return h("div", { class: `i-svg:${props.icon}` });
+      return h('div', { class: `i-svg:${props.icon}` });
     };
   },
 });
@@ -143,7 +143,7 @@ function hasOneShowingChild(children: RouteRecordRaw[] = [], parent: RouteRecord
   // 无子节点
   if (showingChildren.length === 0) {
     // 父节点设置为唯一显示节点，并标记为无子节点
-    onlyOneChild.value = { ...parent, path: "", noShowingChildren: true };
+    onlyOneChild.value = { ...parent, path: '', noShowingChildren: true };
     return true;
   }
   return false;
@@ -176,7 +176,7 @@ function resolvePath(routePath: string) {
     color: currentcolor;
   }
 
-  [class^="i-svg:"] {
+  [class^='i-svg:'] {
     width: 18px;
     height: 18px;
     font-size: 18px;
@@ -188,7 +188,7 @@ function resolvePath(routePath: string) {
 .el-menu--collapse {
   .el-menu-item,
   .el-sub-menu > .el-sub-menu__title {
-    [class^="i-svg:"] {
+    [class^='i-svg:'] {
       width: 18px !important;
       min-width: 18px !important;
       height: 18px !important;
@@ -198,7 +198,7 @@ function resolvePath(routePath: string) {
 
   /* tooltip 弹出层中的图标 */
   .el-tooltip__trigger {
-    [class^="i-svg:"] {
+    [class^='i-svg:'] {
       width: 18px !important;
       min-width: 18px !important;
       height: 18px !important;
@@ -209,7 +209,7 @@ function resolvePath(routePath: string) {
 
 /* hideSidebar 状态下的图标 */
 .hideSidebar {
-  [class^="i-svg:"] {
+  [class^='i-svg:'] {
     width: 18px !important;
     min-width: 18px !important;
     height: 18px !important;

@@ -68,10 +68,10 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute, useRouter, type RouteRecordRaw } from "vue-router";
-import { resolve } from "path-browserify";
-import { translateRouteTitle } from "@/lang/utils";
-import { usePermissionStore, useTagsViewStore } from "@/store";
+import { useRoute, useRouter, type RouteRecordRaw } from 'vue-router';
+import { resolve } from 'path-browserify';
+import { translateRouteTitle } from '@/lang/utils';
+import { usePermissionStore, useTagsViewStore } from '@/store';
 
 interface ContextMenu {
   visible: boolean;
@@ -114,7 +114,7 @@ const routePathMap = computed(() => {
 const isFirstView = computed(() => {
   if (!selectedTag.value) return false;
   return (
-    selectedTag.value.path === "/dashboard" ||
+    selectedTag.value.path === '/dashboard' ||
     selectedTag.value.fullPath === visitedViews.value[1]?.fullPath
   );
 });
@@ -128,7 +128,7 @@ const isLastView = computed(() => {
 /**
  * 递归提取固定标签
  */
-const extractAffixTags = (routes: RouteRecordRaw[], basePath = "/"): TagView[] => {
+const extractAffixTags = (routes: RouteRecordRaw[], basePath = '/'): TagView[] => {
   const affixTags: TagView[] = [];
 
   const traverse = (routeList: RouteRecordRaw[], currentBasePath: string) => {
@@ -140,8 +140,8 @@ const extractAffixTags = (routes: RouteRecordRaw[], basePath = "/"): TagView[] =
         affixTags.push({
           path: fullPath,
           fullPath,
-          name: String(route.name || ""),
-          title: route.meta.title || "no-name",
+          name: String(route.name || ''),
+          title: route.meta.title || 'no-name',
           affix: true,
           keepAlive: route.meta.keepAlive || false,
         });
@@ -198,7 +198,7 @@ const updateCurrentTag = () => {
     if (currentTag && currentTag.fullPath !== route.fullPath) {
       tagsViewStore.updateVisitedView({
         name: route.name as string,
-        title: route.meta?.title || "",
+        title: route.meta?.title || '',
         path: route.path,
         fullPath: route.fullPath,
         affix: route.meta?.affix || false,
@@ -262,7 +262,7 @@ const refreshSelectedTag = (tag: TagView | null) => {
 
   tagsViewStore.delCachedView(tag);
   nextTick(() => {
-    router.replace("/redirect" + tag.fullPath);
+    router.replace('/redirect' + tag.fullPath);
   });
 };
 
@@ -338,15 +338,15 @@ const useContextMenuManager = () => {
 
   watchEffect(() => {
     if (contextMenu.visible) {
-      document.addEventListener("click", handleOutsideClick);
+      document.addEventListener('click', handleOutsideClick);
     } else {
-      document.removeEventListener("click", handleOutsideClick);
+      document.removeEventListener('click', handleOutsideClick);
     }
   });
 
   // 组件卸载时清理
   onBeforeUnmount(() => {
-    document.removeEventListener("click", handleOutsideClick);
+    document.removeEventListener('click', handleOutsideClick);
   });
 };
 

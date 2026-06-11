@@ -1,9 +1,9 @@
-import chains from "./chains/chains";
-import { useAppKitProvider } from "@reown/appkit/vue";
-import { BrowserProvider, Contract, JsonRpcProvider } from "ethers";
-import type { ChainInfo, ContractInfo, EVMInfo } from "./types";
+import chains from './chains/chains';
+import { useAppKitProvider } from '@reown/appkit/vue';
+import { BrowserProvider, Contract, JsonRpcProvider } from 'ethers';
+import type { ChainInfo, ContractInfo, EVMInfo } from './types';
 
-const contracts = import.meta.glob("./contracts/*.json");
+const contracts = import.meta.glob('./contracts/*.json');
 
 // 加载指定名称的json里的内容
 export async function loadContract(contractName: string): Promise<ContractInfo | undefined> {
@@ -13,7 +13,7 @@ export async function loadContract(contractName: string): Promise<ContractInfo |
     const result = (await contracts[contractPath]()) as { default: ContractInfo };
     return result.default;
   } else {
-    console.error("未找到合约:", contractName);
+    console.error('未找到合约:', contractName);
     return undefined;
   }
 }
@@ -27,7 +27,7 @@ export async function getContractAddress(
   if (!contract) return undefined;
 
   const chainName = getChainKeyById(chainId);
-  return contract[chainName ? chainName : "ethereum"];
+  return contract[chainName ? chainName : 'ethereum'];
 }
 
 // 根据合约文件名获取对应的ABI
@@ -52,13 +52,13 @@ export function getChainKeyById(chainId: number): string | undefined {
 
 // 获取EVM链相关的当前账号信息
 export async function getEVMCurrentInfo(): Promise<EVMInfo> {
-  const { walletProvider } = useAppKitProvider("eip155");
+  const { walletProvider } = useAppKitProvider('eip155');
 
   // 检查钱包提供者是否可用
   if (!walletProvider) {
     // 钱包未连接时使用 BSC 主网公共 RPC（与 AppKit defaultNetwork 保持一致）
     const defaultChain = chains.bsc;
-    console.log("钱包未连接，使用公共 RPC 节点连接", defaultChain.chainName);
+    console.log('钱包未连接，使用公共 RPC 节点连接', defaultChain.chainName);
     const provider = new JsonRpcProvider(defaultChain.rpcUrl);
     const network = await provider.getNetwork();
     // 公共 RPC 没有 signer，返回 null
@@ -74,7 +74,7 @@ export async function getEVMCurrentInfo(): Promise<EVMInfo> {
 // 根据合约文件名称返回合约对象
 export async function getContract(contractName: string): Promise<Contract> {
   const { network, signer, provider } = await getEVMCurrentInfo();
-  console.log("network", network);
+  console.log('network', network);
 
   // 获取合约ABI
   const abi = await getFuncAbi(contractName);
@@ -93,29 +93,29 @@ export async function getContract(contractName: string): Promise<Contract> {
 
 // 检查数据是否为空
 export function isNull(data: any): boolean {
-  if (typeof data === "boolean") {
+  if (typeof data === 'boolean') {
     return false;
   }
 
-  if (typeof data === "string") {
-    return data.trim() === "";
+  if (typeof data === 'string') {
+    return data.trim() === '';
   }
-  return data === "" || data === undefined || data == null;
+  return data === '' || data === undefined || data == null;
 }
 
 // 根据合约地址返回自定义合约对象
 export async function getCustomContract(address: string): Promise<Contract> {
   const { network, signer, provider } = await getEVMCurrentInfo();
-  console.log("network", network);
+  console.log('network', network);
 
   const ERC20_ABI = [
-    "function name() view returns (string)",
-    "function symbol() view returns (string)",
-    "function decimals() view returns (uint8)",
-    "function balanceOf(address) view returns (uint256)",
-    "function transfer(address,uint256) returns (bool)",
-    "function allowance(address,address) view returns (uint256)",
-    "function approve(address,uint256) returns (bool)",
+    'function name() view returns (string)',
+    'function symbol() view returns (string)',
+    'function decimals() view returns (uint8)',
+    'function balanceOf(address) view returns (uint256)',
+    'function transfer(address,uint256) returns (bool)',
+    'function allowance(address,address) view returns (uint256)',
+    'function approve(address,uint256) returns (bool)',
   ];
   const abi = ERC20_ABI;
 

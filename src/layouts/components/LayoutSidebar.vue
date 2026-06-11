@@ -25,15 +25,15 @@
 </template>
 
 <script lang="ts" setup>
-import { useRoute } from "vue-router";
-import path from "path-browserify";
-import type { MenuInstance } from "element-plus";
-import type { RouteRecordRaw } from "vue-router";
-import { SidebarColor } from "@/enums/settings";
-import { useSettingsStore, useAppStore } from "@/store";
-import { isExternal } from "@/utils/index";
-import LayoutSidebarItem from "./LayoutSidebarItem.vue";
-import variables from "@/styles/variables.module.scss";
+import { useRoute } from 'vue-router';
+import path from 'path-browserify';
+import type { MenuInstance } from 'element-plus';
+import type { RouteRecordRaw } from 'vue-router';
+import { SidebarColor } from '@/enums/settings';
+import { useSettingsStore, useAppStore } from '@/store';
+import { isExternal } from '@/utils/index';
+import LayoutSidebarItem from './LayoutSidebarItem.vue';
+import variables from '@/styles/variables.module.scss';
 
 const props = defineProps({
   data: {
@@ -43,12 +43,12 @@ const props = defineProps({
   basePath: {
     type: String,
     required: true,
-    example: "/system",
+    example: '/system',
   },
   menuMode: {
-    type: String as PropType<"vertical" | "horizontal">,
-    default: "vertical",
-    validator: (value: string) => ["vertical", "horizontal"].includes(value),
+    type: String as PropType<'vertical' | 'horizontal'>,
+    default: 'vertical',
+    validator: (value: string) => ['vertical', 'horizontal'].includes(value),
   },
 });
 
@@ -69,12 +69,12 @@ const sidebarColorScheme = computed(() => settingsStore.sidebarColorScheme);
 // 菜单主题属性
 const menuThemeProps = computed(() => {
   const isDarkOrClassicBlue =
-    theme.value === "dark" || sidebarColorScheme.value === SidebarColor.CLASSIC_BLUE;
+    theme.value === 'dark' || sidebarColorScheme.value === SidebarColor.CLASSIC_BLUE;
 
   return {
-    backgroundColor: isDarkOrClassicBlue ? variables["menu-background"] : undefined,
-    textColor: isDarkOrClassicBlue ? variables["menu-text"] : undefined,
-    activeTextColor: isDarkOrClassicBlue ? variables["menu-active-text"] : undefined,
+    backgroundColor: isDarkOrClassicBlue ? variables['menu-background'] : undefined,
+    textColor: isDarkOrClassicBlue ? variables['menu-text'] : undefined,
+    activeTextColor: isDarkOrClassicBlue ? variables['menu-active-text'] : undefined,
   };
 });
 
@@ -83,7 +83,7 @@ const activeMenuPath = computed((): string => {
   const { meta, path } = currentRoute;
 
   // 如果路由 meta 中设置了 activeMenu，则使用它（用于处理一些特殊情况，如详情页等）
-  if (meta?.activeMenu && typeof meta.activeMenu === "string") {
+  if (meta?.activeMenu && typeof meta.activeMenu === 'string') {
     return meta.activeMenu;
   }
 
@@ -106,7 +106,7 @@ function resolveFullPath(routePath: string) {
   }
 
   // 如果 basePath 为空（顶部布局），直接返回 routePath
-  if (!props.basePath || props.basePath === "") {
+  if (!props.basePath || props.basePath === '') {
     return routePath;
   }
 
@@ -149,7 +149,7 @@ watch(
 watch(
   () => props.menuMode,
   (newMode) => {
-    if (newMode === "horizontal" && menuRef.value) {
+    if (newMode === 'horizontal' && menuRef.value) {
       expandedMenuIndexes.value.forEach((item) => menuRef.value!.close(item));
     }
   }
@@ -192,26 +192,26 @@ function updateParentMenuStyles() {
       if (!menuEl) return;
 
       // 移除所有现有的 has-active-child 类
-      const allSubMenus = menuEl.querySelectorAll(".el-sub-menu");
+      const allSubMenus = menuEl.querySelectorAll('.el-sub-menu');
       allSubMenus.forEach((subMenu) => {
-        subMenu.classList.remove("has-active-child");
+        subMenu.classList.remove('has-active-child');
       });
 
       // 查找当前激活的菜单项
-      const activeMenuItem = menuEl.querySelector(".el-menu-item.is-active");
+      const activeMenuItem = menuEl.querySelector('.el-menu-item.is-active');
 
       if (activeMenuItem) {
         // 向上查找父级 el-sub-menu 元素
         let parent = activeMenuItem.parentElement;
         while (parent && parent !== menuEl) {
-          if (parent.classList.contains("el-sub-menu")) {
-            parent.classList.add("has-active-child");
+          if (parent.classList.contains('el-sub-menu')) {
+            parent.classList.add('has-active-child');
           }
           parent = parent.parentElement;
         }
       } else {
         // 水平模式下可能需要特殊处理
-        if (props.menuMode === "horizontal") {
+        if (props.menuMode === 'horizontal') {
           // 对于水平菜单，使用路径匹配来找到父菜单
           const currentPath = activeMenuPath.value;
 
@@ -219,18 +219,18 @@ function updateParentMenuStyles() {
           allSubMenus.forEach((subMenu) => {
             const subMenuEl = subMenu as HTMLElement;
             const subMenuPath =
-              subMenuEl.getAttribute("data-path") ||
-              subMenuEl.querySelector(".el-sub-menu__title")?.getAttribute("data-path");
+              subMenuEl.getAttribute('data-path') ||
+              subMenuEl.querySelector('.el-sub-menu__title')?.getAttribute('data-path');
 
             // 如果找到包含当前路径的父菜单，则添加激活类
             if (subMenuPath && currentPath.startsWith(subMenuPath)) {
-              subMenuEl.classList.add("has-active-child");
+              subMenuEl.classList.add('has-active-child');
             }
           });
         }
       }
     } catch (error) {
-      console.error("Error updating parent menu styles:", error);
+      console.error('Error updating parent menu styles:', error);
     }
   });
 }

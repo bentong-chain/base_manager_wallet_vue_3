@@ -4,16 +4,16 @@
  * @module stores/modules/wallet
  */
 
-import { defineStore } from "pinia";
-import { ref, computed } from "vue";
-import { BrowserProvider } from "ethers";
-import { end, start } from "@/api/loading";
-import { useAppKitProvider } from "@reown/appkit/vue";
-import { useUserStore } from "@/store";
-import { useAuthStore } from "@/store/modules/auth";
-import { store } from "@/store";
+import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
+import { BrowserProvider } from 'ethers';
+import { end, start } from '@/api/loading';
+import { useAppKitProvider } from '@reown/appkit/vue';
+import { useUserStore } from '@/store';
+import { useAuthStore } from '@/store/modules/auth';
+import { store } from '@/store';
 
-export const useWalletStore = defineStore("wallet", () => {
+export const useWalletStore = defineStore('wallet', () => {
   // ─────────────────────────────────────────────────────────────────────────────
   // State
   // ─────────────────────────────────────────────────────────────────────────────
@@ -65,17 +65,17 @@ export const useWalletStore = defineStore("wallet", () => {
       console.log(baseURL);
       const signStr =
         signInfoName +
-        " wants you to sign in with your account:\n" +
+        ' wants you to sign in with your account:\n' +
         account +
-        "\n\nSign in with account to the admin console.\n\nURI: " +
+        '\n\nSign in with account to the admin console.\n\nURI: ' +
         baseURL +
-        "\nLogin time: " +
+        '\nLogin time: ' +
         signTime.toString();
 
       start();
 
       // 获取钱包提供者
-      const { walletProvider } = useAppKitProvider("eip155");
+      const { walletProvider } = useAppKitProvider('eip155');
       const ethersProvider = new BrowserProvider(walletProvider as any);
       const signer = await ethersProvider.getSigner();
 
@@ -88,7 +88,7 @@ export const useWalletStore = defineStore("wallet", () => {
         signTime,
         loginSign: signature,
         device: authStore.deviceId,
-        deviceType: "web",
+        deviceType: 'web',
       });
 
       end();
@@ -98,7 +98,7 @@ export const useWalletStore = defineStore("wallet", () => {
 
       return true;
     } catch (error) {
-      console.error("钱包登录失败:", error);
+      console.error('钱包登录失败:', error);
       end();
       return false;
     }

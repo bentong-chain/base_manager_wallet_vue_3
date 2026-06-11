@@ -8,20 +8,20 @@
 </template>
 
 <script setup lang="ts">
-import { useDictStore } from "@/store";
+import { useDictStore } from '@/store';
 
 const props = defineProps({
   code: String, // 字典编码
   modelValue: [String, Number], // 字典项的值
   size: {
     type: String,
-    default: "default", // 标签大小
+    default: 'default', // 标签大小
   },
 });
 
-const label = ref("");
-const tagType = ref<"success" | "warning" | "info" | "primary" | "danger" | undefined>(); // 标签类型
-const tagSize = ref<"default" | "large" | "small">(props.size as "default" | "large" | "small"); // 标签大小
+const label = ref('');
+const tagType = ref<'success' | 'warning' | 'info' | 'primary' | 'danger' | undefined>(); // 标签类型
+const tagSize = ref<'default' | 'large' | 'small'>(props.size as 'default' | 'large' | 'small'); // 标签大小
 
 const dictStore = useDictStore();
 
@@ -39,7 +39,7 @@ const getLabelAndTagByValue = async (dictCode: string, value: any) => {
   // 查找对应的字典项
   const dictItem = dictItems.find((item) => item.value == value);
   return {
-    label: dictItem?.label || "",
+    label: dictItem?.label || '',
     tagType: dictItem?.tagType,
   };
 };

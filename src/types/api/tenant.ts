@@ -2,7 +2,7 @@
  * Tenant 租户类型定义
  */
 
-import type { BaseQueryParams } from "./common";
+import type { BaseQueryParams } from './common';
 
 /** 租户信息 */
 export interface TenantInfo {

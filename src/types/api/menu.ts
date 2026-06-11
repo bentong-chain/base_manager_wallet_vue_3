@@ -3,7 +3,7 @@
  */
 
 /** 资源类型 */
-export type ResourceType = "CATALOG" | "MENU" | "BUTTON";
+export type ResourceType = 'CATALOG' | 'MENU' | 'BUTTON';
 
 /** 权限树节点（与后端 AdminPermissionTreeResponse 对齐） */
 export interface PermissionTreeNode {

@@ -1,9 +1,9 @@
-import { store } from "@/store";
-import DictAPI from "@/api/system/dict";
-import type { DictItemOption } from "@/types/api";
-import { STORAGE_KEYS } from "@/constants";
+import { store } from '@/store';
+import DictAPI from '@/api/system/dict';
+import type { DictItemOption } from '@/types/api';
+import { STORAGE_KEYS } from '@/constants';
 
-export const useDictStore = defineStore("dict", () => {
+export const useDictStore = defineStore('dict', () => {
   // 字典数据缓存
   const dictCache = useStorage<Record<string, DictItemOption[]>>(STORAGE_KEYS.DICT_CACHE, {});
 

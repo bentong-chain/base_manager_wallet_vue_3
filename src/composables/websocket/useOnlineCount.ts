@@ -1,6 +1,6 @@
-import { ref, onMounted, onUnmounted, getCurrentInstance } from "vue";
-import { useStomp } from "./useStomp";
-import { AuthStorage } from "@/utils/auth";
+import { ref, onMounted, onUnmounted, getCurrentInstance } from 'vue';
+import { useStomp } from './useStomp';
+import { AuthStorage } from '@/utils/auth';
 
 /**
  * 在线用户数量消息结构
@@ -34,7 +34,7 @@ function createOnlineCountComposable() {
   });
 
   // 在线用户计数主题
-  const ONLINE_COUNT_TOPIC = "/topic/online-count";
+  const ONLINE_COUNT_TOPIC = '/topic/online-count';
 
   // 订阅 ID
   let subscriptionId: string | null = null;
@@ -50,16 +50,16 @@ function createOnlineCountComposable() {
       // 支持两种消息格式
       // 1. 直接是数字: 42
       // 2. 对象格式: { count: 42, timestamp: 1234567890 }
-      const count = typeof jsonData === "number" ? jsonData : jsonData.count;
+      const count = typeof jsonData === 'number' ? jsonData : jsonData.count;
 
       if (count !== undefined && !isNaN(count)) {
         onlineUserCount.value = count;
         lastUpdateTime.value = Date.now();
       } else {
-        console.warn("[useOnlineCount] 收到无效的在线用户数:", data);
+        console.warn('[useOnlineCount] 收到无效的在线用户数:', data);
       }
     } catch (error) {
-      console.error("[useOnlineCount] 解析在线用户数失败:", error);
+      console.error('[useOnlineCount] 解析在线用户数失败:', error);
     }
   };
 
@@ -82,14 +82,14 @@ function createOnlineCountComposable() {
     // 检查 WebSocket 端点是否配置
     const wsEndpoint = import.meta.env.VITE_APP_WS_ENDPOINT;
     if (!wsEndpoint) {
-      console.log("[useOnlineCount] 未配置 WebSocket 端点，跳过初始化");
+      console.log('[useOnlineCount] 未配置 WebSocket 端点，跳过初始化');
       return;
     }
 
     // 检查令牌有效性
     const accessToken = AuthStorage.getAccessToken();
     if (!accessToken) {
-      console.log("[useOnlineCount] 未检测到有效令牌，跳过初始化");
+      console.log('[useOnlineCount] 未检测到有效令牌，跳过初始化');
       return;
     }
 

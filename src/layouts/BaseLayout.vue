@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { useLayout } from "./useLayout";
+import { useLayout } from './useLayout';
 
 const { layoutClass, isSidebarOpen, isMobile, closeSidebar } = useLayout();
 </script>

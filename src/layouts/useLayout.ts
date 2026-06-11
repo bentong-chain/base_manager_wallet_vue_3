@@ -3,11 +3,11 @@
  *
  * 整合布局状态、设备检测、菜单数据
  */
-import { useRoute } from "vue-router";
-import { useWindowSize } from "@vueuse/core";
-import { useAppStore, usePermissionStore, useSettingsStore } from "@/store";
-import { DeviceEnum } from "@/enums/settings";
-import { defaults } from "@/settings";
+import { useRoute } from 'vue-router';
+import { useWindowSize } from '@vueuse/core';
+import { useAppStore, usePermissionStore, useSettingsStore } from '@/store';
+import { DeviceEnum } from '@/enums/settings';
+import { defaults } from '@/settings';
 
 const DESKTOP_BREAKPOINT = 992;
 

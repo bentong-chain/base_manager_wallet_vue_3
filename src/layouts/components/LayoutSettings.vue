@@ -8,7 +8,7 @@
   >
     <div class="settings-content">
       <section class="config-section">
-        <el-divider>{{ t("settings.theme") }}</el-divider>
+        <el-divider>{{ t('settings.theme') }}</el-divider>
 
         <div class="flex-center">
           <el-switch
@@ -23,10 +23,10 @@
 
       <!-- 界面设置 -->
       <section class="config-section">
-        <el-divider>{{ t("settings.interface") }}</el-divider>
+        <el-divider>{{ t('settings.interface') }}</el-divider>
 
         <div class="config-item flex-x-between">
-          <span class="text-xs">{{ t("settings.themeColor") }}</span>
+          <span class="text-xs">{{ t('settings.themeColor') }}</span>
           <el-color-picker
             v-model="selectedThemeColor"
             :predefine="colorPresets"
@@ -35,22 +35,22 @@
         </div>
 
         <div class="config-item flex-x-between">
-          <span class="text-xs">{{ t("settings.showTagsView") }}</span>
+          <span class="text-xs">{{ t('settings.showTagsView') }}</span>
           <el-switch v-model="settingsStore.showTagsView" />
         </div>
 
         <div class="config-item flex-x-between">
-          <span class="text-xs">{{ t("settings.showAppLogo") }}</span>
+          <span class="text-xs">{{ t('settings.showAppLogo') }}</span>
           <el-switch v-model="settingsStore.showAppLogo" />
         </div>
 
         <div class="config-item flex-x-between">
-          <span class="text-xs">{{ t("settings.showWatermark") }}</span>
+          <span class="text-xs">{{ t('settings.showWatermark') }}</span>
           <el-switch v-model="settingsStore.showWatermark" />
         </div>
 
         <div class="config-item flex-x-between">
-          <span class="text-xs">{{ t("settings.pageSwitchingAnimation") }}</span>
+          <span class="text-xs">{{ t('settings.pageSwitchingAnimation') }}</span>
           <el-select v-model="settingsStore.pageSwitchingAnimation" style="width: 150px">
             <el-option
               v-for="(item, key) in pageSwitchingAnimationOptions"
@@ -72,13 +72,13 @@
         </div>
 
         <div v-if="!isDark" class="config-item flex-x-between">
-          <span class="text-xs">{{ t("settings.sidebarColorScheme") }}</span>
+          <span class="text-xs">{{ t('settings.sidebarColorScheme') }}</span>
           <el-radio-group v-model="sidebarColor" @change="changeSidebarColor">
             <el-radio :value="SidebarColor.CLASSIC_BLUE">
-              {{ t("settings.classicBlue") }}
+              {{ t('settings.classicBlue') }}
             </el-radio>
             <el-radio :value="SidebarColor.MINIMAL_WHITE">
-              {{ t("settings.minimalWhite") }}
+              {{ t('settings.minimalWhite') }}
             </el-radio>
           </el-radio-group>
         </div>
@@ -86,7 +86,7 @@
 
       <!-- 布局设置 -->
       <section class="config-section">
-        <el-divider>{{ t("settings.navigation") }}</el-divider>
+        <el-divider>{{ t('settings.navigation') }}</el-divider>
 
         <!-- 整合的布局选择 -->
         <div class="layout-select">
@@ -143,7 +143,7 @@
             :loading="copyLoading"
             @click="handleCopySettings"
           >
-            {{ copyLoading ? "复制中..." : t("settings.copyConfig") }}
+            {{ copyLoading ? '复制中...' : t('settings.copyConfig') }}
           </el-button>
         </el-tooltip>
         <el-tooltip content="重置将恢复所有设置为默认值" placement="top">
@@ -154,7 +154,7 @@
             :loading="resetLoading"
             @click="handleResetSettings"
           >
-            {{ resetLoading ? "重置中..." : t("settings.resetConfig") }}
+            {{ resetLoading ? '重置中...' : t('settings.resetConfig') }}
           </el-button>
         </el-tooltip>
       </div>
@@ -163,12 +163,12 @@
 </template>
 
 <script setup lang="ts">
-import { DocumentCopy, RefreshLeft, Check } from "@element-plus/icons-vue";
+import { DocumentCopy, RefreshLeft, Check } from '@element-plus/icons-vue';
 
 const { t } = useI18n();
-import { LayoutMode, PageSwitchingAnimationOptions, SidebarColor, ThemeMode } from "@/enums";
-import { useSettingsStore } from "@/store";
-import { themeColorPresets } from "@/settings";
+import { LayoutMode, PageSwitchingAnimationOptions, SidebarColor, ThemeMode } from '@/enums';
+import { useSettingsStore } from '@/store';
+import { themeColorPresets } from '@/settings';
 
 // 页面切换动画选项
 const pageSwitchingAnimationOptions: Record<string, OptionItem> = PageSwitchingAnimationOptions;
@@ -189,9 +189,9 @@ interface LayoutOption {
 }
 
 const layoutOptions: LayoutOption[] = [
-  { value: LayoutMode.LEFT, label: t("settings.leftLayout"), className: "left" },
-  { value: LayoutMode.TOP, label: t("settings.topLayout"), className: "top" },
-  { value: LayoutMode.MIX, label: t("settings.mixLayout"), className: "mix" },
+  { value: LayoutMode.LEFT, label: t('settings.leftLayout'), className: 'left' },
+  { value: LayoutMode.TOP, label: t('settings.topLayout'), className: 'top' },
+  { value: LayoutMode.MIX, label: t('settings.mixLayout'), className: 'mix' },
 ];
 
 // 使用统一的颜色预设配置（复制为可变数组以兼容组件 prop）
@@ -258,11 +258,11 @@ const handleCopySettings = async () => {
 
     // 显示成功消息
     ElMessage.success({
-      message: t("settings.copySuccess"),
+      message: t('settings.copySuccess'),
       duration: 3000,
     });
   } catch {
-    ElMessage.error("复制配置失败");
+    ElMessage.error('复制配置失败');
   } finally {
     copyLoading.value = false;
   }
@@ -281,9 +281,9 @@ const handleResetSettings = async () => {
     isDark.value = settingsStore.theme === ThemeMode.DARK;
     sidebarColor.value = settingsStore.sidebarColorScheme;
 
-    ElMessage.success(t("settings.resetSuccess"));
+    ElMessage.success(t('settings.resetSuccess'));
   } catch {
-    ElMessage.error("重置配置失败");
+    ElMessage.error('重置配置失败');
   } finally {
     resetLoading.value = false;
   }
@@ -294,19 +294,19 @@ const handleResetSettings = async () => {
  */
 const generateSettingsCode = (): string => {
   const settings = {
-    title: "pkg.name",
-    version: "pkg.version",
+    title: 'pkg.name',
+    version: 'pkg.version',
     showSettings: true,
     showTagsView: settingsStore.showTagsView,
     showAppLogo: settingsStore.showAppLogo,
     layout: `LayoutMode.${settingsStore.layout.toUpperCase()}`,
     theme: `ThemeMode.${settingsStore.theme.toUpperCase()}`,
-    size: "ComponentSize.DEFAULT",
-    language: "LanguageEnum.ZH_CN",
+    size: 'ComponentSize.DEFAULT',
+    language: 'LanguageEnum.ZH_CN',
     themeColor: `"${settingsStore.themeColor}"`,
     showWatermark: settingsStore.showWatermark,
-    watermarkContent: "pkg.name",
-    sidebarColorScheme: `SidebarColor.${settingsStore.sidebarColorScheme.toUpperCase().replace("-", "_")}`,
+    watermarkContent: 'pkg.name',
+    sidebarColorScheme: `SidebarColor.${settingsStore.sidebarColorScheme.toUpperCase().replace('-', '_')}`,
   };
 
   return `const defaultSettings: AppSettings = {

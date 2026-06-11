@@ -47,7 +47,7 @@
         <el-table-column label="状态">
           <template #default="scope">
             <el-tag :type="scope.row.status === 1 ? 'success' : 'info'">
-              {{ scope.row.status === 1 ? "启用" : "禁用" }}
+              {{ scope.row.status === 1 ? '启用' : '禁用' }}
             </el-tag>
           </template>
         </el-table-column>
@@ -127,13 +127,13 @@
           >
             <template #label="{ value }">
               <el-tag v-if="value" :type="value">
-                {{ formData.label ? formData.label : "字典标签" }}
+                {{ formData.label ? formData.label : '字典标签' }}
               </el-tag>
             </template>
             <!-- <el-option label="默认文本" value="" /> -->
             <el-option v-for="type in tagType" :key="type" :label="type" :value="type as string">
               <div flex-y-center gap-10px>
-                <el-tag :type="type">{{ formData.label ?? "字典标签" }}</el-tag>
+                <el-tag :type="type">{{ formData.label ?? '字典标签' }}</el-tag>
                 <span>{{ type }}</span>
               </div>
             </el-option>
@@ -152,9 +152,9 @@
 </template>
 
 <script setup lang="ts">
-import DictAPI from "@/api/system/dict";
-import type { DictItemQueryParams, DictItem, DictItemForm } from "@/types/api";
-import type { FormInstance, FormRules } from "element-plus";
+import DictAPI from '@/api/system/dict';
+import type { DictItemQueryParams, DictItem, DictItemForm } from '@/types/api';
+import type { FormInstance, FormRules } from 'element-plus';
 
 const route = useRoute();
 
@@ -179,7 +179,7 @@ const ids = ref<string[]>([]);
 
 // 弹窗状态
 const dialogState = reactive({
-  title: "",
+  title: '',
   visible: false,
 });
 
@@ -187,16 +187,16 @@ const dialogState = reactive({
 const formData = reactive<DictItemForm>({
   sort: 1,
   status: 1,
-  tagType: "",
+  tagType: '',
 });
 
 // 标签类型选项
-const tagType = ["primary", "success", "info", "warning", "danger"] as const;
+const tagType = ['primary', 'success', 'info', 'warning', 'danger'] as const;
 
 // 验证规则
 const rules: FormRules = {
-  value: [{ required: true, message: "请输入字典值", trigger: "blur" }],
-  label: [{ required: true, message: "请输入字典标签", trigger: "blur" }],
+  value: [{ required: true, message: '请输入字典值', trigger: 'blur' }],
+  label: [{ required: true, message: '请输入字典标签', trigger: 'blur' }],
 };
 
 /**
@@ -245,7 +245,7 @@ function handleSelectionChange(selection: DictItem[]): void {
 function openDialog(row?: DictItem): void {
   resetForm();
   dialogState.visible = true;
-  dialogState.title = row ? "编辑字典值" : "新增字典值";
+  dialogState.title = row ? '编辑字典值' : '新增字典值';
 
   if (row?.id) {
     DictAPI.getDictItemFormData(dictCode.value, row.id).then((data) => {
@@ -262,7 +262,7 @@ function resetForm(): void {
   formData.value = undefined;
   formData.sort = 1;
   formData.status = 1;
-  formData.tagType = "";
+  formData.tagType = '';
 }
 
 /**
@@ -278,7 +278,7 @@ function handleSubmit(): void {
       if (id) {
         DictAPI.updateDictItem(dictCode.value, id, formData)
           .then(() => {
-            ElMessage.success("修改成功");
+            ElMessage.success('修改成功');
             closeDialog();
             handleQuery();
           })
@@ -286,7 +286,7 @@ function handleSubmit(): void {
       } else {
         DictAPI.createDictItem(dictCode.value, formData)
           .then(() => {
-            ElMessage.success("新增成功");
+            ElMessage.success('新增成功');
             closeDialog();
             handleQuery();
           })
@@ -310,25 +310,25 @@ function closeDialog(): void {
  * @param id 字典项ID
  */
 function handleDelete(id?: number): void {
-  const itemIds = [id || ids.value].join(",");
+  const itemIds = [id || ids.value].join(',');
 
   if (!itemIds) {
-    ElMessage.warning("请勾选删除项");
+    ElMessage.warning('请勾选删除项');
     return;
   }
-  ElMessageBox.confirm("确认删除已选中的数据项?", "警告", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning",
+  ElMessageBox.confirm('确认删除已选中的数据项?', '警告', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
   }).then(
     () => {
       DictAPI.deleteDictItems(dictCode.value, itemIds).then(() => {
-        ElMessage.success("删除成功");
+        ElMessage.success('删除成功');
         handleResetQuery();
       });
     },
     () => {
-      ElMessage.info("已取消删除");
+      ElMessage.info('已取消删除');
     }
   );
 }

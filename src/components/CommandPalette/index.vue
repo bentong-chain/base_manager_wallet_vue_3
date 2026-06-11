@@ -86,8 +86,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import { useCommandPalette } from "./useCommandPalette";
+import { computed } from 'vue';
+import { useCommandPalette } from './useCommandPalette';
 
 const {
   visible,
@@ -111,25 +111,25 @@ const handleInputKeydown: (evt: KeyboardEvent | Event) => any = (evt) => {
   const e = evt;
   const key = e.key.toLowerCase();
 
-  if (key === "escape") {
+  if (key === 'escape') {
     e.preventDefault();
     close();
     return;
   }
 
-  if (key === "arrowup") {
+  if (key === 'arrowup') {
     e.preventDefault();
-    onNavigate("up");
+    onNavigate('up');
     return;
   }
 
-  if (key === "arrowdown") {
+  if (key === 'arrowdown') {
     e.preventDefault();
-    onNavigate("down");
+    onNavigate('down');
     return;
   }
 
-  if (key === "enter") {
+  if (key === 'enter') {
     e.preventDefault();
     if (displayList.value.length === 0) return;
     if (activeIndex.value < 0) activeIndex.value = 0;
@@ -158,7 +158,7 @@ const handleInputKeydown: (evt: KeyboardEvent | Event) => any = (evt) => {
   align-items: center;
 }
 
-.command-palette-trigger__left :deep([class^="i-svg:"]) {
+.command-palette-trigger__left :deep([class^='i-svg:']) {
   color: var(--el-text-color-secondary) !important;
 }
 
@@ -207,12 +207,12 @@ const handleInputKeydown: (evt: KeyboardEvent | Event) => any = (evt) => {
   align-items: center;
 }
 
-.command-palette-input__suffix :deep([class^="i-svg:"]) {
+.command-palette-input__suffix :deep([class^='i-svg:']) {
   font-size: 16px;
   color: var(--el-text-color-secondary);
 }
 
-.command-palette-input__suffix :deep([class^="i-svg:"]):hover {
+.command-palette-input__suffix :deep([class^='i-svg:']):hover {
   color: var(--el-color-primary);
 }
 
@@ -286,7 +286,7 @@ const handleInputKeydown: (evt: KeyboardEvent | Event) => any = (evt) => {
   border-radius: 8px;
 }
 
-.command-palette-hint__key :deep([class^="i-svg:"]) {
+.command-palette-hint__key :deep([class^='i-svg:']) {
   font-size: 14px;
   color: var(--el-text-color-secondary);
 }

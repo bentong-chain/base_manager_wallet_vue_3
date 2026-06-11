@@ -12,7 +12,7 @@
           </div>
           <div class="ml-5">
             <p class="text-base font-semibold text-[--el-text-color-primary] leading-tight">
-              {{ userStore.userInfo?.username ?? "用户" }}
+              {{ userStore.userInfo?.username ?? '用户' }}
             </p>
             <p class="text-sm text-gray">{{ greetings }} {{ currentTimeStr }}</p>
           </div>
@@ -317,22 +317,22 @@
 
 <script setup lang="ts">
 defineOptions({
-  name: "Dashboard",
+  name: 'Dashboard',
   inheritAttrs: false,
 });
 
-import { dayjs } from "element-plus";
-import { ref, onMounted, onUnmounted } from "vue";
-import { useRouter } from "vue-router";
-import type { EChartsOption } from "echarts";
-import StatisticsAPI from "@/api/system/statistics";
-import type { VisitStatsDetail, VisitTrendDetail } from "@/types/api";
-import { useUserStore } from "@/store/modules/user";
-import { formatGrowthRate } from "@/utils";
-import { useTransition } from "@vueuse/core";
-import { CircleCheck, CircleClose, Loading, Clock, Menu } from "@element-plus/icons-vue";
-import { useOnlineCount } from "@/composables/websocket";
-import { useRecentMenus } from "@/composables";
+import { dayjs } from 'element-plus';
+import { ref, onMounted, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
+import type { EChartsOption } from 'echarts';
+import StatisticsAPI from '@/api/system/statistics';
+import type { VisitStatsDetail, VisitTrendDetail } from '@/types/api';
+import { useUserStore } from '@/store/modules/user';
+import { formatGrowthRate } from '@/utils';
+import { useTransition } from '@vueuse/core';
+import { CircleCheck, CircleClose, Loading, Clock, Menu } from '@element-plus/icons-vue';
+import { useOnlineCount } from '@/composables/websocket';
+import { useRecentMenus } from '@/composables';
 
 const router = useRouter();
 
@@ -351,25 +351,25 @@ const { recentMenus, clearRecentMenus } = useRecentMenus();
 // 格式化时间戳（lastUpdateTime 为毫秒时间戳，可能为 null）
 const formattedTime = computed(() => {
   const t = lastUpdateTime.value;
-  if (t == null) return "--";
-  return dayjs(t).format("HH:mm:ss");
+  if (t == null) return '--';
+  return dayjs(t).format('HH:mm:ss');
 });
 
 const wsStatusText = computed(() => {
   if (!isConnected.value) {
-    return connectionState.value === "CONNECTING" || connectionState.value === "RECONNECTING"
-      ? "连接中"
-      : "未连接";
+    return connectionState.value === 'CONNECTING' || connectionState.value === 'RECONNECTING'
+      ? '连接中'
+      : '未连接';
   }
-  return "已连接";
+  return '已连接';
 });
 
 const wsStatusClass = computed(() => {
   if (isConnected.value)
-    return "text-[--el-color-success] bg-[--el-color-success-light-9] border-[--el-color-success-light-7]";
-  return connectionState.value === "CONNECTING" || connectionState.value === "RECONNECTING"
-    ? "text-[--el-color-warning] bg-[--el-color-warning-light-9] border-[--el-color-warning-light-7]"
-    : "text-[--el-color-danger] bg-[--el-color-danger-light-9] border-[--el-color-danger-light-7]";
+    return 'text-[--el-color-success] bg-[--el-color-success-light-9] border-[--el-color-success-light-7]';
+  return connectionState.value === 'CONNECTING' || connectionState.value === 'RECONNECTING'
+    ? 'text-[--el-color-warning] bg-[--el-color-warning-light-9] border-[--el-color-warning-light-7]'
+    : 'text-[--el-color-danger] bg-[--el-color-danger-light-9] border-[--el-color-danger-light-7]';
 });
 
 const userStore = useUserStore();
@@ -381,7 +381,7 @@ const DEFAULT_AVATAR =
 const avatarUrl = computed(() => {
   const avatar = userStore.userInfo?.avatar?.trim();
   if (avatar) {
-    return avatar.includes("?") ? avatar : `${avatar}?imageView2/1/w/80/h/80`;
+    return avatar.includes('?') ? avatar : `${avatar}?imageView2/1/w/80/h/80`;
   }
   return DEFAULT_AVATAR;
 });
@@ -393,24 +393,24 @@ const currentDate = new Date();
 const greetings = computed(() => {
   const hours = currentDate.getHours();
   if (hours >= 6 && hours < 8) {
-    return "晨起披衣出草堂，轩窗已自喜微凉🌅！";
+    return '晨起披衣出草堂，轩窗已自喜微凉🌅！';
   } else if (hours >= 8 && hours < 12) {
-    return "上午好！";
+    return '上午好！';
   } else if (hours >= 12 && hours < 18) {
-    return "下午好！";
+    return '下午好！';
   } else if (hours >= 18 && hours < 24) {
-    return "晚上好！";
+    return '晚上好！';
   } else {
-    return "偷偷向银河要了一把碎星，只等你闭上眼睛撒入你的梦中，晚安🌛！";
+    return '偷偷向银河要了一把碎星，只等你闭上眼睛撒入你的梦中，晚安🌛！';
   }
 });
 
 // 当前时间显示（yyyy-MM-dd HH:mm:ss），每秒更新
-const currentTimeStr = ref(dayjs().format("YYYY-MM-DD HH:mm:ss"));
+const currentTimeStr = ref(dayjs().format('YYYY-MM-DD HH:mm:ss'));
 let currentTimeTimer: ReturnType<typeof setInterval> | null = null;
 onMounted(() => {
   currentTimeTimer = setInterval(() => {
-    currentTimeStr.value = dayjs().format("YYYY-MM-DD HH:mm:ss");
+    currentTimeStr.value = dayjs().format('YYYY-MM-DD HH:mm:ss');
   }, 1000);
 });
 onUnmounted(() => {
@@ -452,7 +452,7 @@ const uvGrowthText = computed(() => {
     visitStatsData.value.uvGrowthRate === undefined ||
     visitStatsData.value.uvGrowthRate === null
   ) {
-    return "--";
+    return '--';
   }
   return formatGrowthRate(visitStatsData.value.uvGrowthRate);
 });
@@ -462,7 +462,7 @@ const pvGrowthText = computed(() => {
     visitStatsData.value.pvGrowthRate === undefined ||
     visitStatsData.value.pvGrowthRate === null
   ) {
-    return "--";
+    return '--';
   }
   return formatGrowthRate(visitStatsData.value.pvGrowthRate);
 });
@@ -550,19 +550,19 @@ const fetchVisitTrendData = () => {
   visitTrendLoading.value = true;
 
   const startDate = dayjs()
-    .subtract(visitTrendDateRange.value - 1, "day")
+    .subtract(visitTrendDateRange.value - 1, 'day')
     .toDate();
   const endDate = new Date();
 
   StatisticsAPI.getVisitTrend({
-    startDate: dayjs(startDate).format("YYYY-MM-DD"),
-    endDate: dayjs(endDate).format("YYYY-MM-DD"),
+    startDate: dayjs(startDate).format('YYYY-MM-DD'),
+    endDate: dayjs(endDate).format('YYYY-MM-DD'),
   })
     .then((data) => {
       updateVisitTrendChartOptions(data);
     })
     .catch(() => {
-      visitTrendError.value = "加载访问趋势失败，请稍后重试";
+      visitTrendError.value = '加载访问趋势失败，请稍后重试';
     })
     .finally(() => {
       visitTrendLoading.value = false;
@@ -581,60 +581,60 @@ const updateVisitTrendChartOptions = (data: VisitTrendDetail) => {
 
   visitTrendChartOptions.value = {
     tooltip: {
-      trigger: "axis",
+      trigger: 'axis',
     },
     legend: {
-      data: ["浏览量(PV)", "访客量(UV)"],
+      data: ['浏览量(PV)', '访客量(UV)'],
       bottom: 0,
     },
     grid: {
-      left: "1%",
-      right: "5%",
-      bottom: "10%",
+      left: '1%',
+      right: '5%',
+      bottom: '10%',
       containLabel: true,
     },
     xAxis: {
-      type: "category",
+      type: 'category',
       data: dates,
     },
     yAxis: {
-      type: "value",
+      type: 'value',
       splitLine: {
         show: true,
         lineStyle: {
-          type: "dashed",
+          type: 'dashed',
         },
       },
     },
     series: [
       {
-        name: "浏览量(PV)",
-        type: "line",
+        name: '浏览量(PV)',
+        type: 'line',
         data: pvList,
         areaStyle: {
-          color: "rgba(64, 158, 255, 0.1)",
+          color: 'rgba(64, 158, 255, 0.1)',
         },
         smooth: true,
         itemStyle: {
-          color: "#4080FF",
+          color: '#4080FF',
         },
         lineStyle: {
-          color: "#4080FF",
+          color: '#4080FF',
         },
       },
       {
-        name: "访客量(UV)",
-        type: "line",
+        name: '访客量(UV)',
+        type: 'line',
         data: uvList,
         areaStyle: {
-          color: "rgba(103, 194, 58, 0.1)",
+          color: 'rgba(103, 194, 58, 0.1)',
         },
         smooth: true,
         itemStyle: {
-          color: "#67C23A",
+          color: '#67C23A',
         },
         lineStyle: {
-          color: "#67C23A",
+          color: '#67C23A',
         },
       },
     ],
@@ -648,14 +648,14 @@ const updateVisitTrendChartOptions = (data: VisitTrendDetail) => {
  */
 const computeGrowthRateClass = (growthRate?: number): string => {
   if (!growthRate) {
-    return "text-[--el-color-info]";
+    return 'text-[--el-color-info]';
   }
   if (growthRate > 0) {
-    return "text-[--el-color-danger]";
+    return 'text-[--el-color-danger]';
   } else if (growthRate < 0) {
-    return "text-[--el-color-success]";
+    return 'text-[--el-color-success]';
   } else {
-    return "text-[--el-color-info]";
+    return 'text-[--el-color-info]';
   }
 };
 

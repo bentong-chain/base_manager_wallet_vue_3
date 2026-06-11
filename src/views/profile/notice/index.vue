@@ -109,13 +109,13 @@
 
 <script setup lang="ts">
 defineOptions({
-  name: "MyNotice",
+  name: 'MyNotice',
   inheritAttrs: false,
 });
 
-import { onMounted, reactive, ref } from "vue";
-import NoticeAPI from "@/api/system/notice";
-import type { NoticeDetail, NoticeItem, NoticeQueryParams } from "@/types/api";
+import { onMounted, reactive, ref } from 'vue';
+import NoticeAPI from '@/api/system/notice';
+import type { NoticeDetail, NoticeItem, NoticeQueryParams } from '@/types/api';
 
 const queryFormRef = ref();
 const pageData = ref<NoticeItem[]>([]);

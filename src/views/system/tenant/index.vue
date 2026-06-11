@@ -75,7 +75,7 @@
         <el-table-column label="状态" width="90" align="center">
           <template #default="scope">
             <el-tag :type="scope.row.status === 1 ? 'success' : 'info'">
-              {{ scope.row.status === 1 ? "正常" : "禁用" }}
+              {{ scope.row.status === 1 ? '正常' : '禁用' }}
             </el-tag>
           </template>
         </el-table-column>
@@ -351,25 +351,25 @@
 
 <script setup lang="ts">
 defineOptions({
-  name: "Tenant",
+  name: 'Tenant',
   inheritAttrs: false,
 });
 
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from "element-plus";
-import { useDebounceFn } from "@vueuse/core";
-import { hasPerm } from "@/utils/auth";
-import TenantAPI from "@/api/system/tenant";
-import TenantPlanAPI from "@/api/system/tenant-plan";
-import MenuAPI from "@/api/system/menu";
+import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus';
+import { useDebounceFn } from '@vueuse/core';
+import { hasPerm } from '@/utils/auth';
+import TenantAPI from '@/api/system/tenant';
+import TenantPlanAPI from '@/api/system/tenant-plan';
+import MenuAPI from '@/api/system/menu';
 import type {
   OptionItem,
   TenantCreateForm,
   TenantForm,
   TenantQueryParams,
   TenantItem,
-} from "@/types/api";
-import { MenuScopeEnum } from "@/enums/business";
-import { isPlatformTenantId } from "@/utils/tenant";
+} from '@/types/api';
+import { MenuScopeEnum } from '@/enums/business';
+import { isPlatformTenantId } from '@/utils/tenant';
 
 // 表单引用
 const queryFormRef = ref<FormInstance>();
@@ -381,7 +381,7 @@ const planPreviewTreeRef = ref();
 const queryParams = reactive<TenantQueryParams>({
   pageNum: 1,
   pageSize: 10,
-  keywords: "",
+  keywords: '',
 });
 
 // 列表数据
@@ -394,7 +394,7 @@ const ids = ref<number[]>([]);
 
 // 弹窗状态
 const dialogState = reactive({
-  title: "",
+  title: '',
   visible: false,
 });
 
@@ -409,8 +409,8 @@ const tenantMenuIds = ref<number[]>([]);
 const menuSourceOptions = ref<OptionItem[]>([]);
 const planPreviewOptions = ref<OptionItem[]>([]);
 const menuCheckedCount = ref(0);
-const menuKeywords = ref("");
-const planPreviewKeywords = ref("");
+const menuKeywords = ref('');
+const planPreviewKeywords = ref('');
 const menuExpanded = ref(false);
 const planPreviewExpanded = ref(false);
 const menuParentChildLinked = ref(true);
@@ -420,9 +420,9 @@ const originalEnabledMenuIds = ref<number[]>([]);
 const menuExpandedKeys = computed(() => menuPermOptions.value.map((item) => item.value));
 
 const menuTreeProps = {
-  children: "children",
-  label: "label",
-  disabled: "disabled",
+  children: 'children',
+  label: 'label',
+  disabled: 'disabled',
 };
 
 // 目标套餐未配置菜单时提示禁止提交
@@ -433,17 +433,17 @@ const isPlanMenuEmpty = computed(
 // 表单数据
 const formData = reactive<TenantForm & TenantCreateForm>({
   id: undefined,
-  name: "",
-  code: "",
-  domain: "",
-  contactName: "",
-  contactPhone: "",
-  contactEmail: "",
+  name: '',
+  code: '',
+  domain: '',
+  contactName: '',
+  contactPhone: '',
+  contactEmail: '',
   planId: undefined,
-  remark: "",
+  remark: '',
   expireTime: undefined,
   status: 1,
-  adminUsername: "",
+  adminUsername: '',
 });
 
 // 当前表单是否为平台租户
@@ -454,28 +454,28 @@ const isTenantSelectable = (row: TenantItem) => !isPlatformTenantId(row.id);
 
 // 验证规则
 const rules: FormRules = {
-  name: [{ required: true, message: "请输入租户名称", trigger: "blur" }],
-  code: [{ required: true, message: "请输入租户编码", trigger: "blur" }],
+  name: [{ required: true, message: '请输入租户名称', trigger: 'blur' }],
+  code: [{ required: true, message: '请输入租户编码', trigger: 'blur' }],
   planId: [
     {
       validator: (_: unknown, value: number | undefined, callback: (error?: Error) => void) => {
         if (isPlatformTenant.value) return callback();
-        if (formData.id != null && String(formData.id) !== "") return callback();
-        if (value == null) return callback(new Error("请选择租户套餐"));
+        if (formData.id != null && String(formData.id) !== '') return callback();
+        if (value == null) return callback(new Error('请选择租户套餐'));
         return callback();
       },
-      trigger: "change",
+      trigger: 'change',
     },
   ],
 };
 
-const hasPermTenantMenu = computed(() => hasPerm("sys:tenant:plan-assign"));
+const hasPermTenantMenu = computed(() => hasPerm('sys:tenant:plan-assign'));
 
 /**
  * 根据套餐ID解析显示名称
  */
 function resolvePlanLabel(planId?: number): string {
-  if (planId == null) return "-";
+  if (planId == null) return '-';
   const matched = planOptions.value.find((item) => Number(item.value) === planId);
   return matched?.label || String(planId);
 }
@@ -503,14 +503,14 @@ function fetchData(): void {
  */
 async function openTenantPlanDialog(row: TenantItem): Promise<void> {
   const tenantId = row.id;
-  if (tenantId == null || tenantId === "") return;
+  if (tenantId == null || tenantId === '') return;
   if (isPlatformTenantId(tenantId)) return;
 
   tenantPlanSelectVisible.value = true;
   loading.value = true;
-  planPreviewKeywords.value = "";
+  planPreviewKeywords.value = '';
   planPreviewExpanded.value = false;
-  menuKeywords.value = "";
+  menuKeywords.value = '';
   menuExpanded.value = false;
   menuParentChildLinked.value = true;
 
@@ -559,9 +559,9 @@ function closeTenantPlanDialog(): void {
 function resetTenantPlanState(): void {
   tenantPlanDialogVisible.value = false;
   tenantPlanSelectVisible.value = false;
-  planPreviewKeywords.value = "";
+  planPreviewKeywords.value = '';
   planPreviewExpanded.value = false;
-  menuKeywords.value = "";
+  menuKeywords.value = '';
   menuExpanded.value = false;
   menuParentChildLinked.value = true;
   originalEnabledMenuIds.value = [];
@@ -636,9 +636,9 @@ async function openTenantCustomizeDialog(row?: TenantItem): Promise<void> {
   if (isPlatformTenantId(tenantId)) return;
 
   loading.value = true;
-  planPreviewKeywords.value = "";
+  planPreviewKeywords.value = '';
   planPreviewExpanded.value = false;
-  menuKeywords.value = "";
+  menuKeywords.value = '';
   menuExpanded.value = false;
   menuParentChildLinked.value = true;
 
@@ -657,7 +657,7 @@ async function openTenantCustomizeDialog(row?: TenantItem): Promise<void> {
     checkedTenantForm.value = tenantForm;
     tenantPlanId.value = tenantForm.planId != null ? Number(tenantForm.planId) : undefined;
     if (!tenantPlanId.value) {
-      ElMessage.warning("请先选择套餐");
+      ElMessage.warning('请先选择套餐');
       return;
     }
     menuSourceOptions.value = menuOptions;
@@ -680,26 +680,26 @@ async function handleTenantPlanSelectSubmit(): Promise<void> {
   const tenantId = checkedTenant.value.id;
   if (!tenantId) return;
   if (!tenantPlanId.value) {
-    ElMessage.warning("请选择租户套餐");
+    ElMessage.warning('请选择租户套餐');
     return;
   }
   if (isPlanMenuEmpty.value) {
-    ElMessage.warning("该套餐未配置菜单");
+    ElMessage.warning('该套餐未配置菜单');
     return;
   }
 
   const currentPlanLabel = resolvePlanLabel(checkedTenant.value.planId);
   const targetPlanLabel = resolvePlanLabel(tenantPlanId.value);
-  const tenantName = checkedTenant.value.name || "";
+  const tenantName = checkedTenant.value.name || '';
 
   try {
     await ElMessageBox.confirm(
       `确认将租户「${tenantName}」\n从「${currentPlanLabel}」更换为「${targetPlanLabel}」？\n\n该操作将立即生效，并影响租户可用功能。`,
-      "确认更换套餐",
+      '确认更换套餐',
       {
-        type: "warning",
-        confirmButtonText: "确认更换",
-        cancelButtonText: "取消",
+        type: 'warning',
+        confirmButtonText: '确认更换',
+        cancelButtonText: '取消',
       }
     );
   } catch {
@@ -723,12 +723,12 @@ async function handleTenantPlanSelectSubmit(): Promise<void> {
       );
       await TenantAPI.updateTenantMenus(tenantId, keepMenuIds);
     }
-    ElMessage.success("套餐已更换，请确认租户功能配置");
+    ElMessage.success('套餐已更换，请确认租户功能配置');
     checkedTenant.value.planId = tenantPlanId.value;
     tenantPlanSelectVisible.value = false;
     fetchData();
   } catch {
-    ElMessage.error("套餐选择失败");
+    ElMessage.error('套餐选择失败');
   } finally {
     loading.value = false;
   }
@@ -763,7 +763,7 @@ async function handleTenantPlanSubmit(): Promise<void> {
   const tenantId = checkedTenant.value.id;
   if (!tenantId) return;
   if (!tenantPlanId.value) {
-    ElMessage.warning("请选择租户套餐");
+    ElMessage.warning('请选择租户套餐');
     return;
   }
 
@@ -791,11 +791,11 @@ async function handleTenantPlanSubmit(): Promise<void> {
       await TenantAPI.updateTenantMenus(tenantId, filteredMenuIds);
     }
 
-    ElMessage.success("租户功能配置已更新");
+    ElMessage.success('租户功能配置已更新');
     tenantPlanDialogVisible.value = false;
     fetchData();
   } catch {
-    ElMessage.error("菜单微调失败");
+    ElMessage.error('菜单微调失败');
   } finally {
     loading.value = false;
   }
@@ -849,30 +849,30 @@ function handleSelectionChange(selection: TenantItem[]): void {
  */
 async function openDialog(tenantId?: string): Promise<void> {
   dialogState.visible = true;
-  if (tenantId != null && tenantId !== "") {
-    dialogState.title = "修改租户";
+  if (tenantId != null && tenantId !== '') {
+    dialogState.title = '修改租户';
     const data = await TenantAPI.getFormData(tenantId);
     Object.assign(formData, data);
-    formData.adminUsername = "";
+    formData.adminUsername = '';
     formData.planId = formData.planId != null ? Number(formData.planId) : undefined;
     if (isPlatformTenant.value) {
       formData.planId = undefined;
     }
   } else {
-    dialogState.title = "新增租户";
+    dialogState.title = '新增租户';
     Object.assign(formData, {
       id: undefined,
-      name: "",
-      code: "",
-      domain: "",
-      contactName: "",
-      contactPhone: "",
-      contactEmail: "",
+      name: '',
+      code: '',
+      domain: '',
+      contactName: '',
+      contactPhone: '',
+      contactEmail: '',
       planId: undefined,
-      remark: "",
+      remark: '',
       expireTime: undefined,
       status: 1,
-      adminUsername: "",
+      adminUsername: '',
     });
   }
 }
@@ -886,17 +886,17 @@ function closeDialog(): void {
   dataFormRef.value?.clearValidate();
   Object.assign(formData, {
     id: undefined,
-    name: "",
-    code: "",
-    domain: "",
-    contactName: "",
-    contactPhone: "",
-    contactEmail: "",
+    name: '',
+    code: '',
+    domain: '',
+    contactName: '',
+    contactPhone: '',
+    contactEmail: '',
     planId: undefined,
-    remark: "",
+    remark: '',
     expireTime: undefined,
     status: 1,
-    adminUsername: "",
+    adminUsername: '',
   });
 }
 
@@ -913,7 +913,7 @@ const handleSubmit = useDebounceFn(async (): Promise<void> => {
   loading.value = true;
   try {
     const tenantId = formData.id;
-    if (tenantId != null && String(tenantId) !== "") {
+    if (tenantId != null && String(tenantId) !== '') {
       const payload: TenantForm = {
         id: formData.id,
         name: formData.name,
@@ -928,7 +928,7 @@ const handleSubmit = useDebounceFn(async (): Promise<void> => {
         status: formData.status,
       };
       await TenantAPI.update(String(tenantId), payload);
-      ElMessage.success("修改成功");
+      ElMessage.success('修改成功');
     } else {
       const payload: TenantCreateForm = {
         name: formData.name,
@@ -943,7 +943,7 @@ const handleSubmit = useDebounceFn(async (): Promise<void> => {
         adminUsername: formData.adminUsername,
       };
       const result = await TenantAPI.create(payload);
-      ElMessage.success(`新增成功：管理员账号 ${result?.adminUsername || ""}`);
+      ElMessage.success(`新增成功：管理员账号 ${result?.adminUsername || ''}`);
     }
 
     closeDialog();
@@ -958,22 +958,22 @@ const handleSubmit = useDebounceFn(async (): Promise<void> => {
  * @param tenantId 租户ID
  */
 function handleDelete(tenantId?: string): void {
-  const tenantIds = tenantId != null && tenantId !== "" ? tenantId : ids.value.join(",");
+  const tenantIds = tenantId != null && tenantId !== '' ? tenantId : ids.value.join(',');
   if (!tenantIds) {
-    ElMessage.warning("请勾选删除项");
+    ElMessage.warning('请勾选删除项');
     return;
   }
 
-  ElMessageBox.confirm("确认删除选中的租户吗？", "警告", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning",
+  ElMessageBox.confirm('确认删除选中的租户吗？', '警告', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
   }).then(
     async () => {
       loading.value = true;
       try {
         await TenantAPI.deleteByIds(tenantIds);
-        ElMessage.success("删除成功");
+        ElMessage.success('删除成功');
         handleResetQuery();
       } finally {
         loading.value = false;

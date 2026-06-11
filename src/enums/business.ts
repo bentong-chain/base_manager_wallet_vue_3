@@ -9,9 +9,9 @@
  * 菜单类型枚举
  */
 export enum MenuTypeEnum {
-  CATALOG = "C", // 目录
-  MENU = "M", // 菜单
-  BUTTON = "B", // 按钮
+  CATALOG = 'C', // 目录
+  MENU = 'M', // 菜单
+  BUTTON = 'B', // 按钮
 }
 
 /**

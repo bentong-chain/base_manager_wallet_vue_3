@@ -1,11 +1,11 @@
 /**
  * 菜单搜索逻辑
  */
-import { ref, onMounted, onBeforeUnmount, toRaw } from "vue";
-import { RouteRecordRaw, LocationQueryRaw } from "vue-router";
-import router from "@/router";
-import { usePermissionStore } from "@/store";
-import { isExternal } from "@/utils";
+import { ref, onMounted, onBeforeUnmount, toRaw } from 'vue';
+import { RouteRecordRaw, LocationQueryRaw } from 'vue-router';
+import router from '@/router';
+import { usePermissionStore } from '@/store';
+import { isExternal } from '@/utils';
 
 /** 搜索项类型 */
 interface SearchItem {
@@ -17,7 +17,7 @@ interface SearchItem {
   params?: LocationQueryRaw;
 }
 
-const STORAGE_KEY = "menu_search_history";
+const STORAGE_KEY = 'menu_search_history';
 const MAX_HISTORY = 5;
 
 export function useCommandPalette() {
@@ -25,7 +25,7 @@ export function useCommandPalette() {
 
   // 状态
   const visible = ref(false);
-  const keyword = ref("");
+  const keyword = ref('');
   const activeIndex = ref(-1);
   const inputRef = ref<HTMLInputElement>();
   const menuItems = ref<SearchItem[]>([]);
@@ -33,14 +33,14 @@ export function useCommandPalette() {
   const history = ref<SearchItem[]>([]);
 
   // 排除的路由
-  const excludedPaths = ["/redirect", "/login", "/401", "/404"];
+  const excludedPaths = ['/redirect', '/login', '/401', '/404'];
 
   // ============================================
   // 弹窗控制
   // ============================================
 
   function open() {
-    keyword.value = "";
+    keyword.value = '';
     results.value = [];
     activeIndex.value = -1;
     visible.value = true;
@@ -80,11 +80,11 @@ export function useCommandPalette() {
     onGo(item);
   }
 
-  function onNavigate(direction: "up" | "down") {
+  function onNavigate(direction: 'up' | 'down') {
     const list = getDisplayList();
     if (list.length === 0) return;
 
-    if (direction === "up") {
+    if (direction === 'up') {
       activeIndex.value = activeIndex.value <= 0 ? list.length - 1 : activeIndex.value - 1;
     } else {
       activeIndex.value = activeIndex.value >= list.length - 1 ? 0 : activeIndex.value + 1;
@@ -96,7 +96,7 @@ export function useCommandPalette() {
     addHistory(item);
 
     if (isExternal(item.path)) {
-      window.open(item.path, "_blank");
+      window.open(item.path, '_blank');
     } else {
       router.push({ path: item.path, query: item.params });
     }
@@ -149,11 +149,11 @@ export function useCommandPalette() {
   // 路由解析
   // ============================================
 
-  function loadRoutes(routes: RouteRecordRaw[], parentPath = "") {
+  function loadRoutes(routes: RouteRecordRaw[], parentPath = '') {
     routes.forEach((route) => {
-      const path = route.path.startsWith("/")
+      const path = route.path.startsWith('/')
         ? route.path
-        : `${parentPath}${parentPath.endsWith("/") ? "" : "/"}${route.path}`;
+        : `${parentPath}${parentPath.endsWith('/') ? '' : '/'}${route.path}`;
 
       if (excludedPaths.includes(route.path) || isExternal(route.path)) return;
 
@@ -161,11 +161,11 @@ export function useCommandPalette() {
         loadRoutes(route.children, path);
       } else if (route.meta?.title) {
         menuItems.value.push({
-          title: route.meta.title === "dashboard" ? "首页" : route.meta.title,
+          title: route.meta.title === 'dashboard' ? '首页' : route.meta.title,
           path,
-          name: typeof route.name === "string" ? route.name : undefined,
+          name: typeof route.name === 'string' ? route.name : undefined,
           icon: route.meta.icon,
-          redirect: typeof route.redirect === "string" ? route.redirect : undefined,
+          redirect: typeof route.redirect === 'string' ? route.redirect : undefined,
           params: route.meta.params
             ? JSON.parse(JSON.stringify(toRaw(route.meta.params)))
             : undefined,
@@ -179,7 +179,7 @@ export function useCommandPalette() {
   // ============================================
 
   function handleKeydown(e: KeyboardEvent) {
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
       e.preventDefault();
       open();
     }
@@ -192,11 +192,11 @@ export function useCommandPalette() {
   onMounted(() => {
     loadRoutes(permissionStore.routes);
     loadHistory();
-    document.addEventListener("keydown", handleKeydown);
+    document.addEventListener('keydown', handleKeydown);
   });
 
   onBeforeUnmount(() => {
-    document.removeEventListener("keydown", handleKeydown);
+    document.removeEventListener('keydown', handleKeydown);
   });
 
   return {

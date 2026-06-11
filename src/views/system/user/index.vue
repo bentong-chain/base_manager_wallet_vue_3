@@ -107,7 +107,7 @@
               :disabled="Number(scope.row.status) === 2"
               @click="handleToggleStatus(scope.row)"
             >
-              {{ Number(scope.row.status) === 1 ? "禁用" : "启用" }}
+              {{ Number(scope.row.status) === 1 ? '禁用' : '启用' }}
             </el-button>
             <el-button
               v-if="Number(scope.row.status) === 2"
@@ -233,15 +233,15 @@
  * 用户列表、新增/编辑、分配角色、启用/禁用、删除
  */
 defineOptions({
-  name: "SystemUser",
+  name: 'SystemUser',
   inheritAttrs: false,
 });
 
 // 1. 导入
-import type { FormInstance } from "element-plus";
-import { useAdminUserList } from "@/composables/useAdminUserList";
-import { useAdminUserFormDialog } from "@/composables/useAdminUserFormDialog";
-import { useAssignRolesDialog } from "@/composables/useAssignRolesDialog";
+import type { FormInstance } from 'element-plus';
+import { useAdminUserList } from '@/composables/useAdminUserList';
+import { useAdminUserFormDialog } from '@/composables/useAdminUserFormDialog';
+import { useAssignRolesDialog } from '@/composables/useAssignRolesDialog';
 
 // 2. 响应式数据（来自 composables）
 const queryFormRef = ref<FormInstance>();

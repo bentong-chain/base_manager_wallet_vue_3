@@ -47,7 +47,7 @@
         <el-table-column label="状态" prop="status">
           <template #default="scope">
             <el-tag :type="scope.row.status === 1 ? 'success' : 'info'">
-              {{ scope.row.status === 1 ? "启用" : "禁用" }}
+              {{ scope.row.status === 1 ? '启用' : '禁用' }}
             </el-tag>
           </template>
         </el-table-column>
@@ -130,14 +130,14 @@
 
 <script setup lang="ts">
 defineOptions({
-  name: "Dict",
+  name: 'Dict',
   inheritAttrs: false,
 });
 
-import DictAPI from "@/api/system/dict";
-import type { DictTypeQueryParams, DictTypeItem, DictTypeForm } from "@/types/api";
-import type { FormInstance, FormRules } from "element-plus";
-import router from "@/router";
+import DictAPI from '@/api/system/dict';
+import type { DictTypeQueryParams, DictTypeItem, DictTypeForm } from '@/types/api';
+import type { FormInstance, FormRules } from 'element-plus';
+import router from '@/router';
 
 // 表单引用
 const queryFormRef = ref<FormInstance>();
@@ -157,7 +157,7 @@ const ids = ref<string[]>([]);
 
 // 弹窗状态
 const dialogState = reactive({
-  title: "",
+  title: '',
   visible: false,
 });
 
@@ -168,8 +168,8 @@ const formData = reactive<DictTypeForm>({
 
 // 验证规则
 const rules: FormRules = {
-  name: [{ required: true, message: "请输入字典名称", trigger: "blur" }],
-  dictCode: [{ required: true, message: "请输入字典编码", trigger: "blur" }],
+  name: [{ required: true, message: '请输入字典名称', trigger: 'blur' }],
+  dictCode: [{ required: true, message: '请输入字典编码', trigger: 'blur' }],
 };
 
 /**
@@ -217,7 +217,7 @@ function handleSelectionChange(selection: DictTypeItem[]): void {
 function handleCreateClick(): void {
   resetForm();
   dialogState.visible = true;
-  dialogState.title = "新增字典";
+  dialogState.title = '新增字典';
 }
 
 /**
@@ -227,7 +227,7 @@ function handleCreateClick(): void {
 function handleEditClick(id: string): void {
   resetForm();
   dialogState.visible = true;
-  dialogState.title = "修改字典";
+  dialogState.title = '修改字典';
   DictAPI.getFormData(id).then((data) => {
     Object.assign(formData, data);
   });
@@ -253,7 +253,7 @@ function handleSubmit(): void {
       if (id) {
         DictAPI.update(id, formData)
           .then(() => {
-            ElMessage.success("修改成功");
+            ElMessage.success('修改成功');
             closeDialog();
             handleQuery();
           })
@@ -261,7 +261,7 @@ function handleSubmit(): void {
       } else {
         DictAPI.create(formData)
           .then(() => {
-            ElMessage.success("新增成功");
+            ElMessage.success('新增成功');
             closeDialog();
             handleQuery();
           })
@@ -285,24 +285,24 @@ function closeDialog(): void {
  * @param id 字典ID
  */
 function handleDelete(id?: number): void {
-  const attrGroupIds = [id || ids.value].join(",");
+  const attrGroupIds = [id || ids.value].join(',');
   if (!attrGroupIds) {
-    ElMessage.warning("请勾选删除项");
+    ElMessage.warning('请勾选删除项');
     return;
   }
-  ElMessageBox.confirm("确认删除已选中的数据项?", "警告", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning",
+  ElMessageBox.confirm('确认删除已选中的数据项?', '警告', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
   }).then(
     () => {
       DictAPI.deleteByIds(attrGroupIds).then(() => {
-        ElMessage.success("删除成功");
+        ElMessage.success('删除成功');
         handleResetQuery();
       });
     },
     () => {
-      ElMessage.info("已取消删除");
+      ElMessage.info('已取消删除');
     }
   );
 }
@@ -314,17 +314,17 @@ function handleDelete(id?: number): void {
 function openDictData(row: DictTypeItem): void {
   try {
     const route = router.resolve({
-      name: "DictItem",
+      name: 'DictItem',
       query: { dictCode: row.dictCode, title: `【${row.name}】字典数据` },
     });
     if (route.matched.length === 0) {
-      ElMessage.error("路由未注册，请刷新页面后重试");
+      ElMessage.error('路由未注册，请刷新页面后重试');
       return;
     }
     router.push(route);
   } catch (error) {
-    console.error("路由跳转失败:", error);
-    ElMessage.error("页面跳转失败，请刷新页面后重试");
+    console.error('路由跳转失败:', error);
+    ElMessage.error('页面跳转失败，请刷新页面后重试');
   }
 }
 

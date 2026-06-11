@@ -13,11 +13,11 @@
  */
 export enum DialogMode {
   /** 创建模式 - 新增数据 */
-  CREATE = "create",
+  CREATE = 'create',
   /** 编辑模式 - 修改数据 */
-  EDIT = "edit",
+  EDIT = 'edit',
   /** 查看模式 - 只读展示 */
-  VIEW = "view",
+  VIEW = 'view',
 }
 
 /**

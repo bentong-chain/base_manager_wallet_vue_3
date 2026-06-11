@@ -12,8 +12,8 @@
 </template>
 
 <script lang="ts" setup>
-import { appConfig } from "@/settings";
-import logo from "@/assets/images/logo.png";
+import { appConfig } from '@/settings';
+import logo from '@/assets/images/logo.png';
 
 defineProps({
   collapse: {

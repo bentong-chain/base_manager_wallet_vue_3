@@ -1,5 +1,5 @@
-import { Client, type IMessage, type StompSubscription } from "@stomp/stompjs";
-import { AuthStorage } from "@/utils/auth";
+import { Client, type IMessage, type StompSubscription } from '@stomp/stompjs';
+import { AuthStorage } from '@/utils/auth';
 
 export interface UseStompOptions {
   /** WebSocket 地址，不传时使用 VITE_APP_WS_ENDPOINT 环境变量 */
@@ -44,10 +44,10 @@ interface SubscriptionConfig {
  * 连接状态枚举
  */
 enum ConnectionState {
-  DISCONNECTED = "DISCONNECTED",
-  CONNECTING = "CONNECTING",
-  CONNECTED = "CONNECTED",
-  RECONNECTING = "RECONNECTING",
+  DISCONNECTED = 'DISCONNECTED',
+  CONNECTING = 'CONNECTING',
+  CONNECTED = 'CONNECTED',
+  RECONNECTING = 'RECONNECTING',
 }
 
 /**
@@ -64,7 +64,7 @@ enum ConnectionState {
  */
 export function useStomp(options: UseStompOptions = {}) {
   // ==================== 配置初始化 ====================
-  const defaultBrokerURL = import.meta.env.VITE_APP_WS_ENDPOINT || "";
+  const defaultBrokerURL = import.meta.env.VITE_APP_WS_ENDPOINT || '';
 
   const config = {
     brokerURL: ref(options.brokerURL ?? defaultBrokerURL),
@@ -117,9 +117,9 @@ export function useStomp(options: UseStompOptions = {}) {
   /**
    * 日志输出（支持调试模式控制）
    */
-  const log = config.debug ? (...args: any[]) => console.log("[useStomp]", ...args) : () => {};
-  const logWarn = (...args: any[]) => console.warn("[useStomp]", ...args);
-  const logError = (...args: any[]) => console.error("[useStomp]", ...args);
+  const log = config.debug ? (...args: any[]) => console.log('[useStomp]', ...args) : () => {};
+  const logWarn = (...args: any[]) => console.warn('[useStomp]', ...args);
+  const logError = (...args: any[]) => console.error('[useStomp]', ...args);
 
   /**
    * 恢复所有订阅
@@ -146,7 +146,7 @@ export function useStomp(options: UseStompOptions = {}) {
   const initializeClient = () => {
     // 如果客户端已存在且处于活动状态，直接返回
     if (stompClient.value && (stompClient.value.active || stompClient.value.connected)) {
-      log("STOMP 客户端已存在且处于活动状态，跳过初始化");
+      log('STOMP 客户端已存在且处于活动状态，跳过初始化');
       return;
     }
 
@@ -158,7 +158,7 @@ export function useStomp(options: UseStompOptions = {}) {
     // 每次连接前重新获取最新令牌
     const accessToken = AuthStorage.getAccessToken();
     if (!accessToken) {
-      logWarn("WebSocket 连接失败：授权令牌为空，请先登录");
+      logWarn('WebSocket 连接失败：授权令牌为空，请先登录');
       return;
     }
 
@@ -167,7 +167,7 @@ export function useStomp(options: UseStompOptions = {}) {
       try {
         stompClient.value.deactivate();
       } catch (error) {
-        logWarn("清理旧客户端时出错:", error);
+        logWarn('清理旧客户端时出错:', error);
       }
       stompClient.value = null;
     }
@@ -178,7 +178,7 @@ export function useStomp(options: UseStompOptions = {}) {
       connectHeaders: {
         Authorization: `Bearer ${accessToken}`,
       },
-      debug: config.debug ? (msg) => console.log("[STOMP]", msg) : () => {},
+      debug: config.debug ? (msg) => console.log('[STOMP]', msg) : () => {},
       reconnectDelay: 0, // 禁用内置重连，使用自定义重连逻辑
       heartbeatIncoming: config.heartbeatIncoming,
       heartbeatOutgoing: config.heartbeatOutgoing,
@@ -192,7 +192,7 @@ export function useStomp(options: UseStompOptions = {}) {
       reconnectAttempts.value = 0;
       clearAllTimers();
 
-      log("✅ WebSocket 连接已建立");
+      log('✅ WebSocket 连接已建立');
 
       // 自动恢复订阅
       restoreSubscriptions();
@@ -201,7 +201,7 @@ export function useStomp(options: UseStompOptions = {}) {
     // 连接断开
     stompClient.value.onDisconnect = () => {
       connectionState.value = ConnectionState.DISCONNECTED;
-      log("❌ WebSocket 连接已断开");
+      log('❌ WebSocket 连接已断开');
 
       // 清空活动订阅（但保留订阅配置用于恢复）
       activeSubscriptions.clear();
@@ -219,7 +219,7 @@ export function useStomp(options: UseStompOptions = {}) {
 
       // 如果是手动断开，不重连
       if (isManualDisconnect) {
-        log("手动断开连接，不进行重连");
+        log('手动断开连接，不进行重连');
         return;
       }
 
@@ -229,25 +229,25 @@ export function useStomp(options: UseStompOptions = {}) {
         [1000, 1006, 1008, 1011].includes(event.code) &&
         reconnectAttempts.value < config.maxReconnectAttempts
       ) {
-        log("检测到连接异常关闭，将尝试重连");
+        log('检测到连接异常关闭，将尝试重连');
         scheduleReconnect();
       }
     };
 
     // STOMP 错误
     stompClient.value.onStompError = (frame) => {
-      logError("STOMP 错误:", frame.headers, frame.body);
+      logError('STOMP 错误:', frame.headers, frame.body);
       connectionState.value = ConnectionState.DISCONNECTED;
 
       // 检查是否是授权错误
       const isAuthError =
-        frame.headers?.message?.includes("Unauthorized") ||
-        frame.body?.includes("Unauthorized") ||
-        frame.body?.includes("Token") ||
-        frame.body?.includes("401");
+        frame.headers?.message?.includes('Unauthorized') ||
+        frame.body?.includes('Unauthorized') ||
+        frame.body?.includes('Token') ||
+        frame.body?.includes('401');
 
       if (isAuthError) {
-        logWarn("WebSocket 授权错误，停止重连");
+        logWarn('WebSocket 授权错误，停止重连');
         isManualDisconnect = true; // 授权错误不进行重连
       }
     };
@@ -321,13 +321,13 @@ export function useStomp(options: UseStompOptions = {}) {
    */
   const handleVisibilityChange = () => {
     if (document.hidden) {
-      log("标签页已失活");
+      log('标签页已失活');
     } else {
-      log("标签页已激活，检查WebSocket连接状态...");
+      log('标签页已激活，检查WebSocket连接状态...');
 
       // 标签页激活时，检查连接状态
       if (stompClient.value && !stompClient.value.connected && !isManualDisconnect) {
-        logWarn("检测到WebSocket连接已断开，尝试重新连接...");
+        logWarn('检测到WebSocket连接已断开，尝试重新连接...');
         // 重置重连次数，给予更多重连机会
         reconnectAttempts.value = 0;
         connect();
@@ -336,14 +336,14 @@ export function useStomp(options: UseStompOptions = {}) {
   };
 
   // 监听标签页可见性变化
-  if (typeof document !== "undefined") {
-    document.addEventListener("visibilitychange", handleVisibilityChange);
+  if (typeof document !== 'undefined') {
+    document.addEventListener('visibilitychange', handleVisibilityChange);
   }
 
   // 清理函数：移除事件监听器
   const cleanup = () => {
-    if (typeof document !== "undefined") {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    if (typeof document !== 'undefined') {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     }
     disconnect();
   };
@@ -364,7 +364,7 @@ export function useStomp(options: UseStompOptions = {}) {
 
     // 防止重复连接
     if (connectionState.value === ConnectionState.CONNECTING) {
-      log("WebSocket 正在连接中，跳过重复连接请求");
+      log('WebSocket 正在连接中，跳过重复连接请求');
       return;
     }
 
@@ -374,13 +374,13 @@ export function useStomp(options: UseStompOptions = {}) {
     }
 
     if (!stompClient.value) {
-      logError("STOMP 客户端初始化失败");
+      logError('STOMP 客户端初始化失败');
       return;
     }
 
     // 避免重复连接：检查是否已连接
     if (stompClient.value.connected) {
-      log("WebSocket 已连接，跳过重复连接");
+      log('WebSocket 已连接，跳过重复连接');
       connectionState.value = ConnectionState.CONNECTED;
       return;
     }
@@ -395,7 +395,7 @@ export function useStomp(options: UseStompOptions = {}) {
 
     connectionTimeoutTimer = setTimeout(() => {
       if (connectionState.value === ConnectionState.CONNECTING) {
-        logWarn("WebSocket 连接超时");
+        logWarn('WebSocket 连接超时');
         connectionState.value = ConnectionState.DISCONNECTED;
 
         // 超时后尝试重连
@@ -407,9 +407,9 @@ export function useStomp(options: UseStompOptions = {}) {
 
     try {
       stompClient.value.activate();
-      log("正在建立 WebSocket 连接...");
+      log('正在建立 WebSocket 连接...');
     } catch (error) {
-      logError("激活 WebSocket 连接失败:", error);
+      logError('激活 WebSocket 连接失败:', error);
       connectionState.value = ConnectionState.DISCONNECTED;
     }
   };
@@ -420,7 +420,7 @@ export function useStomp(options: UseStompOptions = {}) {
   const performSubscribe = (destination: string, callback: (message: IMessage) => void): string => {
     if (!stompClient.value || !stompClient.value.connected) {
       logWarn(`尝试订阅 ${destination} 失败: 客户端未连接`);
-      return "";
+      return '';
     }
 
     try {
@@ -431,7 +431,7 @@ export function useStomp(options: UseStompOptions = {}) {
       return subscriptionId;
     } catch (error) {
       logError(`订阅 ${destination} 失败:`, error);
-      return "";
+      return '';
     }
   };
 
@@ -452,7 +452,7 @@ export function useStomp(options: UseStompOptions = {}) {
     }
 
     log(`暂存订阅配置: ${destination}，将在连接建立后自动订阅`);
-    return "";
+    return '';
   };
 
   /**
@@ -522,7 +522,7 @@ export function useStomp(options: UseStompOptions = {}) {
     // 可选：清除订阅注册表
     if (clearSubscriptions) {
       subscriptionRegistry.clear();
-      log("已清除所有订阅配置");
+      log('已清除所有订阅配置');
     }
 
     // 断开连接
@@ -530,10 +530,10 @@ export function useStomp(options: UseStompOptions = {}) {
       try {
         if (stompClient.value.connected || stompClient.value.active) {
           stompClient.value.deactivate();
-          log("✓ WebSocket 连接已主动断开");
+          log('✓ WebSocket 连接已主动断开');
         }
       } catch (error) {
-        logError("断开 WebSocket 连接时出错:", error);
+        logError('断开 WebSocket 连接时出错:', error);
       }
       stompClient.value = null;
     }

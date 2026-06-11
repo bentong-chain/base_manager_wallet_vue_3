@@ -4,11 +4,11 @@
  * @module utils/crypto
  */
 
-import { sha256 } from "js-sha256";
-import CryptoJS from "crypto-js";
+import { sha256 } from 'js-sha256';
+import CryptoJS from 'crypto-js';
 
 /** AES 加密 IV（用于本地存储加密，CBC模式） */
-const AES_IV = "YhFBD6rmNjqE7CRB";
+const AES_IV = 'YhFBD6rmNjqE7CRB';
 
 /**
  * 从密码派生 AES 密钥 (CBC 模式)
@@ -67,7 +67,7 @@ export function aesDecrypt(hexCipherText: string, password: string): string {
 export function aesBackendDecrypt(hexCipherText: string, password: string): string {
   const keyStr = deriveAesKey(password);
   const key = CryptoJS.enc.Utf8.parse(keyStr);
-  const iv = CryptoJS.enc.Utf8.parse("YhFBD6rmNjqE7CRB");
+  const iv = CryptoJS.enc.Utf8.parse('YhFBD6rmNjqE7CRB');
   const cipherParams = CryptoJS.lib.CipherParams.create({
     ciphertext: CryptoJS.enc.Hex.parse(hexCipherText),
   });

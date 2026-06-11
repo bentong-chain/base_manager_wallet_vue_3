@@ -20,6 +20,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "Page401" });
+defineOptions({ name: 'Page401' });
 const router = useRouter();
 </script>

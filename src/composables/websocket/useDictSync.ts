@@ -1,6 +1,6 @@
-import { useDictStoreHook } from "@/store/modules/dict";
-import { useStomp } from "./useStomp";
-import type { IMessage } from "@stomp/stompjs";
+import { useDictStoreHook } from '@/store/modules/dict';
+import { useStomp } from './useStomp';
+import type { IMessage } from '@stomp/stompjs';
 
 /**
  * 字典变更消息结构
@@ -44,7 +44,7 @@ function createDictSyncComposable() {
   });
 
   // 字典主题地址
-  const DICT_TOPIC = "/topic/dict";
+  const DICT_TOPIC = '/topic/dict';
 
   // 消息回调函数列表
   const messageCallbacks = ref<DictChangeCallback[]>([]);
@@ -65,7 +65,7 @@ function createDictSyncComposable() {
       const { dictCode } = data;
 
       if (!dictCode) {
-        console.warn("[DictSync] 收到无效的字典变更消息：缺少 dictCode");
+        console.warn('[DictSync] 收到无效的字典变更消息：缺少 dictCode');
         return;
       }
 
@@ -77,11 +77,11 @@ function createDictSyncComposable() {
         try {
           callback(data);
         } catch (error) {
-          console.error("[DictSync] 回调函数执行失败:", error);
+          console.error('[DictSync] 回调函数执行失败:', error);
         }
       });
     } catch (error) {
-      console.error("[DictSync] 解析字典变更消息失败:", error);
+      console.error('[DictSync] 解析字典变更消息失败:', error);
     }
   };
 
@@ -92,7 +92,7 @@ function createDictSyncComposable() {
     // 检查是否配置了 WebSocket 端点
     const wsEndpoint = import.meta.env.VITE_APP_WS_ENDPOINT;
     if (!wsEndpoint) {
-      console.log("[DictSync] 未配置 WebSocket 端点，跳过字典同步功能");
+      console.log('[DictSync] 未配置 WebSocket 端点，跳过字典同步功能');
       return;
     }
 

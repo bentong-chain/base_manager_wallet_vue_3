@@ -1,4 +1,4 @@
-export const useTagsViewStore = defineStore("tagsView", () => {
+export const useTagsViewStore = defineStore('tagsView', () => {
   const visitedViews = ref<TagView[]>([]);
   const cachedViews = ref<string[]>([]);
   const router = useRouter();
@@ -9,7 +9,7 @@ export const useTagsViewStore = defineStore("tagsView", () => {
    */
   function addVisitedView(view: TagView) {
     // 如果已经存在于已访问的视图列表中或者是重定向地址，则不再添加
-    if (view.path.startsWith("/redirect")) {
+    if (view.path.startsWith('/redirect')) {
       return;
     }
     if (visitedViews.value.some((v) => v.path === view.path)) {
@@ -240,11 +240,11 @@ export const useTagsViewStore = defineStore("tagsView", () => {
     } else {
       // now the default is to redirect to the home page if there is no tags-view,
       // you can adjust it according to your needs.
-      if (view?.name === "Dashboard") {
+      if (view?.name === 'Dashboard') {
         // to reload home page
-        router.replace("/redirect" + view.fullPath);
+        router.replace('/redirect' + view.fullPath);
       } else {
-        router.push("/");
+        router.push('/');
       }
     }
   }

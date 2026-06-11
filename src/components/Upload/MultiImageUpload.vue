@@ -39,9 +39,9 @@
   />
 </template>
 <script setup lang="ts">
-import { UploadRawFile, UploadRequestOptions, UploadUserFile } from "element-plus";
-import FileAPI from "@/api/file";
-import type { FileInfo } from "@/types/api";
+import { UploadRawFile, UploadRequestOptions, UploadUserFile } from 'element-plus';
+import FileAPI from '@/api/file';
+import type { FileInfo } from '@/types/api';
 
 const props = defineProps({
   /**
@@ -58,7 +58,7 @@ const props = defineProps({
    */
   name: {
     type: String,
-    default: "file",
+    default: 'file',
   },
   /**
    * 文件上传数量限制
@@ -79,14 +79,14 @@ const props = defineProps({
    */
   accept: {
     type: String,
-    default: "image/*", // 默认支持所有图片格式，如果需要指定格式，格式如下：.png,.jpg,.jpeg,.gif,.bmp
+    default: 'image/*', // 默认支持所有图片格式，如果需要指定格式，格式如下：.png,.jpg,.jpeg,.gif,.bmp
   },
 });
 
 const previewVisible = ref(false); // 是否显示预览
 const previewImageIndex = ref(0); // 预览图片的索引
 
-const modelValue = defineModel("modelValue", {
+const modelValue = defineModel('modelValue', {
   type: [Array] as PropType<string[]>,
   default: () => [],
 });
@@ -112,14 +112,14 @@ function handleRemove(imageUrl: string) {
  */
 function handleBeforeUpload(file: UploadRawFile) {
   // 校验文件类型：虽然 accept 属性限制了用户在文件选择器中可选的文件类型，但仍需在上传时再次校验文件实际类型，确保符合 accept 的规则
-  const acceptTypes = props.accept.split(",").map((type) => type.trim());
+  const acceptTypes = props.accept.split(',').map((type) => type.trim());
 
   // 检查文件格式是否符合 accept
   const isValidType = acceptTypes.some((type) => {
-    if (type === "image/*") {
+    if (type === 'image/*') {
       // 如果是 image/*，检查 MIME 类型是否以 "image/" 开头
-      return file.type.startsWith("image/");
-    } else if (type.startsWith(".")) {
+      return file.type.startsWith('image/');
+    } else if (type.startsWith('.')) {
       // 如果是扩展名 (.png, .jpg)，检查文件名是否以指定扩展名结尾
       return file.name.toLowerCase().endsWith(type);
     } else {
@@ -129,13 +129,13 @@ function handleBeforeUpload(file: UploadRawFile) {
   });
 
   if (!isValidType) {
-    ElMessage.warning("上传文件的格式不正确，仅支持 " + props.accept);
+    ElMessage.warning('上传文件的格式不正确，仅支持 ' + props.accept);
     return false;
   }
 
   // 限制文件大小
   if (file.size > props.maxFileSize * 1024 * 1024) {
-    ElMessage.warning("上传图片不能大于" + props.maxFileSize + "M");
+    ElMessage.warning('上传图片不能大于' + props.maxFileSize + 'M');
     return false;
   }
   return true;
@@ -171,18 +171,18 @@ function handleUpload(options: UploadRequestOptions) {
  * 上传文件超出限制
  */
 function handleExceed() {
-  ElMessage.warning("最多只能上传 " + props.limit + " 张图片");
+  ElMessage.warning('最多只能上传 ' + props.limit + ' 张图片');
 }
 
 /**
  * 上传成功回调
  */
 const handleSuccess = (fileInfo: FileInfo, uploadFile: UploadUserFile) => {
-  ElMessage.success("上传成功");
+  ElMessage.success('上传成功');
   const index = fileList.value.findIndex((file) => file.uid === uploadFile.uid);
   if (index !== -1) {
     fileList.value[index].url = fileInfo.url;
-    fileList.value[index].status = "success";
+    fileList.value[index].status = 'success';
     modelValue.value[index] = fileInfo.url;
   }
 };
@@ -191,8 +191,8 @@ const handleSuccess = (fileInfo: FileInfo, uploadFile: UploadUserFile) => {
  * 上传失败回调
  */
 const handleError = (error: any) => {
-  console.log("handleError");
-  ElMessage.error("上传失败: " + error.message);
+  console.log('handleError');
+  ElMessage.error('上传失败: ' + error.message);
 };
 
 /**

@@ -1,8 +1,8 @@
-import { ref, reactive } from "vue";
-import { ElMessage } from "element-plus";
-import UserAPI from "@/api/system/user";
-import Role from "@/api/system/role";
-import type { AdminUserListItem, OptionItem } from "@/types/api";
+import { ref, reactive } from 'vue';
+import { ElMessage } from 'element-plus';
+import UserAPI from '@/api/system/user';
+import Role from '@/api/system/role';
+import type { AdminUserListItem, OptionItem } from '@/types/api';
 
 /**
  * 分配角色弹窗 Composable
@@ -28,7 +28,7 @@ export function useAssignRolesDialog(onSuccess?: () => void) {
       const res = await Role.getAdminRoleList({ pageNum: 1, pageSize: 500, status: 1 });
       roleOptions.value = (res?.list ?? []).map((item) => ({
         value: item.id ?? 0,
-        label: item.roleName ?? String(item.id ?? ""),
+        label: item.roleName ?? String(item.id ?? ''),
       }));
     } catch {
       roleOptions.value = [];
@@ -55,7 +55,7 @@ export function useAssignRolesDialog(onSuccess?: () => void) {
       await UserAPI.assignRoles(Number(uid), {
         roleIds: assignRolesDialog.roleIds,
       });
-      ElMessage.success("分配成功");
+      ElMessage.success('分配成功');
       closeAssignRolesDialog();
       onSuccess?.();
     } catch {

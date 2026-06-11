@@ -2,7 +2,7 @@
  * User 用户类型定义
  */
 
-import type { BaseQueryParams } from "./common";
+import type { BaseQueryParams } from './common';
 
 /** 登录用户信息 */
 export interface UserInfo {

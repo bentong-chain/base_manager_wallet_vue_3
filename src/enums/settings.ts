@@ -12,16 +12,16 @@ export const enum ThemeMode {
   /**
    * 明亮主题
    */
-  LIGHT = "light",
+  LIGHT = 'light',
   /**
    * 暗黑主题
    */
-  DARK = "dark",
+  DARK = 'dark',
 
   /**
    * 系统自动
    */
-  AUTO = "auto",
+  AUTO = 'auto',
 }
 
 /**
@@ -31,11 +31,11 @@ export const enum SidebarColor {
   /**
    * 经典蓝
    */
-  CLASSIC_BLUE = "classic-blue",
+  CLASSIC_BLUE = 'classic-blue',
   /**
    * 极简白
    */
-  MINIMAL_WHITE = "minimal-white",
+  MINIMAL_WHITE = 'minimal-white',
 }
 
 /**
@@ -45,16 +45,16 @@ export const enum LayoutMode {
   /**
    * 左侧菜单布局
    */
-  LEFT = "left",
+  LEFT = 'left',
   /**
    * 顶部菜单布局
    */
-  TOP = "top",
+  TOP = 'top',
 
   /**
    * 混合菜单布局
    */
-  MIX = "mix",
+  MIX = 'mix',
 }
 
 /**
@@ -64,12 +64,12 @@ export const enum SidebarStatus {
   /**
    * 展开
    */
-  OPENED = "opened",
+  OPENED = 'opened',
 
   /**
    * 关闭
    */
-  CLOSED = "closed",
+  CLOSED = 'closed',
 }
 
 /**
@@ -79,17 +79,17 @@ export const enum ComponentSize {
   /**
    * 默认
    */
-  DEFAULT = "default",
+  DEFAULT = 'default',
 
   /**
    * 大型
    */
-  LARGE = "large",
+  LARGE = 'large',
 
   /**
    * 小型
    */
-  SMALL = "small",
+  SMALL = 'small',
 }
 
 /**
@@ -99,12 +99,12 @@ export const enum LanguageEnum {
   /**
    * 中文
    */
-  ZH_CN = "zh-cn",
+  ZH_CN = 'zh-cn',
 
   /**
    * 英文
    */
-  EN = "en",
+  EN = 'en',
 }
 
 /**
@@ -114,12 +114,12 @@ export const enum DeviceEnum {
   /**
    * 宽屏设备
    */
-  DESKTOP = "desktop",
+  DESKTOP = 'desktop',
 
   /**
    * 窄屏设备
    */
-  MOBILE = "mobile",
+  MOBILE = 'mobile',
 }
 
 /**
@@ -129,23 +129,23 @@ export const enum PageSwitchingAnimationEnum {
   /**
    * 无动画
    */
-  NONE = "none",
+  NONE = 'none',
   /**
    * 淡入淡出
    */
-  FADE = "fade",
+  FADE = 'fade',
   /**
    * 平滑切换
    */
-  FADE_SLIDE = "fade-slide",
+  FADE_SLIDE = 'fade-slide',
   /**
    * 缩放切换
    */
-  FADE_SCALE = "fade-scale",
+  FADE_SCALE = 'fade-scale',
 }
 export const PageSwitchingAnimationOptions: Record<string, OptionItem> = {
-  none: { value: "none", label: "无动画" },
-  fade: { value: "fade", label: "淡入淡出" },
-  "fade-slide": { value: "fade-slide", label: "平滑切换" },
-  "fade-scale": { value: "fade-scale", label: "缩放切换" },
+  none: { value: 'none', label: '无动画' },
+  fade: { value: 'fade', label: '淡入淡出' },
+  'fade-slide': { value: 'fade-slide', label: '平滑切换' },
+  'fade-scale': { value: 'fade-scale', label: '缩放切换' },
 };

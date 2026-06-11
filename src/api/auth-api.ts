@@ -1,10 +1,10 @@
-import { http as request } from "@/utils/request";
-import { NO_AUTH_HEADER_VALUE, AP_KEY } from "@/api/constants";
-import { aesBackendDecrypt } from "@/utils/crypto";
-import type { LoginRequest, LoginResponse, CaptchaInfo } from "@/types/api/auth";
+import { http as request } from '@/utils/request';
+import { NO_AUTH_HEADER_VALUE, AP_KEY } from '@/api/constants';
+import { aesBackendDecrypt } from '@/utils/crypto';
+import type { LoginRequest, LoginResponse, CaptchaInfo } from '@/types/api/auth';
 
 /** 管理员认证接口基础路径，对接 http://localhost:8099（api.json） */
-const AUTH_BASE_URL = "/api";
+const AUTH_BASE_URL = '/api';
 
 const AuthAPI = {
   /** 管理员登录：POST /api/admin/auth/login（不携带 token，使用默认公钥与 salt） */
@@ -14,12 +14,12 @@ const AuthAPI = {
       signTime: data.signTime,
       loginSign: data.loginSign,
       device: data.device,
-      deviceType: data.deviceType ?? "web",
+      deviceType: data.deviceType ?? 'web',
     };
 
     const response = await request<any, LoginResponse>({
       url: `${AUTH_BASE_URL}/v1/admin/auth/login`,
-      method: "post",
+      method: 'post',
       data: payload,
       headers: { Authorization: NO_AUTH_HEADER_VALUE },
       withCredentials: true,
@@ -28,8 +28,8 @@ const AuthAPI = {
     const decryptedAccessToken = aesBackendDecrypt(response.accessToken, AP_KEY);
     const decryptedPublicKey = response.publicKey
       ? aesBackendDecrypt(response.publicKey, AP_KEY)
-      : "";
-    const decryptedSalt = response.salt ? aesBackendDecrypt(response.salt, AP_KEY) : "";
+      : '';
+    const decryptedSalt = response.salt ? aesBackendDecrypt(response.salt, AP_KEY) : '';
 
     // 解密后端返回的加密字段
     return {
@@ -43,8 +43,8 @@ const AuthAPI = {
   /** 切换租户(平台用户) - 返回新的 token（若后端未提供可保留兼容） */
   switchTenant(tenantId: number) {
     return request<any, LoginResponse>({
-      url: "/api/v1/auth/switch-tenant",
-      method: "post",
+      url: '/api/v1/auth/switch-tenant',
+      method: 'post',
       params: { tenantId },
     });
   },
@@ -53,7 +53,7 @@ const AuthAPI = {
   refreshToken(refreshToken: string, device?: string) {
     return request<any, LoginResponse>({
       url: `${AUTH_BASE_URL}/v1/admin/auth/token/refresh`,
-      method: "post",
+      method: 'post',
       data: { refreshToken, ...(device != null ? { device } : {}) },
       headers: { Authorization: NO_AUTH_HEADER_VALUE },
     });
@@ -63,7 +63,7 @@ const AuthAPI = {
   logout() {
     return request({
       url: `${AUTH_BASE_URL}/v1/admin/auth/logout`,
-      method: "post",
+      method: 'post',
     });
   },
 
@@ -71,7 +71,7 @@ const AuthAPI = {
   getCaptcha() {
     return request<any, CaptchaInfo>({
       url: `${AUTH_BASE_URL}/public/captcha`,
-      method: "get",
+      method: 'get',
       headers: { Authorization: NO_AUTH_HEADER_VALUE },
     });
   },

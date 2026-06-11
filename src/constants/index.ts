@@ -8,7 +8,7 @@
 /**
  * 应用存储前缀
  */
-export const APP_PREFIX = "vea";
+export const APP_PREFIX = 'vea';
 
 /**
  * 超级管理员角色标识
@@ -16,7 +16,7 @@ export const APP_PREFIX = "vea";
  * @description
  * 拥有系统最高权限，可以访问所有资源
  */
-export const ROLE_ROOT = "ROOT";
+export const ROLE_ROOT = 'ROOT';
 
 /**
  * 平台租户ID

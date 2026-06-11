@@ -1,11 +1,11 @@
 /**
  * 通知中心逻辑
  */
-import { ref, onMounted, onBeforeUnmount } from "vue";
-import type { NoticeItem, NoticeDetail, NoticeQueryParams } from "@/types/api";
-import NoticeAPI from "@/api/system/notice";
-import { useStomp } from "@/composables";
-import router from "@/router";
+import { ref, onMounted, onBeforeUnmount } from 'vue';
+import type { NoticeItem, NoticeDetail, NoticeQueryParams } from '@/types/api';
+import NoticeAPI from '@/api/system/notice';
+import { useStomp } from '@/composables';
+import router from '@/router';
 
 const PAGE_SIZE = 5;
 
@@ -52,11 +52,11 @@ export function useNotice() {
     await NoticeAPI.readAll();
     list.value = [];
     unreadTotal.value = 0;
-    ElMessage.success("已全部标记为已读");
+    ElMessage.success('已全部标记为已读');
   }
 
   function goMore() {
-    router.push({ name: "MyNotice" });
+    router.push({ name: 'MyNotice' });
   }
 
   // ============================================
@@ -66,9 +66,9 @@ export function useNotice() {
   function setupSubscription() {
     if (subscribed || !isConnected.value) return;
 
-    subscribe("/user/queue/message", (message: any) => {
+    subscribe('/user/queue/message', (message: any) => {
       try {
-        const data = JSON.parse(message.body || "{}");
+        const data = JSON.parse(message.body || '{}');
         if (!data.id) return;
 
         // 避免重复
@@ -88,13 +88,13 @@ export function useNotice() {
         }
 
         ElNotification({
-          title: "您收到一条新的通知消息！",
+          title: '您收到一条新的通知消息！',
           message: data.title,
-          type: "success",
-          position: "bottom-right",
+          type: 'success',
+          position: 'bottom-right',
         });
       } catch (e) {
-        console.error("解析通知消息失败", e);
+        console.error('解析通知消息失败', e);
       }
     });
 
@@ -111,7 +111,7 @@ export function useNotice() {
   });
 
   onBeforeUnmount(() => {
-    unsubscribe("/user/queue/message");
+    unsubscribe('/user/queue/message');
     subscribed = false;
   });
 

@@ -81,45 +81,45 @@
 </template>
 
 <script setup lang="ts">
-import * as ElementPlusIconsVue from "@element-plus/icons-vue";
+import * as ElementPlusIconsVue from '@element-plus/icons-vue';
 
 const props = defineProps({
   modelValue: {
     type: String,
-    default: "",
+    default: '',
   },
   width: {
     type: String,
-    default: "500px",
+    default: '500px',
   },
 });
 
-const emit = defineEmits(["update:modelValue"]);
+const emit = defineEmits(['update:modelValue']);
 
 const iconSelectRef = ref();
 const popoverContentRef = ref();
 const popoverVisible = ref(false);
-const activeTab = ref("svg");
+const activeTab = ref('svg');
 
 const svgIcons = ref<string[]>([]);
 const elementIcons = ref<string[]>(Object.keys(ElementPlusIconsVue));
-const selectedIcon = defineModel("modelValue", {
+const selectedIcon = defineModel('modelValue', {
   type: String,
   required: true,
-  default: "",
+  default: '',
 });
 
-const filterText = ref("");
+const filterText = ref('');
 const filteredSvgIcons = ref<string[]>([]);
 const filteredElementIcons = ref<string[]>(elementIcons.value);
 const isElementIcon = computed(() => {
-  return selectedIcon.value && selectedIcon.value.startsWith("el-icon");
+  return selectedIcon.value && selectedIcon.value.startsWith('el-icon');
 });
 
 function loadIcons() {
-  const icons = import.meta.glob("../../assets/icons/*.svg");
+  const icons = import.meta.glob('../../assets/icons/*.svg');
   for (const path in icons) {
-    const iconName = path.replace(/.*\/(.*)\.svg$/, "$1");
+    const iconName = path.replace(/.*\/(.*)\.svg$/, '$1');
     svgIcons.value.push(iconName);
   }
   filteredSvgIcons.value = svgIcons.value;
@@ -131,7 +131,7 @@ function handleTabClick(tabPane: any) {
 }
 
 function filterIcons() {
-  if (activeTab.value === "svg") {
+  if (activeTab.value === 'svg') {
     filteredSvgIcons.value = filterText.value
       ? svgIcons.value.filter((icon) => icon.toLowerCase().includes(filterText.value.toLowerCase()))
       : svgIcons.value;
@@ -145,8 +145,8 @@ function filterIcons() {
 }
 
 function selectIcon(icon: string) {
-  const iconName = activeTab.value === "element" ? "el-icon-" + icon : icon;
-  emit("update:modelValue", iconName);
+  const iconName = activeTab.value === 'element' ? 'el-icon-' + icon : icon;
+  emit('update:modelValue', iconName);
   popoverVisible.value = false;
 }
 
@@ -162,16 +162,16 @@ onClickOutside(iconSelectRef, () => (popoverVisible.value = false), {
  * 清空已选图标
  */
 function clearSelectedIcon() {
-  selectedIcon.value = "";
+  selectedIcon.value = '';
 }
 
 onMounted(() => {
   loadIcons();
   if (selectedIcon.value) {
-    if (elementIcons.value.includes(selectedIcon.value.replace("el-icon-", ""))) {
-      activeTab.value = "element";
+    if (elementIcons.value.includes(selectedIcon.value.replace('el-icon-', ''))) {
+      activeTab.value = 'element';
     } else {
-      activeTab.value = "svg";
+      activeTab.value = 'svg';
     }
   }
 });

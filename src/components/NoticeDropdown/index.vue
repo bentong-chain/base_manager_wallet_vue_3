@@ -76,7 +76,7 @@
 </template>
 
 <script setup lang="ts">
-import { useNotice } from "./useNotice";
+import { useNotice } from './useNotice';
 
 const { list, unreadTotal, detail, dialogVisible, read, readAll, goMore } = useNotice();
 </script>

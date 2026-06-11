@@ -4,15 +4,15 @@
  * @module api/auth
  */
 
-import { sha256 } from "js-sha256";
-import { DEFAULT_PUBLIC_KEY, DEFAULT_SALT } from "@/api/constants";
+import { sha256 } from 'js-sha256';
+import { DEFAULT_PUBLIC_KEY, DEFAULT_SALT } from '@/api/constants';
 
 // 认证 Header 名称
-const HEADER_X_AUTH_TOKEN = "X-Auth-Token";
-const HEADER_X_AUTH_TIMESTAMP = "X-Auth-Timestamp";
-const HEADER_X_AUTH_SIGN = "X-Auth-Sign";
-const HEADER_X_AUTH_NONCE = "X-Auth-Nonce";
-const HEADER_X_AUTH_DEVICE = "X-Auth-Device";
+const HEADER_X_AUTH_TOKEN = 'X-Auth-Token';
+const HEADER_X_AUTH_TIMESTAMP = 'X-Auth-Timestamp';
+const HEADER_X_AUTH_SIGN = 'X-Auth-Sign';
+const HEADER_X_AUTH_NONCE = 'X-Auth-Nonce';
+const HEADER_X_AUTH_DEVICE = 'X-Auth-Device';
 
 /**
  * 将业务参数（含 token、timestamp、device）转为用于签名的 key=value 对象
@@ -31,14 +31,14 @@ function toSignParams(
     timestamp,
     device,
   };
-  const exclude = new Set(["sign", "nonce"]);
+  const exclude = new Set(['sign', 'nonce']);
   for (const [key, value] of Object.entries(params)) {
     if (exclude.has(key)) continue;
     if (value === null || value === undefined) {
-      result[key] = "";
+      result[key] = '';
     } else if (Array.isArray(value)) {
-      result[key] = value.length ? String(value[0]) : "";
-    } else if (typeof value === "object") {
+      result[key] = value.length ? String(value[0]) : '';
+    } else if (typeof value === 'object') {
       result[key] = JSON.stringify(value);
     } else {
       result[key] = String(value);
@@ -53,7 +53,7 @@ function toSignParams(
  */
 function buildParamString(params: Record<string, string>): string {
   const keys = Object.keys(params).sort();
-  return keys.map((k) => `${k}=${params[k]}`).join("&");
+  return keys.map((k) => `${k}=${params[k]}`).join('&');
 }
 
 /**
@@ -70,7 +70,7 @@ export function buildSign(paramString: string, nonceSrc: string, salt: string): 
 export function generateNonceSrc(): string {
   const arr = new Uint8Array(16);
   crypto.getRandomValues(arr);
-  return Array.from(arr, (b) => b.toString(16).padStart(2, "0")).join("");
+  return Array.from(arr, (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 /** 构建 Auth Header 的输入参数 */

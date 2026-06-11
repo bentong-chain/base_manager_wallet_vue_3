@@ -42,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { useDictStore } from "@/store";
+import { useDictStore } from '@/store';
 
 const dictStore = useDictStore();
 
@@ -57,12 +57,12 @@ const props = defineProps({
   },
   type: {
     type: String,
-    default: "select",
-    validator: (value: string) => ["select", "radio", "checkbox"].includes(value),
+    default: 'select',
+    validator: (value: string) => ['select', 'radio', 'checkbox'].includes(value),
   },
   placeholder: {
     type: String,
-    default: "请选择",
+    default: '请选择',
   },
   disabled: {
     type: Boolean,
@@ -72,18 +72,18 @@ const props = defineProps({
     type: Object,
     default: () => {
       return {
-        width: "300px",
+        width: '300px',
       };
     },
   },
 });
 
-const emit = defineEmits(["update:modelValue"]);
+const emit = defineEmits(['update:modelValue']);
 
 const options = ref<Array<{ label: string; value: string | number }>>([]);
 
 const selectedValue = ref<any>(
-  typeof props.modelValue === "string" || typeof props.modelValue === "number"
+  typeof props.modelValue === 'string' || typeof props.modelValue === 'number'
     ? props.modelValue
     : Array.isArray(props.modelValue)
       ? props.modelValue
@@ -95,7 +95,7 @@ watch(
   [() => props.modelValue, () => options.value],
   ([newValue, newOptions]) => {
     if (newOptions.length > 0 && newValue !== undefined) {
-      if (props.type === "checkbox") {
+      if (props.type === 'checkbox') {
         selectedValue.value = Array.isArray(newValue) ? newValue : [];
       } else {
         const matchedOption = newOptions.find(
@@ -112,7 +112,7 @@ watch(
 
 // 监听 selectedValue 的变化并触发 update:modelValue
 function handleChange(val: any) {
-  emit("update:modelValue", val);
+  emit('update:modelValue', val);
 }
 
 // 获取字典数据

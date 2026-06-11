@@ -1,7 +1,7 @@
 /**
  * 国际化工具函数
  */
-import i18n from "./index";
+import i18n from './index';
 
 /**
  * 翻译路由标题

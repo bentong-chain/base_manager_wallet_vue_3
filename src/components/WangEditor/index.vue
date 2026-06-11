@@ -33,12 +33,12 @@
 </template>
 
 <script setup lang="ts">
-import "@wangeditor-next/editor/dist/css/style.css";
-import { Toolbar, Editor } from "@wangeditor-next/editor-for-vue";
-import { IToolbarConfig, IEditorConfig } from "@wangeditor-next/editor";
+import '@wangeditor-next/editor/dist/css/style.css';
+import { Toolbar, Editor } from '@wangeditor-next/editor-for-vue';
+import { IToolbarConfig, IEditorConfig } from '@wangeditor-next/editor';
 
 // 文件上传 API
-import FileAPI from "@/api/file";
+import FileAPI from '@/api/file';
 
 // 上传图片回调函数类型
 type InsertFnType = (_url: string, _alt: string, _href: string) => void;
@@ -46,14 +46,14 @@ type InsertFnType = (_url: string, _alt: string, _href: string) => void;
 defineProps({
   height: {
     type: String,
-    default: "500px",
+    default: '500px',
   },
 });
 // 双向绑定 - 直接使用 v-model，无需手动 setHtml
 const modelValue = defineModel<string>({
   type: String,
   required: false,
-  default: "",
+  default: '',
 });
 
 // 编辑器实例，必须用 shallowRef
@@ -67,7 +67,7 @@ const toolbarConfig: Partial<IToolbarConfig> = {};
 
 // 编辑器配置
 const editorConfig: Partial<IEditorConfig> = {
-  placeholder: "请输入内容..",
+  placeholder: '请输入内容..',
   MENU_CONF: {
     uploadImage: {
       async customUpload(file: File, insertFn: InsertFnType) {

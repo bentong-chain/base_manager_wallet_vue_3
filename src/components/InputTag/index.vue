@@ -20,15 +20,15 @@
         @blur.stop.prevent="handleInputConfirm"
       />
       <el-button v-else v-bind="config.buttonAttrs" @click="showInput">
-        {{ config.buttonAttrs.btnText ? config.buttonAttrs.btnText : "+ New Tag" }}
+        {{ config.buttonAttrs.btnText ? config.buttonAttrs.btnText : '+ New Tag' }}
       </el-button>
     </div>
   </el-scrollbar>
 </template>
 <script setup lang="ts">
-import type { InputInstance } from "element-plus";
+import type { InputInstance } from 'element-plus';
 
-const inputValue = ref("");
+const inputValue = ref('');
 const inputVisible = ref(false);
 const inputRef = ref<InputInstance>();
 
@@ -68,6 +68,6 @@ const handleInputConfirm = () => {
     tags.value = newTags;
   }
   inputVisible.value = false;
-  inputValue.value = "";
+  inputValue.value = '';
 };
 </script>

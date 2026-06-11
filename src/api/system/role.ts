@@ -1,13 +1,13 @@
-import { http as request } from "@/utils/request";
-import type { PageResult } from "@/types/api";
+import { http as request } from '@/utils/request';
+import type { PageResult } from '@/types/api';
 import type {
   AdminRoleQueryParams,
   AdminRoleListItem,
   AdminRoleSaveRequest,
   AdminRoleAssignPermissionsRequest,
-} from "@/types/api/role";
+} from '@/types/api/role';
 
-const ADMIN_ROLE_BASE_URL = "/api/v1/admin/role";
+const ADMIN_ROLE_BASE_URL = '/api/v1/admin/role';
 
 /**
  * 角色 API
@@ -25,7 +25,7 @@ const Role = {
       pageSize,
     };
     const roleName =
-      params?.roleName != null && String(params.roleName).trim() !== ""
+      params?.roleName != null && String(params.roleName).trim() !== ''
         ? String(params.roleName).trim()
         : undefined;
     if (roleName !== undefined) {
@@ -42,7 +42,7 @@ const Role = {
     }
     return request<any, PageResult<AdminRoleListItem>>({
       url: `${ADMIN_ROLE_BASE_URL}/list`,
-      method: "get",
+      method: 'get',
       params: cleaned,
     });
   },
@@ -53,7 +53,7 @@ const Role = {
   getAdminRoleDetail(id: number | string) {
     return request<any, AdminRoleListItem>({
       url: `${ADMIN_ROLE_BASE_URL}/${id}`,
-      method: "get",
+      method: 'get',
     });
   },
 
@@ -64,7 +64,7 @@ const Role = {
   createAdminRole(data: AdminRoleSaveRequest) {
     return request<any, number>({
       url: ADMIN_ROLE_BASE_URL,
-      method: "post",
+      method: 'post',
       data,
     });
   },
@@ -75,7 +75,7 @@ const Role = {
   updateAdminRole(id: number | string, data: AdminRoleSaveRequest) {
     return request({
       url: `${ADMIN_ROLE_BASE_URL}/${id}`,
-      method: "put",
+      method: 'put',
       data,
     });
   },
@@ -86,7 +86,7 @@ const Role = {
   deleteAdminRole(id: number | string) {
     return request({
       url: `${ADMIN_ROLE_BASE_URL}/${id}`,
-      method: "delete",
+      method: 'delete',
     });
   },
 
@@ -96,7 +96,7 @@ const Role = {
   getAdminRolePermissionIds(id: number | string) {
     return request<any, number[]>({
       url: `${ADMIN_ROLE_BASE_URL}/${id}/permission-ids`,
-      method: "get",
+      method: 'get',
     });
   },
 
@@ -106,7 +106,7 @@ const Role = {
   assignAdminRolePermissions(id: number | string, data: AdminRoleAssignPermissionsRequest) {
     return request({
       url: `${ADMIN_ROLE_BASE_URL}/${id}/permissions`,
-      method: "put",
+      method: 'put',
       data,
     });
   },

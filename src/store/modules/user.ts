@@ -1,22 +1,22 @@
-import { store } from "@/store";
+import { store } from '@/store';
 
-import AuthAPI from "@/api/auth-api";
-import UserAPI from "@/api/system/user";
-import type { LoginRequest, UserInfo } from "@/types/api";
-import type { AuthCredentialsOverride } from "@/utils/request";
-import { AuthStorage } from "@/utils/auth";
-import { useAuthStore } from "@/store/modules/auth";
-import { usePermissionStoreHook } from "@/store/modules/permission";
-import { useDictStoreHook } from "@/store/modules/dict";
-import { useTagsViewStore } from "@/store";
-import { cleanupWebSocket } from "@/composables";
-import { DEFAULT_PUBLIC_KEY, DEFAULT_SALT } from "@/api/constants";
-import { useDisconnect } from "@reown/appkit/vue";
-import { useWalletStore } from "@/store/modules/wallet";
+import AuthAPI from '@/api/auth-api';
+import UserAPI from '@/api/system/user';
+import type { LoginRequest, UserInfo } from '@/types/api';
+import type { AuthCredentialsOverride } from '@/utils/request';
+import { AuthStorage } from '@/utils/auth';
+import { useAuthStore } from '@/store/modules/auth';
+import { usePermissionStoreHook } from '@/store/modules/permission';
+import { useDictStoreHook } from '@/store/modules/dict';
+import { useTagsViewStore } from '@/store';
+import { cleanupWebSocket } from '@/composables';
+import { DEFAULT_PUBLIC_KEY, DEFAULT_SALT } from '@/api/constants';
+import { useDisconnect } from '@reown/appkit/vue';
+import { useWalletStore } from '@/store/modules/wallet';
 
-const USE_SIGN_AUTH = import.meta.env.VITE_USE_SIGN_AUTH === "true";
+const USE_SIGN_AUTH = import.meta.env.VITE_USE_SIGN_AUTH === 'true';
 
-export const useUserStore = defineStore("user", () => {
+export const useUserStore = defineStore('user', () => {
   // 用户信息
   const userInfo = ref<UserInfo>({} as UserInfo);
   // 记住我状态
@@ -32,7 +32,7 @@ export const useUserStore = defineStore("user", () => {
     const payload: LoginRequest = {
       ...loginRequest,
       device: loginRequest.device || authStore.deviceId,
-      deviceType: loginRequest.deviceType ?? "web",
+      deviceType: loginRequest.deviceType ?? 'web',
     };
     const res = await AuthAPI.login(payload);
     rememberMe.value = false;
@@ -53,7 +53,7 @@ export const useUserStore = defineStore("user", () => {
       });
     } else {
       // Bearer 模式：token 写入 AuthStorage，直接拉取用户信息
-      AuthStorage.setTokens(res.accessToken, res.refreshToken ?? "", rememberMe.value);
+      AuthStorage.setTokens(res.accessToken, res.refreshToken ?? '', rememberMe.value);
       await getUserInfo();
     }
   }
@@ -82,7 +82,7 @@ export const useUserStore = defineStore("user", () => {
   async function getUserInfo(credentials?: AuthCredentialsOverride): Promise<UserInfo> {
     const data = await UserAPI.getInfo(credentials);
     if (!data) {
-      throw new Error("Verification failed, please Login again.");
+      throw new Error('Verification failed, please Login again.');
     }
     Object.assign(userInfo.value, data);
     return data;
@@ -109,7 +109,7 @@ export const useUserStore = defineStore("user", () => {
    * 统一处理所有清理工作，包括用户凭证、路由、缓存等
    */
   async function resetAllState(): Promise<void> {
-    console.log("重置所有系统状态");
+    console.log('重置所有系统状态');
     const { disconnect } = useDisconnect();
     // 1. 重置用户状态
     resetUserState();
@@ -144,14 +144,14 @@ export const useUserStore = defineStore("user", () => {
     const currentRefreshToken = AuthStorage.getRefreshToken();
 
     if (!currentRefreshToken) {
-      throw new Error("没有有效的刷新令牌");
+      throw new Error('没有有效的刷新令牌');
     }
 
     const { accessToken, refreshToken: newRefreshToken } = await AuthAPI.refreshToken(
       currentRefreshToken,
       useAuthStore(store).deviceId
     );
-    AuthStorage.setTokens(accessToken, newRefreshToken ?? "", AuthStorage.getRememberMe());
+    AuthStorage.setTokens(accessToken, newRefreshToken ?? '', AuthStorage.getRememberMe());
   }
 
   return {

@@ -1,10 +1,10 @@
-import type { DialogProps, DrawerProps, FormItemRule, PaginationProps } from "element-plus";
-import type { FormProps, TableProps, ColProps, ButtonProps, CardProps } from "element-plus";
-import type PageContent from "./PageContent.vue";
-import type PageModal from "./PageModal.vue";
-import type PageSearch from "./PageSearch.vue";
-import type { CSSProperties } from "vue";
-import type { PageResult } from "@/types/api/common";
+import type { DialogProps, DrawerProps, FormItemRule, PaginationProps } from 'element-plus';
+import type { FormProps, TableProps, ColProps, ButtonProps, CardProps } from 'element-plus';
+import type PageContent from './PageContent.vue';
+import type PageModal from './PageModal.vue';
+import type PageSearch from './PageSearch.vue';
+import type { CSSProperties } from 'vue';
+import type { PageResult } from '@/types/api/common';
 
 export type PageSearchInstance = InstanceType<typeof PageSearch>;
 export type PageContentInstance = InstanceType<typeof PageContent>;
@@ -12,15 +12,15 @@ export type PageModalInstance = InstanceType<typeof PageModal>;
 
 export type IObject = Record<string, any>;
 
-type DateComponent = "date-picker" | "time-picker" | "time-select" | "custom-tag" | "input-tag";
-type InputComponent = "input" | "select" | "input-number" | "cascader" | "tree-select";
-type OtherComponent = "text" | "radio" | "checkbox" | "switch" | "icon-select" | "custom";
-export type ISearchComponent = DateComponent | InputComponent | "custom";
+type DateComponent = 'date-picker' | 'time-picker' | 'time-select' | 'custom-tag' | 'input-tag';
+type InputComponent = 'input' | 'select' | 'input-number' | 'cascader' | 'tree-select';
+type OtherComponent = 'text' | 'radio' | 'checkbox' | 'switch' | 'icon-select' | 'custom';
+export type ISearchComponent = DateComponent | InputComponent | 'custom';
 export type IComponentType = DateComponent | InputComponent | OtherComponent;
 
-type ToolbarLeft = "add" | "delete" | "import" | "export";
-type ToolbarRight = "refresh" | "filter" | "imports" | "exports" | "search";
-type ToolbarTable = "edit" | "view" | "delete";
+type ToolbarLeft = 'add' | 'delete' | 'import' | 'export';
+type ToolbarRight = 'refresh' | 'filter' | 'imports' | 'exports' | 'search';
+type ToolbarTable = 'edit' | 'view' | 'delete';
 export type IToolsButton = {
   name: string; // 按钮名称
   text?: string; // 按钮文本
@@ -53,23 +53,23 @@ export interface ISearchConfig {
   // form组件属性
   form?: IForm;
   // 自适应网格布局(使用时表单不要添加 style: { width: "200px" })
-  grid?: boolean | "left" | "right";
+  grid?: boolean | 'left' | 'right';
 }
 
 export interface IContentConfig<TQuery = any, TItem = any> {
   // 权限前缀(如sys:user，用于组成权限标识)，不提供则不进行权限校验
   permPrefix?: string;
   // table组件属性
-  table?: Partial<Omit<TableProps<any>, "data">>;
+  table?: Partial<Omit<TableProps<any>, 'data'>>;
   // 分页组件位置(默认：left)
-  pagePosition?: "left" | "right";
+  pagePosition?: 'left' | 'right';
   // pagination组件属性
   pagination?:
     | boolean
     | Partial<
         Omit<
           PaginationProps,
-          "v-model:page-size" | "v-model:current-page" | "total" | "currentPage"
+          'v-model:page-size' | 'v-model:current-page' | 'total' | 'currentPage'
         >
       >;
   // 列表的网络请求函数(需返回promise)
@@ -106,28 +106,28 @@ export interface IContentConfig<TQuery = any, TItem = any> {
   defaultToolbar?: Array<ToolbarRight | IToolsButton>;
   // table组件列属性(额外的属性templet,operat,slotName)
   cols: Array<{
-    type?: "default" | "selection" | "index" | "expand";
+    type?: 'default' | 'selection' | 'index' | 'expand';
     label?: string;
     prop?: string;
     width?: string | number;
-    align?: "left" | "center" | "right";
+    align?: 'left' | 'center' | 'right';
     columnKey?: string;
     reserveSelection?: boolean;
     // 列是否显示
     show?: boolean;
     // 模板
     templet?:
-      | "image"
-      | "list"
-      | "url"
-      | "switch"
-      | "input"
-      | "price"
-      | "percent"
-      | "icon"
-      | "date"
-      | "tool"
-      | "custom";
+      | 'image'
+      | 'list'
+      | 'url'
+      | 'switch'
+      | 'input'
+      | 'price'
+      | 'percent'
+      | 'icon'
+      | 'date'
+      | 'tool'
+      | 'custom';
     // image模板相关参数
     imageWidth?: number;
     imageHeight?: number;
@@ -162,11 +162,11 @@ export interface IModalConfig<T = any> {
   // 主键名(主要用于编辑数据,默认为id)
   pk?: string;
   // 组件类型(默认：dialog)
-  component?: "dialog" | "drawer";
+  component?: 'dialog' | 'drawer';
   // dialog组件属性
-  dialog?: Partial<Omit<DialogProps, "modelValue">>;
+  dialog?: Partial<Omit<DialogProps, 'modelValue'>>;
   // drawer组件属性
-  drawer?: Partial<Omit<DrawerProps, "modelValue">>;
+  drawer?: Partial<Omit<DrawerProps, 'modelValue'>>;
   // form组件属性
   form?: IForm;
   // 表单项
@@ -177,7 +177,7 @@ export interface IModalConfig<T = any> {
   formAction?: (data: T) => Promise<any>;
 }
 
-export type IForm = Partial<Omit<FormProps, "model" | "rules">>;
+export type IForm = Partial<Omit<FormProps, 'model' | 'rules'>>;
 
 // 表单项
 export type IFormItems<T = IComponentType> = Array<{

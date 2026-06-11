@@ -5,20 +5,20 @@
         v-if="item.redirect === 'noredirect' || index === breadcrumbs.length - 1"
         class="color-gray-400"
       >
-        {{ translateRouteTitle(item.meta.title ?? "") }}
+        {{ translateRouteTitle(item.meta.title ?? '') }}
       </span>
       <a v-else @click.prevent="handleLink(item)">
-        {{ translateRouteTitle(item.meta.title ?? "") }}
+        {{ translateRouteTitle(item.meta.title ?? '') }}
       </a>
     </el-breadcrumb-item>
   </el-breadcrumb>
 </template>
 
 <script setup lang="ts">
-import { RouteLocationMatched } from "vue-router";
-import { compile } from "path-to-regexp";
-import router from "@/router";
-import { translateRouteTitle } from "@/lang/utils";
+import { RouteLocationMatched } from 'vue-router';
+import { compile } from 'path-to-regexp';
+import router from '@/router';
+import { translateRouteTitle } from '@/lang/utils';
 
 const currentRoute = useRoute();
 const pathCompile = (path: string) => {
@@ -33,7 +33,7 @@ function getBreadcrumb() {
   let matched = currentRoute.matched.filter((item) => item.meta && item.meta.title);
   const first = matched[0];
   if (!isDashboard(first)) {
-    matched = [{ path: "/dashboard", meta: { title: "dashboard" } } as any].concat(matched);
+    matched = [{ path: '/dashboard', meta: { title: 'dashboard' } } as any].concat(matched);
   }
   breadcrumbs.value = matched.filter((item) => {
     return item.meta && item.meta.title && item.meta.breadcrumb !== false;
@@ -45,7 +45,7 @@ function isDashboard(route: RouteLocationMatched) {
   if (!name) {
     return false;
   }
-  return name.toString().trim().toLocaleLowerCase() === "Dashboard".toLocaleLowerCase();
+  return name.toString().trim().toLocaleLowerCase() === 'Dashboard'.toLocaleLowerCase();
 }
 
 function handleLink(item: any) {
@@ -70,7 +70,7 @@ function handleLink(item: any) {
 watch(
   () => currentRoute.path,
   (path) => {
-    if (path.startsWith("/redirect/")) {
+    if (path.startsWith('/redirect/')) {
       return;
     }
     getBreadcrumb();

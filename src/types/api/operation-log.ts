@@ -2,7 +2,7 @@
  * Log 日志类型定义
  */
 
-import type { BaseQueryParams } from "./common";
+import type { BaseQueryParams } from './common';
 
 /** 日志分页查询参数 */
 export interface LogQueryParams extends BaseQueryParams {

@@ -11,7 +11,7 @@ interface UtilObject {
   numFormat: (
     number: number | string,
     decimals?: number,
-    roundtag?: "ceil" | "floor" | "round"
+    roundtag?: 'ceil' | 'floor' | 'round'
   ) => string;
   numFormat4Floor: (number: number | string) => string;
   numFormat6Floor: (number: number | string) => string;
@@ -25,27 +25,27 @@ interface UtilObject {
 
 const util: UtilObject = {
   sliceAddress(address: string): string {
-    return address.slice(0, 6) + "..." + address.slice(address.length - 4);
+    return address.slice(0, 6) + '...' + address.slice(address.length - 4);
   },
 
   getGrades(grade: number): string {
     if (grade == -1) {
-      return "注册用户";
+      return '注册用户';
     } else {
-      return "S" + grade;
+      return 'S' + grade;
     }
   },
 
   numFormat(
     number: number | string,
     decimals: number = 0,
-    roundtag: "ceil" | "floor" | "round" = "ceil"
+    roundtag: 'ceil' | 'floor' | 'round' = 'ceil'
   ): string {
-    number = (number + "").replace(/[^0-9+-Ee.]/g, "");
+    number = (number + '').replace(/[^0-9+-Ee.]/g, '');
     const n = !isFinite(+number) ? 0 : +number;
     const prec = !isFinite(+decimals) ? 0 : Math.abs(decimals);
-    const sep = ",";
-    const dec = ".";
+    const sep = ',';
+    const dec = '.';
 
     const toFixedFix = function (n: number, prec: number): string {
       const k = Math.pow(10, prec);
@@ -53,49 +53,49 @@ const util: UtilObject = {
 
       let roundedValue: number;
       switch (roundtag) {
-        case "ceil":
+        case 'ceil':
           roundedValue = Math.ceil(parseFloat((n * k).toFixed(prec * 2)));
           break;
-        case "floor":
+        case 'floor':
           roundedValue = Math.floor(parseFloat((n * k).toFixed(prec * 2)));
           break;
-        case "round":
+        case 'round':
           roundedValue = Math.round(parseFloat((n * k).toFixed(prec * 2)));
           break;
         default:
           roundedValue = Math.ceil(parseFloat((n * k).toFixed(prec * 2)));
       }
 
-      return "" + parseFloat(roundedValue.toFixed(prec * 2)) / k;
+      return '' + parseFloat(roundedValue.toFixed(prec * 2)) / k;
     };
 
-    const s = (prec ? toFixedFix(n, prec) : "" + Math.round(n)).split(".");
+    const s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
     const re = /(-?\d+)(\d{3})/;
 
     if (s[0] !== undefined) {
       while (re.test(s[0])) {
-        s[0] = s[0].replace(re, "$1" + sep + "$2");
+        s[0] = s[0].replace(re, '$1' + sep + '$2');
       }
     }
 
-    if ((s[1] || "").length < prec) {
-      s[1] = s[1] || "";
-      s[1] = s[1] + new Array(prec - (s[1]?.length || 0) + 1).join("0");
+    if ((s[1] || '').length < prec) {
+      s[1] = s[1] || '';
+      s[1] = s[1] + new Array(prec - (s[1]?.length || 0) + 1).join('0');
     }
 
     return s.join(dec);
   },
 
   numFormat4Floor(number: number | string): string {
-    return this.numFormat(number, 4, "floor");
+    return this.numFormat(number, 4, 'floor');
   },
 
   numFormat6Floor(number: number | string): string {
-    return this.numFormat(number, 6, "floor");
+    return this.numFormat(number, 6, 'floor');
   },
 
   numFormat2Floor(number: number | string): string {
-    return this.numFormat(number, 2, "floor");
+    return this.numFormat(number, 2, 'floor');
   },
 
   numFormatBase(number: number | string): string {
@@ -105,25 +105,25 @@ const util: UtilObject = {
   timestampToDate(time: number): TimestampToDateResult {
     const date = new Date(time * 1000);
     const Y = String(date.getFullYear());
-    const M = date.getMonth() + 1 < 10 ? "0" + (date.getMonth() + 1) : String(date.getMonth() + 1);
-    const D = date.getDate() < 10 ? "0" + date.getDate() : String(date.getDate());
-    const h = (date.getHours() < 10 ? "0" + date.getHours() : String(date.getHours())) + ":";
-    const m = (date.getMinutes() < 10 ? "0" + date.getMinutes() : String(date.getMinutes())) + ":";
-    const s = date.getSeconds() < 10 ? "0" + date.getSeconds() : String(date.getSeconds());
+    const M = date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : String(date.getMonth() + 1);
+    const D = date.getDate() < 10 ? '0' + date.getDate() : String(date.getDate());
+    const h = (date.getHours() < 10 ? '0' + date.getHours() : String(date.getHours())) + ':';
+    const m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : String(date.getMinutes())) + ':';
+    const s = date.getSeconds() < 10 ? '0' + date.getSeconds() : String(date.getSeconds());
 
     return { year: Y, month: M, day: D, time: h + m + s };
   },
 
   showTime(time: number): string {
     if (time - 0 <= 0) {
-      return "-";
+      return '-';
     }
     const t = this.timestampToDate(time);
-    return String(t.year) + "-" + t.month + "-" + t.day + " " + t.time;
+    return String(t.year) + '-' + t.month + '-' + t.day + ' ' + t.time;
   },
 
   isDefine(para: any): boolean {
-    if (typeof para === "undefined" || para === "" || para == null || para === undefined) {
+    if (typeof para === 'undefined' || para === '' || para == null || para === undefined) {
       return false;
     } else {
       return true;
@@ -132,17 +132,17 @@ const util: UtilObject = {
 
   omitAddress(address: string, length?: number): string {
     if (!this.isDefine(address)) {
-      return "";
+      return '';
     }
     const len = length || 0;
     if (!this.isDefine(length) || address.length < len) {
-      return address.substring(0, 8) + "..." + address.substring(address.length - 6);
+      return address.substring(0, 8) + '...' + address.substring(address.length - 6);
     }
 
     const halfLength = Math.floor(len / 2);
     return (
       address.substring(0, halfLength) +
-      "..." +
+      '...' +
       address.substring(address.length - (len - halfLength))
     );
   },

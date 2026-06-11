@@ -5,14 +5,14 @@
 </template>
 
 <script setup lang="ts">
-import { useSettingsStore } from "@/store";
-import { ThemeMode, SidebarColor, LayoutMode } from "@/enums/settings";
+import { useSettingsStore } from '@/store';
+import { ThemeMode, SidebarColor, LayoutMode } from '@/enums/settings';
 
 defineProps({
   isActive: { type: Boolean, required: true },
 });
 
-const emit = defineEmits(["toggleClick"]);
+const emit = defineEmits(['toggleClick']);
 
 const settingsStore = useSettingsStore();
 const layout = computed(() => settingsStore.layout);
@@ -20,7 +20,7 @@ const layout = computed(() => settingsStore.layout);
 const hamburgerClass = computed(() => {
   // 如果暗黑主题
   if (settingsStore.theme === ThemeMode.DARK) {
-    return "hamburger--white";
+    return 'hamburger--white';
   }
 
   // 如果是混合布局 && 侧边栏配色方案是经典蓝
@@ -28,15 +28,15 @@ const hamburgerClass = computed(() => {
     layout.value === LayoutMode.MIX &&
     settingsStore.sidebarColorScheme === SidebarColor.CLASSIC_BLUE
   ) {
-    return "hamburger--white";
+    return 'hamburger--white';
   }
 
   // 默认返回空字符串
-  return "";
+  return '';
 });
 
 function toggleClick() {
-  emit("toggleClick");
+  emit('toggleClick');
 }
 </script>
 

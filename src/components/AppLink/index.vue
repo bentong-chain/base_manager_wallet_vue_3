@@ -6,11 +6,11 @@
 
 <script setup lang="ts">
 defineOptions({
-  name: "AppLink",
+  name: 'AppLink',
   inheritAttrs: false,
 });
 
-import { isExternal } from "@/utils/index";
+import { isExternal } from '@/utils/index';
 
 const props = defineProps({
   to: {
@@ -20,17 +20,17 @@ const props = defineProps({
 });
 
 const isExternalLink = computed(() => {
-  return isExternal(props.to.path || "");
+  return isExternal(props.to.path || '');
 });
 
-const linkType = computed(() => (isExternalLink.value ? "a" : "router-link"));
+const linkType = computed(() => (isExternalLink.value ? 'a' : 'router-link'));
 
 const linkProps = (to: any) => {
   if (isExternalLink.value) {
     return {
       href: to.path,
-      target: "_blank",
-      rel: "noopener noreferrer",
+      target: '_blank',
+      rel: 'noopener noreferrer',
     };
   }
   return { to };

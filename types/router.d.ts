@@ -1,9 +1,9 @@
 /**
  * Vue Router 类型扩展
  */
-import "vue-router";
+import 'vue-router';
 
-declare module "vue-router" {
+declare module 'vue-router' {
   interface RouteMeta {
     title?: string;
     icon?: string;

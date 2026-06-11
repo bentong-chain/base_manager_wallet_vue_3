@@ -51,10 +51,10 @@ import {
   UploadFile,
   UploadFiles,
   UploadRequestOptions,
-} from "element-plus";
+} from 'element-plus';
 
-import FileAPI from "@/api/file";
-import type { FileInfo } from "@/types/api";
+import FileAPI from '@/api/file';
+import type { FileInfo } from '@/types/api';
 
 const props = defineProps({
   /**
@@ -71,7 +71,7 @@ const props = defineProps({
    */
   name: {
     type: String,
-    default: "file",
+    default: 'file',
   },
   /**
    * 文件上传数量限制
@@ -92,14 +92,14 @@ const props = defineProps({
    */
   accept: {
     type: String,
-    default: "*",
+    default: '*',
   },
   /**
    * 上传按钮文本
    */
   uploadBtnText: {
     type: String,
-    default: "上传文件",
+    default: '上传文件',
   },
 
   /**
@@ -109,12 +109,12 @@ const props = defineProps({
     type: Object,
     default: () => {
       return {
-        width: "300px",
+        width: '300px',
       };
     },
   },
 });
-const modelValue = defineModel("modelValue", {
+const modelValue = defineModel('modelValue', {
   type: [Array] as PropType<FileInfo[]>,
   required: true,
   default: () => [],
@@ -127,11 +127,11 @@ watch(
   modelValue,
   (value) => {
     fileList.value = value.map((item) => {
-      const name = item.name ? item.name : item.url?.substring(item.url.lastIndexOf("/") + 1);
+      const name = item.name ? item.name : item.url?.substring(item.url.lastIndexOf('/') + 1);
       return {
         name,
         url: item.url,
-        status: "success",
+        status: 'success',
         uid: getUid(),
       } as UploadFile;
     });
@@ -147,7 +147,7 @@ watch(
 function handleBeforeUpload(file: UploadRawFile) {
   // 限制文件大小
   if (file.size > props.maxFileSize * 1024 * 1024) {
-    ElMessage.warning("上传文件不能大于" + props.maxFileSize + "M");
+    ElMessage.warning('上传文件不能大于' + props.maxFileSize + 'M');
     return false;
   }
   return true;
@@ -187,23 +187,23 @@ function handleUpload(options: UploadRequestOptions) {
  * 上传文件超出限制
  */
 function handleExceed() {
-  ElMessage.warning("最多只能上传 " + props.limit + " 个文件");
+  ElMessage.warning('最多只能上传 ' + props.limit + ' 个文件');
 }
 
 /**
  * 上传成功
  */
 const handleSuccess = (response: any, uploadFile: UploadFile, files: UploadFiles) => {
-  ElMessage.success("上传成功");
+  ElMessage.success('上传成功');
   // 只有当状态为 success 或者 fail，代表文件上传全部完成了，失败也算完成
   if (
     files.every((file: UploadFile) => {
-      return file.status === "success" || file.status === "fail";
+      return file.status === 'success' || file.status === 'fail';
     })
   ) {
     const fileInfos = [] as FileInfo[];
     files.map((file: UploadFile) => {
-      if (file.status === "success") {
+      if (file.status === 'success') {
         // 只取携带 response 的才是刚上传的
         const res = file.response as FileInfo;
         if (res) {
@@ -228,7 +228,7 @@ const handleSuccess = (response: any, uploadFile: UploadFile, files: UploadFiles
  */
 const handleError = (_error: any) => {
   console.error(_error);
-  ElMessage.error("上传失败");
+  ElMessage.error('上传失败');
 };
 
 /**

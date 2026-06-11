@@ -19,14 +19,14 @@
  */
 export function formatGrowthRate(growthRate: number): string {
   if (growthRate === 0) {
-    return "-";
+    return '-';
   }
 
   const formattedRate = Math.abs(growthRate * 100)
     .toFixed(2)
-    .replace(/\.?0+$/, "");
+    .replace(/\.?0+$/, '');
 
-  return formattedRate + "%";
+  return formattedRate + '%';
 }
 
 /**
@@ -43,13 +43,13 @@ export function formatGrowthRate(growthRate: number): string {
  * ```
  */
 export function formatFileSize(bytes: number, decimals: number = 2): string {
-  if (bytes === 0) return "0 Bytes";
+  if (bytes === 0) return '0 Bytes';
 
   const k = 1024;
-  const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB"];
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(decimals)) + " " + sizes[i];
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(decimals)) + ' ' + sizes[i];
 }
 
 /**
@@ -64,7 +64,7 @@ export function formatFileSize(bytes: number, decimals: number = 2): string {
  * ```
  */
 export function formatNumber(num: number): string {
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
 /**
@@ -81,6 +81,6 @@ export function formatNumber(num: number): string {
  * ```
  */
 export function formatCurrency(amount: number, decimals: number = 2): string {
-  const formatted = amount.toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  return "¥" + formatted;
+  const formatted = amount.toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return '¥' + formatted;
 }

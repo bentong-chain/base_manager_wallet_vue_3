@@ -1,6 +1,6 @@
-import OperationLogAPI from "@/api/system/operation-log";
-import type { PageResult } from "@/types/api";
-import type { OperationLogItem, OperationLogQueryParams } from "@/types/api/operation-log";
+import OperationLogAPI from '@/api/system/operation-log';
+import type { PageResult } from '@/types/api';
+import type { OperationLogItem, OperationLogQueryParams } from '@/types/api/operation-log';
 
 /** 与 api.json 一致：操作日志列表使用 admin/operation-log/list */
 const LogAPI = {

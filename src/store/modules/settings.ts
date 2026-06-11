@@ -1,10 +1,10 @@
-import { SidebarColor, ThemeMode } from "@/enums";
-import type { LayoutMode } from "@/enums";
-import { applyTheme, generateThemeColors, toggleDarkMode, toggleSidebarColor } from "@/utils/theme";
-import { STORAGE_KEYS } from "@/constants";
-import { defaults } from "@/settings";
+import { SidebarColor, ThemeMode } from '@/enums';
+import type { LayoutMode } from '@/enums';
+import { applyTheme, generateThemeColors, toggleDarkMode, toggleSidebarColor } from '@/utils/theme';
+import { STORAGE_KEYS } from '@/constants';
+import { defaults } from '@/settings';
 
-export const useSettingsStore = defineStore("setting", () => {
+export const useSettingsStore = defineStore('setting', () => {
   // 界面显示
   const settingsVisible = ref(false);
   const showTagsView = useStorage(STORAGE_KEYS.SHOW_TAGS_VIEW, defaults.showTagsView);
@@ -48,7 +48,7 @@ export const useSettingsStore = defineStore("setting", () => {
   watch(
     grayMode,
     (v) => {
-      document.documentElement.style.filter = v ? "grayscale(100%)" : "";
+      document.documentElement.style.filter = v ? 'grayscale(100%)' : '';
     },
     { immediate: true }
   );
@@ -57,7 +57,7 @@ export const useSettingsStore = defineStore("setting", () => {
   watch(
     colorWeak,
     (v) => {
-      document.documentElement.classList.toggle("color-weak", v);
+      document.documentElement.classList.toggle('color-weak', v);
     },
     { immediate: true }
   );

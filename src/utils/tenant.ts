@@ -1,5 +1,5 @@
-import { appConfig } from "@/settings";
-import { PLATFORM_TENANT_ID } from "@/constants";
+import { appConfig } from '@/settings';
+import { PLATFORM_TENANT_ID } from '@/constants';
 
 /**
  * 是否启用多租户

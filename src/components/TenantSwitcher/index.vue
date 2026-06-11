@@ -26,12 +26,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import { ArrowDown } from "@element-plus/icons-vue";
-import { useTenantStoreHook } from "@/store/modules/tenant";
+import { computed } from 'vue';
+import { ArrowDown } from '@element-plus/icons-vue';
+import { useTenantStoreHook } from '@/store/modules/tenant';
 
 const emit = defineEmits<{
-  (e: "change", tenantId: number): void;
+  (e: 'change', tenantId: number): void;
 }>();
 
 const tenantStore = useTenantStoreHook();
@@ -48,14 +48,14 @@ const currentTenantId = computed<number | null>({
 const currentTenantName = computed(() => {
   const currentId = currentTenantId.value;
   const fromList = tenantList.value.find((t) => t.id === currentId)?.name;
-  return fromList || tenantStore.currentTenant?.name || "切换租户";
+  return fromList || tenantStore.currentTenant?.name || '切换租户';
 });
 
 function onCommand(tenantId: number) {
   if (tenantId === currentTenantId.value) {
     return;
   }
-  emit("change", tenantId);
+  emit('change', tenantId);
 }
 </script>
 

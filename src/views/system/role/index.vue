@@ -162,21 +162,21 @@
 
 <script setup lang="ts">
 defineOptions({
-  name: "SystemRole",
+  name: 'SystemRole',
   inheritAttrs: false,
 });
 
-import { nextTick } from "vue";
-import type { FormInstance, FormRules } from "element-plus";
-import type { TreeInstance } from "element-plus";
+import { nextTick } from 'vue';
+import type { FormInstance, FormRules } from 'element-plus';
+import type { TreeInstance } from 'element-plus';
 import type {
   AdminRoleListItem,
   AdminRoleQueryParams,
   AdminRoleSaveRequest,
   PermissionTreeNode,
-} from "@/types/api";
-import Role from "@/api/system/role";
-import Permission from "@/api/system/permission";
+} from '@/types/api';
+import Role from '@/api/system/role';
+import Permission from '@/api/system/permission';
 
 const queryFormRef = ref<FormInstance>();
 const formRef = ref<FormInstance>();
@@ -193,21 +193,21 @@ const loading = ref(false);
 const selectIds = ref<(number | string)[]>([]);
 
 const dialogState = reactive({
-  title: "",
+  title: '',
   visible: false,
 });
 
 const formData = reactive<AdminRoleSaveRequest>({
-  roleCode: "",
-  roleName: "",
-  description: "",
+  roleCode: '',
+  roleName: '',
+  description: '',
   status: 1,
   sort: 0,
 });
 
 const formRules: FormRules = {
-  roleCode: [{ required: true, message: "请输入角色编码", trigger: "blur" }],
-  roleName: [{ required: true, message: "请输入角色名称", trigger: "blur" }],
+  roleCode: [{ required: true, message: '请输入角色编码', trigger: 'blur' }],
+  roleName: [{ required: true, message: '请输入角色名称', trigger: 'blur' }],
 };
 
 const assignPermissionsDialog = reactive<{
@@ -252,15 +252,15 @@ function handleSelectionChange(rows: AdminRoleListItem[]): void {
 
 async function openDialog(id?: number | string): Promise<void> {
   dialogState.visible = true;
-  dialogState.title = id ? "编辑角色" : "新增角色";
+  dialogState.title = id ? '编辑角色' : '新增角色';
   if (id) {
     try {
       const detail = await Role.getAdminRoleDetail(id);
       Object.assign(formData, {
         id: detail?.id != null ? Number(detail.id) : undefined,
-        roleCode: detail?.roleCode ?? "",
-        roleName: detail?.roleName ?? "",
-        description: detail?.description ?? "",
+        roleCode: detail?.roleCode ?? '',
+        roleName: detail?.roleName ?? '',
+        description: detail?.description ?? '',
         status: detail?.status ?? 1,
         sort: detail?.sort ?? 0,
       });
@@ -270,9 +270,9 @@ async function openDialog(id?: number | string): Promise<void> {
   } else {
     Object.assign(formData, {
       id: undefined,
-      roleCode: "",
-      roleName: "",
-      description: "",
+      roleCode: '',
+      roleName: '',
+      description: '',
       status: 1,
       sort: 0,
     });
@@ -286,13 +286,13 @@ function closeDialog(): void {
 
 function buildRolePayload(): AdminRoleSaveRequest {
   const payload: AdminRoleSaveRequest = {
-    roleCode: formData.roleCode?.trim() ?? "",
-    roleName: formData.roleName?.trim() ?? "",
+    roleCode: formData.roleCode?.trim() ?? '',
+    roleName: formData.roleName?.trim() ?? '',
     status: formData.status ?? 1,
     sort: formData.sort ?? 0,
   };
   const desc = formData.description?.trim();
-  if (desc !== undefined && desc !== "") {
+  if (desc !== undefined && desc !== '') {
     payload.description = desc;
   }
   return payload;
@@ -305,10 +305,10 @@ function handleSubmit(): void {
       const payload = buildRolePayload();
       if (formData.id != null) {
         await Role.updateAdminRole(formData.id, payload);
-        ElMessage.success("更新成功");
+        ElMessage.success('更新成功');
       } else {
         await Role.createAdminRole(payload);
-        ElMessage.success("新增成功");
+        ElMessage.success('新增成功');
       }
       closeDialog();
       fetchData();
@@ -352,7 +352,7 @@ async function handleAssignPermissionsSubmit(): Promise<void> {
   const permissionIds = [...(checked as number[]), ...(halfChecked as number[])];
   try {
     await Role.assignAdminRolePermissions(roleId, { permissionIds });
-    ElMessage.success("分配权限成功");
+    ElMessage.success('分配权限成功');
     closeAssignPermissionsDialog();
   } catch {
     // 错误已由 request 拦截器统一提示
@@ -360,14 +360,14 @@ async function handleAssignPermissionsSubmit(): Promise<void> {
 }
 
 function handleDelete(id: number | string): void {
-  ElMessageBox.confirm("确认删除该角色吗？", "提示", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning",
+  ElMessageBox.confirm('确认删除该角色吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
   }).then(async () => {
     try {
       await Role.deleteAdminRole(id);
-      ElMessage.success("删除成功");
+      ElMessage.success('删除成功');
       fetchData();
     } catch {
       // 错误已由 request 拦截器统一提示
@@ -377,19 +377,19 @@ function handleDelete(id: number | string): void {
 
 function handleBatchDelete(): void {
   if (selectIds.value.length === 0) {
-    ElMessage.warning("请选择要删除的项");
+    ElMessage.warning('请选择要删除的项');
     return;
   }
-  ElMessageBox.confirm("确认删除所选角色吗？", "提示", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning",
+  ElMessageBox.confirm('确认删除所选角色吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
   }).then(async () => {
     try {
       for (const id of selectIds.value) {
         await Role.deleteAdminRole(id);
       }
-      ElMessage.success("删除成功");
+      ElMessage.success('删除成功');
       fetchData();
     } catch {
       // 错误已由 request 拦截器统一提示

@@ -26,13 +26,13 @@
 </template>
 
 <script setup lang="ts">
-import { useLayout } from "./useLayout";
-import BaseLayout from "./BaseLayout.vue";
-import LayoutLogo from "./components/LayoutLogo.vue";
-import LayoutNavbar from "./components/LayoutNavbar.vue";
-import LayoutTagsView from "./components/LayoutTagsView.vue";
-import LayoutMain from "./components/LayoutMain.vue";
-import LayoutSidebar from "./components/LayoutSidebar.vue";
+import { useLayout } from './useLayout';
+import BaseLayout from './BaseLayout.vue';
+import LayoutLogo from './components/LayoutLogo.vue';
+import LayoutNavbar from './components/LayoutNavbar.vue';
+import LayoutTagsView from './components/LayoutTagsView.vue';
+import LayoutMain from './components/LayoutMain.vue';
+import LayoutSidebar from './components/LayoutSidebar.vue';
 
 const { showTagsView, showLogo, isSidebarOpen, routes } = useLayout();
 </script>

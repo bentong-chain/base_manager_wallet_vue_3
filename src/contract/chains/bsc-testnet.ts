@@ -1,10 +1,10 @@
-import chains from "./chains";
-import { defineChain } from "@reown/appkit/networks";
+import chains from './chains';
+import { defineChain } from '@reown/appkit/networks';
 
 export const bscTestnet = defineChain({
   id: chains.bscTest.chainId,
   caipNetworkId: `eip155:${chains.bscTest.chainId}`,
-  chainNamespace: "eip155",
+  chainNamespace: 'eip155',
   name: chains.bscTest.chainName,
   nativeCurrency: {
     name: chains.bscTest.coinName,
@@ -18,7 +18,7 @@ export const bscTestnet = defineChain({
   },
   blockExplorers: {
     default: {
-      name: "BscScan Testnet",
+      name: 'BscScan Testnet',
       url: chains.bscTest.blockExplorerUrl,
     },
   },

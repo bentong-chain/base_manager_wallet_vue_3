@@ -1,13 +1,13 @@
-import type { RouteRecordRaw } from "vue-router";
-import { constantRoutes } from "@/router";
-import { store } from "@/store";
-import router from "@/router";
-import { useUserStoreHook } from "@/store/modules/user";
+import type { RouteRecordRaw } from 'vue-router';
+import { constantRoutes } from '@/router';
+import { store } from '@/store';
+import router from '@/router';
+import { useUserStoreHook } from '@/store/modules/user';
 
-import MenuAPI from "@/api/system/menu";
-import type { PermissionTreeNode } from "@/types/api/menu";
+import MenuAPI from '@/api/system/menu';
+import type { PermissionTreeNode } from '@/types/api/menu';
 
-const modules = import.meta.glob("../../views/**/**.vue");
+const modules = import.meta.glob('../../views/**/**.vue');
 
 /**
  * 解析视图组件
@@ -16,8 +16,8 @@ const modules = import.meta.glob("../../views/**/**.vue");
 function resolveViewComponent(componentPath: string) {
   const normalized = componentPath
     .trim()
-    .replace(/^@\/views\//, "")
-    .replace(/\.vue$/i, "");
+    .replace(/^@\/views\//, '')
+    .replace(/\.vue$/i, '');
 
   return (
     modules[`../../views/${normalized}.vue`] ||
@@ -28,10 +28,10 @@ function resolveViewComponent(componentPath: string) {
 
 /** permissionCode 无 routePath 时生成相对 path（如 admin:user:menu -> user, admin:system:catalog -> system） */
 function pathFromPermissionCode(code: string | null | undefined): string {
-  if (!code) return "unknown";
-  const parts = code.split(":").filter(Boolean);
+  if (!code) return 'unknown';
+  const parts = code.split(':').filter(Boolean);
   const last = parts[parts.length - 1];
-  if ((last === "menu" || last === "catalog") && parts.length > 1) {
+  if ((last === 'menu' || last === 'catalog') && parts.length > 1) {
     return parts[parts.length - 2];
   }
   return last;
@@ -40,18 +40,18 @@ function pathFromPermissionCode(code: string | null | undefined): string {
 /** permissionCode 推断组件路径（如 admin:user:menu -> system/user/index） */
 function componentFromPermissionCode(code: string | null | undefined): string | null {
   if (!code) return null;
-  const parts = code.split(":").filter(Boolean);
+  const parts = code.split(':').filter(Boolean);
 
   // 过滤掉最后的 menu/catalog/button
-  const filteredParts = parts.filter((p) => !["menu", "catalog", "button"].includes(p));
+  const filteredParts = parts.filter((p) => !['menu', 'catalog', 'button'].includes(p));
 
   if (filteredParts.length === 0) return null;
 
   // 拼接路径：admin:user -> system/user/index
   // 假设第一个部分是模块名，需要映射到实际目录
   const moduleMap: Record<string, string> = {
-    admin: "system",
-    dashboard: "dashboard",
+    admin: 'system',
+    dashboard: 'dashboard',
   };
 
   const moduleDir = moduleMap[filteredParts[0]] || filteredParts[0];
@@ -62,7 +62,7 @@ function componentFromPermissionCode(code: string | null | undefined): string | 
   }
 
   // admin:user:menu -> system/user/index
-  return `${moduleDir}/${filteredParts.slice(1).join("/")}/index`;
+  return `${moduleDir}/${filteredParts.slice(1).join('/')}/index`;
 }
 
 /**
@@ -94,7 +94,7 @@ function transformRouteNode(node: PermissionTreeNode, _isTopLevel: boolean = tru
       icon: node.icon || undefined,
       hidden: node.visible !== 1,
       keepAlive: node.cache === 1,
-      alwaysShow: node.resourceType === "CATALOG",
+      alwaysShow: node.resourceType === 'CATALOG',
     },
   };
 
@@ -104,13 +104,13 @@ function transformRouteNode(node: PermissionTreeNode, _isTopLevel: boolean = tru
   }
 
   // 防止报错
-  if (!route.path.startsWith("/")) {
-    route.path = "/" + route.path;
+  if (!route.path.startsWith('/')) {
+    route.path = '/' + route.path;
   }
 
   // 处理组件
   if (node.component) {
-    if (node.component === "Layout") {
+    if (node.component === 'Layout') {
       // route.component = Layout;
       route.component = undefined;
     } else {
@@ -155,7 +155,7 @@ function transformRoutes(
     .map((node) => transformRouteNode(node, isTopLevel));
 }
 
-export const usePermissionStore = defineStore("permission", () => {
+export const usePermissionStore = defineStore('permission', () => {
   // 所有路由（静态路由 + 动态路由）
   const routes = ref<RouteRecordRaw[]>([]);
   // 混合布局的左侧菜单路由

@@ -125,7 +125,7 @@
             <!-- 格式化为价格 -->
             <template v-else-if="col.templet === 'price'">
               <template v-if="col.prop">
-                {{ `${col.priceFormat ?? ""}${scope.row[col.prop]}` }}
+                {{ `${col.priceFormat ?? ''}${scope.row[col.prop]}` }}
               </template>
             </template>
             <!-- 格式化为百分比 -->
@@ -150,9 +150,9 @@
               <template v-if="col.prop">
                 {{
                   scope.row[col.prop]
-                    ? useDateFormat(scope.row[col.prop], col.dateFormat ?? "YYYY-MM-DD HH:mm:ss")
+                    ? useDateFormat(scope.row[col.prop], col.dateFormat ?? 'YYYY-MM-DD HH:mm:ss')
                         .value
-                    : ""
+                    : ''
                 }}
               </template>
             </template>
@@ -322,8 +322,8 @@
 </template>
 
 <script setup lang="ts">
-import { hasPerm } from "@/utils/auth";
-import { useDateFormat, useThrottleFn } from "@vueuse/core";
+import { hasPerm } from '@/utils/auth';
+import { useDateFormat, useThrottleFn } from '@vueuse/core';
 import {
   genFileId,
   type FormInstance,
@@ -332,11 +332,11 @@ import {
   type UploadRawFile,
   type UploadUserFile,
   type TableInstance,
-} from "element-plus";
-import ExcelJS from "exceljs";
-import { reactive, ref, computed } from "vue";
-import type { IContentConfig, IObject, IOperateData } from "./types";
-import type { IToolsButton } from "./types";
+} from 'element-plus';
+import ExcelJS from 'exceljs';
+import { reactive, ref, computed } from 'vue';
+import type { IContentConfig, IObject, IOperateData } from './types';
+import type { IToolsButton } from './types';
 
 // 定义接收的属性
 const props = defineProps<{ contentConfig: IContentConfig }>();
@@ -354,28 +354,28 @@ const emit = defineEmits<{
 // 表格工具栏按钮配置
 const config = computed(() => props.contentConfig);
 const buttonConfig = reactive<Record<string, IObject>>({
-  add: { text: "新增", attrs: { icon: "plus", type: "success" }, perm: "add" },
-  delete: { text: "删除", attrs: { icon: "delete", type: "danger" }, perm: "delete" },
-  import: { text: "导入", attrs: { icon: "upload", type: "" }, perm: "import" },
-  export: { text: "导出", attrs: { icon: "download", type: "" }, perm: "export" },
-  refresh: { text: "刷新", attrs: { icon: "refresh", type: "" }, perm: "*:*:*" },
-  filter: { text: "筛选列", attrs: { icon: "operation", type: "" }, perm: "*:*:*" },
-  search: { text: "搜索", attrs: { icon: "search", type: "" }, perm: "search" },
-  imports: { text: "批量导入", attrs: { icon: "upload", type: "" }, perm: "imports" },
-  exports: { text: "批量导出", attrs: { icon: "download", type: "" }, perm: "exports" },
-  view: { text: "查看", attrs: { icon: "view", type: "primary" }, perm: "view" },
-  edit: { text: "编辑", attrs: { icon: "edit", type: "primary" }, perm: "edit" },
+  add: { text: '新增', attrs: { icon: 'plus', type: 'success' }, perm: 'add' },
+  delete: { text: '删除', attrs: { icon: 'delete', type: 'danger' }, perm: 'delete' },
+  import: { text: '导入', attrs: { icon: 'upload', type: '' }, perm: 'import' },
+  export: { text: '导出', attrs: { icon: 'download', type: '' }, perm: 'export' },
+  refresh: { text: '刷新', attrs: { icon: 'refresh', type: '' }, perm: '*:*:*' },
+  filter: { text: '筛选列', attrs: { icon: 'operation', type: '' }, perm: '*:*:*' },
+  search: { text: '搜索', attrs: { icon: 'search', type: '' }, perm: 'search' },
+  imports: { text: '批量导入', attrs: { icon: 'upload', type: '' }, perm: 'imports' },
+  exports: { text: '批量导出', attrs: { icon: 'download', type: '' }, perm: 'exports' },
+  view: { text: '查看', attrs: { icon: 'view', type: 'primary' }, perm: 'view' },
+  edit: { text: '编辑', attrs: { icon: 'edit', type: 'primary' }, perm: 'edit' },
 });
 
 // 主键
-const pk = props.contentConfig.pk ?? "id";
+const pk = props.contentConfig.pk ?? 'id';
 // 权限名称前缀
 const authPrefix = computed(() => props.contentConfig.permPrefix);
 
 // 获取按钮权限标识
 function getButtonPerm(action: string): string | null {
   // 如果action已经包含完整路径(包含冒号)，则直接使用
-  if (action.includes(":")) {
+  if (action.includes(':')) {
     return action;
   }
   // 否则使用权限前缀组合
@@ -393,9 +393,9 @@ function hasButtonPerm(action: string): boolean {
 // 创建工具栏按钮
 function createToolbar(toolbar: Array<string | IToolsButton>, attr = {}) {
   return toolbar.map((item) => {
-    const isString = typeof item === "string";
+    const isString = typeof item === 'string';
     return {
-      name: isString ? item : item?.name || "",
+      name: isString ? item : item?.name || '',
       text: isString ? buttonConfig[item].text : item?.text,
       attrs: {
         ...attr,
@@ -406,7 +406,7 @@ function createToolbar(toolbar: Array<string | IToolsButton>, attr = {}) {
         ? getButtonPerm(buttonConfig[item].perm)
         : item?.perm
           ? getButtonPerm(item.perm as string)
-          : "*:*:*",
+          : '*:*:*',
     };
   });
 }
@@ -424,8 +424,8 @@ const toolbarRightBtn = computed(() => {
 });
 
 // 表格操作工具栏
-const tableToolbar = config.value.cols[config.value.cols.length - 1].operat ?? ["edit", "delete"];
-const tableToolbarBtn = createToolbar(tableToolbar, { link: true, size: "small" });
+const tableToolbar = config.value.cols[config.value.cols.length - 1].operat ?? ['edit', 'delete'];
+const tableToolbarBtn = createToolbar(tableToolbar, { link: true, size: 'small' });
 
 // 表格相关
 const cols = ref(
@@ -436,13 +436,13 @@ const cols = ref(
     if (col.show === undefined) {
       col.show = true;
     }
-    if (col.prop !== undefined && col.columnKey === undefined && col["column-key"] === undefined) {
+    if (col.prop !== undefined && col.columnKey === undefined && col['column-key'] === undefined) {
       col.columnKey = col.prop;
     }
     if (
-      col.type === "selection" &&
+      col.type === 'selection' &&
       col.reserveSelection === undefined &&
-      col["reserve-selection"] === undefined
+      col['reserve-selection'] === undefined
     ) {
       // 配合表格row-key实现跨页多选
       col.reserveSelection = true;
@@ -459,21 +459,21 @@ const showPagination = props.contentConfig.pagination !== false;
 // 分页配置
 const defaultPagination = {
   background: true,
-  layout: "total, sizes, prev, pager, next, jumper",
+  layout: 'total, sizes, prev, pager, next, jumper',
   pageSize: 20,
   pageSizes: [10, 20, 30, 50],
   total: 0,
   currentPage: 1,
 };
 const pagination = reactive(
-  typeof props.contentConfig.pagination === "object"
+  typeof props.contentConfig.pagination === 'object'
     ? { ...defaultPagination, ...props.contentConfig.pagination }
     : defaultPagination
 );
 // 分页相关的请求参数
 const request = props.contentConfig.request ?? {
-  pageName: "pageNum",
-  limitName: "pageSize",
+  pageName: 'pageNum',
+  limitName: 'pageSize',
 };
 
 const tableRef = ref<TableInstance>();
@@ -499,22 +499,22 @@ function handleRefresh(isRestart = false) {
 
 // 删除
 function handleDelete(id?: number | string) {
-  const ids = [id || removeIds.value].join(",");
+  const ids = [id || removeIds.value].join(',');
   if (!ids) {
-    ElMessage.warning("请勾选删除项");
+    ElMessage.warning('请勾选删除项');
     return;
   }
 
-  ElMessageBox.confirm("确认删除?", "警告", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning",
+  ElMessageBox.confirm('确认删除?', '警告', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
   }).then(
     function () {
       if (props.contentConfig.deleteAction) {
         props.contentConfig.deleteAction(ids).then(
           () => {
-            ElMessage.success("删除成功");
+            ElMessage.success('删除成功');
             removeIds.value = [];
             // 清空选中项
             tableRef.value?.clearSelection();
@@ -525,7 +525,7 @@ function handleDelete(id?: number | string) {
           }
         );
       } else {
-        ElMessage.error("未配置deleteAction");
+        ElMessage.error('未配置deleteAction');
       }
     },
     () => {
@@ -542,21 +542,21 @@ cols.value.forEach((item) => {
   }
 });
 const enum ExportsOriginEnum {
-  CURRENT = "current",
-  SELECTED = "selected",
-  REMOTE = "remote",
+  CURRENT = 'current',
+  SELECTED = 'selected',
+  REMOTE = 'remote',
 }
 const exportsModalVisible = ref(false);
 const exportsFormRef = ref<FormInstance>();
 const exportsFormData = reactive({
-  filename: "",
-  sheetname: "",
+  filename: '',
+  sheetname: '',
   fields,
   origin: ExportsOriginEnum.CURRENT,
 });
 const exportsFormRules: FormRules = {
-  fields: [{ required: true, message: "请选择字段" }],
-  origin: [{ required: true, message: "请选择数据来源" }],
+  fields: [{ required: true, message: '请选择字段' }],
+  origin: [{ required: true, message: '请选择数据来源' }],
 };
 // 打开导出弹窗
 function handleOpenExportsModal() {
@@ -583,8 +583,8 @@ function handleCloseExportsModal() {
 function handleExports() {
   const filename = exportsFormData.filename
     ? exportsFormData.filename
-    : props.contentConfig.permPrefix || "export";
-  const sheetname = exportsFormData.sheetname ? exportsFormData.sheetname : "sheet";
+    : props.contentConfig.permPrefix || 'export';
+  const sheetname = exportsFormData.sheetname ? exportsFormData.sheetname : 'sheet';
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet(sheetname);
   const columns: Partial<ExcelJS.Column>[] = [];
@@ -606,7 +606,7 @@ function handleExports() {
         );
       });
     } else {
-      ElMessage.error("未配置exportsAction");
+      ElMessage.error('未配置exportsAction');
     }
   } else {
     worksheet.addRows(
@@ -632,7 +632,7 @@ const importFormData = reactive<{
   files: [],
 });
 const importFormRules: FormRules = {
-  files: [{ required: true, message: "请选择文件" }],
+  files: [{ required: true, message: '请选择文件' }],
 };
 // 打开导入弹窗
 function handleOpenImportModal(isFile: boolean = false) {
@@ -649,18 +649,18 @@ function handleFileExceed(files: File[]) {
 // 下载导入模板
 function handleDownloadTemplate() {
   const importTemplate = props.contentConfig.importTemplate;
-  if (typeof importTemplate === "string") {
+  if (typeof importTemplate === 'string') {
     window.open(importTemplate);
-  } else if (typeof importTemplate === "function") {
+  } else if (typeof importTemplate === 'function') {
     importTemplate().then((response) => {
       const fileData = response.data;
       const fileName = decodeURI(
-        response.headers["content-disposition"].split(";")[1].split("=")[1]
+        response.headers['content-disposition'].split(';')[1].split('=')[1]
       );
       saveXlsx(fileData, fileName);
     });
   } else {
-    ElMessage.error("未配置importTemplate");
+    ElMessage.error('未配置importTemplate');
   }
 }
 // 导入确认
@@ -687,11 +687,11 @@ function handleCloseImportModal() {
 function handleImport() {
   const importAction = props.contentConfig.importAction;
   if (importAction === undefined) {
-    ElMessage.error("未配置importAction");
+    ElMessage.error('未配置importAction');
     return;
   }
   importAction(importFormData.files[0].raw as File).then(() => {
-    ElMessage.success("导入数据成功");
+    ElMessage.success('导入数据成功');
     handleCloseImportModal();
     handleRefresh(true);
   });
@@ -700,7 +700,7 @@ function handleImport() {
 function handleImports() {
   const importsAction = props.contentConfig.importsAction;
   if (importsAction === undefined) {
-    ElMessage.error("未配置importsAction");
+    ElMessage.error('未配置importsAction');
     return;
   }
   // 获取选择的文件
@@ -741,11 +741,11 @@ function handleImports() {
             }
           }
           if (data.length === 0) {
-            ElMessage.error("未解析到数据");
+            ElMessage.error('未解析到数据');
             return;
           }
           importsAction(data).then(() => {
-            ElMessage.success("导入数据成功");
+            ElMessage.success('导入数据成功');
             handleCloseImportModal();
             handleRefresh(true);
           });
@@ -753,39 +753,39 @@ function handleImports() {
         (error) => console.log(error)
       );
     } else {
-      ElMessage.error("读取文件失败");
+      ElMessage.error('读取文件失败');
     }
   };
 }
 // 操作人"
 function handleToolbar(name: string) {
   switch (name) {
-    case "refresh":
+    case 'refresh':
       handleRefresh();
       break;
-    case "exports":
+    case 'exports':
       handleOpenExportsModal();
       break;
-    case "imports":
+    case 'imports':
       handleOpenImportModal();
       break;
-    case "search":
-      emit("searchClick");
+    case 'search':
+      emit('searchClick');
       break;
-    case "add":
-      emit("addClick");
+    case 'add':
+      emit('addClick');
       break;
-    case "delete":
+    case 'delete':
       handleDelete();
       break;
-    case "import":
+    case 'import':
       handleOpenImportModal(true);
       break;
-    case "export":
-      emit("exportClick");
+    case 'export':
+      emit('exportClick');
       break;
     default:
-      emit("toolbarClick", name);
+      emit('toolbarClick', name);
       break;
   }
 }
@@ -793,15 +793,15 @@ function handleToolbar(name: string) {
 // 操作人"
 function handleOperate(data: IOperateData) {
   switch (data.name) {
-    case "delete":
+    case 'delete':
       if (props.contentConfig?.deleteAction) {
         handleDelete(data.row[pk]);
       } else {
-        emit("operateClick", data);
+        emit('operateClick', data);
       }
       break;
     default:
-      emit("operateClick", data);
+      emit('operateClick', data);
       break;
   }
 }
@@ -815,7 +815,7 @@ function handleModify(field: string, value: boolean | string | number, row: Reco
       value,
     });
   } else {
-    ElMessage.error("未配置modifyAction");
+    ElMessage.error('未配置modifyAction');
   }
 }
 
@@ -835,7 +835,7 @@ function handleFilterChange(newFilters: any) {
   const filters: IObject = {};
   for (const key in newFilters) {
     const col = cols.value.find((col) => {
-      return col.columnKey === key || col["column-key"] === key;
+      return col.columnKey === key || col['column-key'] === key;
     });
     if (col && col.filterJoin !== undefined) {
       filters[key] = newFilters[key].join(col.filterJoin);
@@ -844,7 +844,7 @@ function handleFilterChange(newFilters: any) {
     }
   }
   filterParams = { ...filterParams, ...filters };
-  emit("filterChange", filterParams);
+  emit('filterChange', filterParams);
 }
 
 // 获取筛选条件
@@ -896,24 +896,24 @@ function exportPageData(formData: IObject = {}) {
     props.contentConfig.exportAction(formData).then((response) => {
       const fileData = response.data;
       const fileName = decodeURI(
-        response.headers["content-disposition"].split(";")[1].split("=")[1]
+        response.headers['content-disposition'].split(';')[1].split('=')[1]
       );
       saveXlsx(fileData, fileName);
     });
   } else {
-    ElMessage.error("未配置exportAction");
+    ElMessage.error('未配置exportAction');
   }
 }
 
 // 浏览器保存文件
 function saveXlsx(fileData: any, fileName: string) {
   const fileType =
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8";
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8';
 
   const blob = new Blob([fileData], { type: fileType });
   const downloadUrl = window.URL.createObjectURL(blob);
 
-  const downloadLink = document.createElement("a");
+  const downloadLink = document.createElement('a');
   downloadLink.href = downloadUrl;
   downloadLink.download = fileName;
 

@@ -1,13 +1,13 @@
-import request from "@/utils/request";
+import request from '@/utils/request';
 import type {
   PermissionTreeNode,
   CreatePermissionRequest,
   UpdatePermissionRequest,
   UpdatePermissionStatusRequest,
   AdminPermissionDetailResponse,
-} from "@/types/api/permission";
+} from '@/types/api/permission';
 
-const ADMIN_PERMISSION_BASE_URL = "/api/v1/admin/permission";
+const ADMIN_PERMISSION_BASE_URL = '/api/v1/admin/permission';
 
 /**
  * 权限 API
@@ -20,7 +20,7 @@ const Permission = {
   getPermissionTree(params?: { status?: number }) {
     return request<any, PermissionTreeNode[]>({
       url: `${ADMIN_PERMISSION_BASE_URL}/tree`,
-      method: "get",
+      method: 'get',
       params: params ?? {},
     });
   },
@@ -33,7 +33,7 @@ const Permission = {
   getPermissionDetail(id: number) {
     return request<any, AdminPermissionDetailResponse>({
       url: `${ADMIN_PERMISSION_BASE_URL}/${id}`,
-      method: "get",
+      method: 'get',
     });
   },
 
@@ -45,7 +45,7 @@ const Permission = {
   createPermission(data: CreatePermissionRequest) {
     return request<any, number>({
       url: ADMIN_PERMISSION_BASE_URL,
-      method: "post",
+      method: 'post',
       data,
     });
   },
@@ -58,7 +58,7 @@ const Permission = {
   updatePermission(id: number, data: UpdatePermissionRequest) {
     return request<any, void>({
       url: `${ADMIN_PERMISSION_BASE_URL}/${id}`,
-      method: "put",
+      method: 'put',
       data,
     });
   },
@@ -71,7 +71,7 @@ const Permission = {
   updatePermissionStatus(id: number, data: UpdatePermissionStatusRequest) {
     return request<any, void>({
       url: `${ADMIN_PERMISSION_BASE_URL}/status/${id}`,
-      method: "patch",
+      method: 'patch',
       data,
     });
   },
@@ -84,7 +84,7 @@ const Permission = {
   deletePermission(id: number) {
     return request<any, void>({
       url: `${ADMIN_PERMISSION_BASE_URL}/${id}`,
-      method: "delete",
+      method: 'delete',
     });
   },
 };

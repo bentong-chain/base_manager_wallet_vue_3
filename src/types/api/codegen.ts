@@ -2,7 +2,7 @@
  * CodeGen 代码生成类型定义
  */
 
-import type { BaseQueryParams } from "./common";
+import type { BaseQueryParams } from './common';
 
 /** 代码生成预览对象 */
 export interface GeneratorPreviewItem {
@@ -13,7 +13,7 @@ export interface GeneratorPreviewItem {
   /** 文件内容 */
   content: string;
   /** 文件范围(frontend/backend) */
-  scope: "frontend" | "backend";
+  scope: 'frontend' | 'backend';
   /** 文件语言(扩展名) */
   language: string;
 }
@@ -65,7 +65,7 @@ export interface GenConfigForm {
   /** 字段配置列表 */
   fieldConfigs?: FieldConfig[];
   /** 页面类型 classic|curd */
-  pageType?: "classic" | "curd";
+  pageType?: 'classic' | 'curd';
   /** 要移除的表前缀，如 sys_ */
   removeTablePrefix?: string;
 }

@@ -1,6 +1,6 @@
-import type { Ref } from "vue";
-import request, { type AuthCredentialsOverride, HEADER_AUTH_CREDENTIALS } from "@/utils/request";
-import { useUserStoreHook } from "@/store/modules/user";
+import type { Ref } from 'vue';
+import request, { type AuthCredentialsOverride, HEADER_AUTH_CREDENTIALS } from '@/utils/request';
+import { useUserStoreHook } from '@/store/modules/user';
 import type {
   UserInfo,
   UserForm,
@@ -15,19 +15,19 @@ import type {
   OptionItem,
   PageResult,
   ExcelResult,
-} from "@/types/api";
+} from '@/types/api';
 import type {
   AdminUserQueryParams,
   AdminUserListItem,
   AdminUserSaveRequest,
   AdminUserAssignRolesRequest,
-} from "@/types/api/admin-user";
+} from '@/types/api/admin-user';
 
-const USER_BASE_URL = "/api/v1/users";
+const USER_BASE_URL = '/api/v1/users';
 /** 管理员认证：获取当前管理员信息（api.json GET /api/v1/admin/auth/info） */
-const AUTH_INFO_URL = "/api/v1/admin/auth/info";
+const AUTH_INFO_URL = '/api/v1/admin/auth/info';
 /** 管理员用户更新（api.json PUT /api/v1/admin/user/{id}） */
-const ADMIN_USER_BASE_URL = "/api/v1/admin/user";
+const ADMIN_USER_BASE_URL = '/api/v1/admin/user';
 
 /**
  * 将 auth/info 接口返回的数据映射为个人中心使用的 UserProfileDetail
@@ -37,19 +37,19 @@ function mapAuthInfoToProfileDetail(raw: Record<string, unknown>): UserProfileDe
   const roleNamesArr = raw.roleNames as string[] | undefined;
   const rolesArr = raw.roles as string[] | undefined;
   const roleNamesStr = Array.isArray(roleNamesArr)
-    ? roleNamesArr.join(", ")
+    ? roleNamesArr.join(', ')
     : Array.isArray(rolesArr)
-      ? rolesArr.join(", ")
+      ? rolesArr.join(', ')
       : (raw.roleNames as string | undefined);
   const createdAt = raw.createdAt ?? raw.createTime;
   const createTimeStr =
-    typeof createdAt === "string"
+    typeof createdAt === 'string'
       ? createdAt
-      : createdAt != null && typeof (createdAt as Date).toISOString === "function"
+      : createdAt != null && typeof (createdAt as Date).toISOString === 'function'
         ? (createdAt as Date).toISOString()
         : undefined;
   return {
-    id: String(raw.uid ?? raw.userId ?? raw.id ?? ""),
+    id: String(raw.uid ?? raw.userId ?? raw.id ?? ''),
     username: raw.username as string | undefined,
     nickname: (raw.nickname ?? raw.realName) as string | undefined,
     avatar: raw.avatar as string | undefined,
@@ -70,7 +70,7 @@ const UserAPI = {
   getInfo(credentials?: AuthCredentialsOverride) {
     return request<any, UserInfo>({
       url: AUTH_INFO_URL,
-      method: "get",
+      method: 'get',
       ...(credentials && {
         headers: { [HEADER_AUTH_CREDENTIALS]: JSON.stringify(credentials) },
       }),
@@ -85,7 +85,7 @@ const UserAPI = {
   getPage(queryParams: UserQueryParams) {
     return request<any, PageResult<UserItem>>({
       url: `${USER_BASE_URL}`,
-      method: "get",
+      method: 'get',
       params: queryParams,
     });
   },
@@ -99,7 +99,7 @@ const UserAPI = {
   getFormData(userId: string) {
     return request<any, UserForm>({
       url: `${USER_BASE_URL}/${userId}/form`,
-      method: "get",
+      method: 'get',
     });
   },
 
@@ -111,7 +111,7 @@ const UserAPI = {
   create(data: UserForm) {
     return request({
       url: `${USER_BASE_URL}`,
-      method: "post",
+      method: 'post',
       data,
     });
   },
@@ -125,7 +125,7 @@ const UserAPI = {
   update(id: string, data: UserForm) {
     return request({
       url: `${USER_BASE_URL}/${id}`,
-      method: "put",
+      method: 'put',
       data,
     });
   },
@@ -139,7 +139,7 @@ const UserAPI = {
   resetPassword(id: string, password: string) {
     return request({
       url: `${USER_BASE_URL}/${id}/password/reset`,
-      method: "put",
+      method: 'put',
       params: { password },
     });
   },
@@ -152,7 +152,7 @@ const UserAPI = {
   deleteByIds(ids: string) {
     return request({
       url: `${USER_BASE_URL}/${ids}`,
-      method: "delete",
+      method: 'delete',
     });
   },
 
@@ -160,8 +160,8 @@ const UserAPI = {
   downloadTemplate() {
     return request({
       url: `${USER_BASE_URL}/template`,
-      method: "get",
-      responseType: "blob",
+      method: 'get',
+      responseType: 'blob',
     });
   },
 
@@ -173,9 +173,9 @@ const UserAPI = {
   export(queryParams: UserQueryParams) {
     return request({
       url: `${USER_BASE_URL}/export`,
-      method: "get",
+      method: 'get',
       params: queryParams,
-      responseType: "blob",
+      responseType: 'blob',
     });
   },
 
@@ -186,13 +186,13 @@ const UserAPI = {
    */
   import(file: File) {
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append('file', file);
     return request<any, ExcelResult>({
       url: `${USER_BASE_URL}/import`,
-      method: "post",
+      method: 'post',
       data: formData,
       headers: {
-        "Content-Type": "multipart/form-data",
+        'Content-Type': 'multipart/form-data',
       },
     });
   },
@@ -204,7 +204,7 @@ const UserAPI = {
   async getProfile(): Promise<UserProfileDetail> {
     const data = await request<Record<string, unknown>, Record<string, unknown>>({
       url: AUTH_INFO_URL,
-      method: "get",
+      method: 'get',
     });
     const raw = (data ?? {}) as Record<string, unknown>;
     const profile = mapAuthInfoToProfileDetail(raw);
@@ -225,14 +225,14 @@ const UserAPI = {
     const id =
       (data as UserProfileForm & { id?: string }).id ?? useUserStoreHook().userInfo?.userId;
     if (!id) {
-      return Promise.reject(new Error("更新个人资料需要用户 id，请先加载个人资料"));
+      return Promise.reject(new Error('更新个人资料需要用户 id，请先加载个人资料'));
     }
     const body: Record<string, unknown> = {
       realName: data.nickname,
     };
     return request({
       url: `${ADMIN_USER_BASE_URL}/${id}`,
-      method: "put",
+      method: 'put',
       data: body,
     });
   },
@@ -241,7 +241,7 @@ const UserAPI = {
   changePassword(data: PasswordChangeForm) {
     return request({
       url: `${USER_BASE_URL}/password`,
-      method: "put",
+      method: 'put',
       data,
     });
   },
@@ -250,7 +250,7 @@ const UserAPI = {
   sendMobileCode(mobile: string) {
     return request({
       url: `${USER_BASE_URL}/mobile/code`,
-      method: "post",
+      method: 'post',
       params: { mobile },
     });
   },
@@ -259,7 +259,7 @@ const UserAPI = {
   bindOrChangeMobile(data: MobileUpdateForm) {
     return request({
       url: `${USER_BASE_URL}/mobile`,
-      method: "put",
+      method: 'put',
       data,
     });
   },
@@ -268,7 +268,7 @@ const UserAPI = {
   unbindMobile(data: PasswordVerifyForm) {
     return request({
       url: `${USER_BASE_URL}/mobile`,
-      method: "delete",
+      method: 'delete',
       data,
     });
   },
@@ -277,7 +277,7 @@ const UserAPI = {
   sendEmailCode(email: string) {
     return request({
       url: `${USER_BASE_URL}/email/code`,
-      method: "post",
+      method: 'post',
       params: { email },
     });
   },
@@ -286,7 +286,7 @@ const UserAPI = {
   bindOrChangeEmail(data: EmailUpdateForm) {
     return request({
       url: `${USER_BASE_URL}/email`,
-      method: "put",
+      method: 'put',
       data,
     });
   },
@@ -295,7 +295,7 @@ const UserAPI = {
   unbindEmail(data: PasswordVerifyForm) {
     return request({
       url: `${USER_BASE_URL}/email`,
-      method: "delete",
+      method: 'delete',
       data,
     });
   },
@@ -306,7 +306,7 @@ const UserAPI = {
   getOptions() {
     return request<any, OptionItem[]>({
       url: `${USER_BASE_URL}/options`,
-      method: "get",
+      method: 'get',
     });
   },
 
@@ -321,7 +321,7 @@ const UserAPI = {
       pageNum: params.pageNum,
       pageSize: params.pageSize,
     };
-    if (params.username != null && String(params.username).trim() !== "") {
+    if (params.username != null && String(params.username).trim() !== '') {
       cleaned.username = params.username.trim();
     }
     if (
@@ -336,7 +336,7 @@ const UserAPI = {
     }
     return request<any, PageResult<AdminUserListItem>>({
       url: `${ADMIN_USER_BASE_URL}/list`,
-      method: "get",
+      method: 'get',
       params: cleaned,
     });
   },
@@ -347,7 +347,7 @@ const UserAPI = {
   getAdminDetail(id: number | string) {
     return request<any, AdminUserListItem>({
       url: `${ADMIN_USER_BASE_URL}/${id}`,
-      method: "get",
+      method: 'get',
     });
   },
 
@@ -357,7 +357,7 @@ const UserAPI = {
   createAdmin(data: AdminUserSaveRequest) {
     return request({
       url: ADMIN_USER_BASE_URL,
-      method: "post",
+      method: 'post',
       data,
     });
   },
@@ -368,7 +368,7 @@ const UserAPI = {
   updateAdmin(id: number | string, data: AdminUserSaveRequest) {
     return request({
       url: `${ADMIN_USER_BASE_URL}/${id}`,
-      method: "put",
+      method: 'put',
       data,
     });
   },
@@ -379,7 +379,7 @@ const UserAPI = {
   deleteAdmin(id: number | string) {
     return request({
       url: `${ADMIN_USER_BASE_URL}/${id}`,
-      method: "delete",
+      method: 'delete',
     });
   },
 
@@ -389,7 +389,7 @@ const UserAPI = {
   removePermanently(id: number | string) {
     return request({
       url: `${ADMIN_USER_BASE_URL}/${id}/permanent`,
-      method: "delete",
+      method: 'delete',
     });
   },
 
@@ -399,7 +399,7 @@ const UserAPI = {
   assignRoles(uid: number, data: AdminUserAssignRolesRequest) {
     return request({
       url: `${ADMIN_USER_BASE_URL}/${uid}/roles`,
-      method: "put",
+      method: 'put',
       data,
     });
   },
@@ -410,7 +410,7 @@ const UserAPI = {
   updateAdminStatus(uid: number, status: number) {
     return request({
       url: `${ADMIN_USER_BASE_URL}/${uid}/status`,
-      method: "patch",
+      method: 'patch',
       params: { status },
     });
   },

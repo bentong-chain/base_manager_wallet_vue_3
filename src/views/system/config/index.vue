@@ -134,14 +134,14 @@
 
 <script setup lang="ts">
 defineOptions({
-  name: "Config",
+  name: 'Config',
   inheritAttrs: false,
 });
 
-import ConfigAPI from "@/api/system/config";
-import type { ConfigItem, ConfigForm, ConfigQueryParams } from "@/types/api";
-import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from "element-plus";
-import { useDebounceFn } from "@vueuse/core";
+import ConfigAPI from '@/api/system/config';
+import type { ConfigItem, ConfigForm, ConfigQueryParams } from '@/types/api';
+import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus';
+import { useDebounceFn } from '@vueuse/core';
 
 // 表单引用
 const queryFormRef = ref<FormInstance>();
@@ -151,7 +151,7 @@ const dataFormRef = ref<FormInstance>();
 const queryParams = reactive<ConfigQueryParams>({
   pageNum: 1,
   pageSize: 10,
-  keywords: "",
+  keywords: '',
 });
 
 // 列表数据
@@ -162,24 +162,24 @@ const selectIds = ref<string[]>([]);
 
 // 弹窗状态
 const dialogState = reactive({
-  title: "",
+  title: '',
   visible: false,
 });
 
 // 表单数据
 const formData = reactive<ConfigForm>({
   id: undefined,
-  configName: "",
-  configKey: "",
-  configValue: "",
-  remark: "",
+  configName: '',
+  configKey: '',
+  configValue: '',
+  remark: '',
 });
 
 // 验证规则
 const rules: FormRules = {
-  configName: [{ required: true, message: "请输入系统配置名称", trigger: "blur" }],
-  configKey: [{ required: true, message: "请输入系统配置编码", trigger: "blur" }],
-  configValue: [{ required: true, message: "请输入系统配置值", trigger: "blur" }],
+  configName: [{ required: true, message: '请输入系统配置名称', trigger: 'blur' }],
+  configKey: [{ required: true, message: '请输入系统配置编码', trigger: 'blur' }],
+  configValue: [{ required: true, message: '请输入系统配置值', trigger: 'blur' }],
 };
 
 /**
@@ -228,12 +228,12 @@ function handleSelectionChange(selection: ConfigItem[]): void {
 function openDialog(id?: string): void {
   dialogState.visible = true;
   if (id) {
-    dialogState.title = "修改系统配置";
+    dialogState.title = '修改系统配置';
     ConfigAPI.getFormData(id).then((data) => {
       Object.assign(formData, data);
     });
   } else {
-    dialogState.title = "新增系统配置";
+    dialogState.title = '新增系统配置';
     formData.id = undefined;
   }
 }
@@ -243,7 +243,7 @@ function openDialog(id?: string): void {
  */
 const refreshCache = useDebounceFn(() => {
   ConfigAPI.refreshCache().then(() => {
-    ElMessage.success("刷新成功");
+    ElMessage.success('刷新成功');
   });
 }, 1000);
 
@@ -258,7 +258,7 @@ function handleSubmit(): void {
       if (id) {
         ConfigAPI.update(id, formData)
           .then(() => {
-            ElMessage.success("修改成功");
+            ElMessage.success('修改成功');
             closeDialog();
             handleResetQuery();
           })
@@ -266,7 +266,7 @@ function handleSubmit(): void {
       } else {
         ConfigAPI.create(formData)
           .then(() => {
-            ElMessage.success("新增成功");
+            ElMessage.success('新增成功');
             closeDialog();
             handleResetQuery();
           })
@@ -291,15 +291,15 @@ function closeDialog(): void {
  * @param id 配置ID
  */
 function handleDelete(id: string): void {
-  ElMessageBox.confirm("确认删除该项配置?", "警告", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning",
+  ElMessageBox.confirm('确认删除该项配置?', '警告', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
   }).then(() => {
     loading.value = true;
     ConfigAPI.deleteById(id)
       .then(() => {
-        ElMessage.success("删除成功");
+        ElMessage.success('删除成功');
         handleResetQuery();
       })
       .finally(() => (loading.value = false));

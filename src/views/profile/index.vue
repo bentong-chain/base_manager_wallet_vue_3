@@ -62,16 +62,16 @@
               {{ userProfile.username }}
             </el-descriptions-item>
             <el-descriptions-item label="姓名">
-              {{ userProfile.nickname || "—" }}
+              {{ userProfile.nickname || '—' }}
             </el-descriptions-item>
             <el-descriptions-item label="手机号码">
-              {{ userProfile.mobile || "未绑定" }}
+              {{ userProfile.mobile || '未绑定' }}
             </el-descriptions-item>
             <el-descriptions-item label="邮箱">
-              {{ userProfile.email || "未绑定" }}
+              {{ userProfile.email || '未绑定' }}
             </el-descriptions-item>
             <el-descriptions-item label="角色">
-              {{ userProfile.roleNames || "未分配" }}
+              {{ userProfile.roleNames || '未分配' }}
             </el-descriptions-item>
             <el-descriptions-item label="创建时间">
               {{ userProfile.createTime }}
@@ -209,7 +209,7 @@
           <el-input v-model="mobileUpdateForm.code" style="width: 250px">
             <template #append>
               <el-button :disabled="mobileCountdown > 0" @click="handleSendMobileCode">
-                {{ mobileCountdown > 0 ? `${mobileCountdown}s后重新发送` : "发送验证码" }}
+                {{ mobileCountdown > 0 ? `${mobileCountdown}s后重新发送` : '发送验证码' }}
               </el-button>
             </template>
           </el-input>
@@ -239,7 +239,7 @@
           <el-input v-model="emailUpdateForm.code" style="width: 250px">
             <template #append>
               <el-button :disabled="emailCountdown > 0" @click="handleSendEmailCode">
-                {{ emailCountdown > 0 ? `${emailCountdown}s后重新发送` : "发送验证码" }}
+                {{ emailCountdown > 0 ? `${emailCountdown}s后重新发送` : '发送验证码' }}
               </el-button>
             </template>
           </el-input>
@@ -265,37 +265,37 @@
 </template>
 
 <script lang="ts" setup>
-import UserAPI from "@/api/system/user";
+import UserAPI from '@/api/system/user';
 import type {
   UserProfileDetail,
   PasswordChangeForm,
   MobileUpdateForm,
   EmailUpdateForm,
   UserProfileForm,
-} from "@/types/api";
+} from '@/types/api';
 
-import { computed, onBeforeUnmount, onMounted, reactive, ref } from "vue";
-import FileAPI from "@/api/file";
-import { useUserStoreHook } from "@/store";
-import { redirectToLogin } from "@/utils/auth";
+import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue';
+import FileAPI from '@/api/file';
+import { useUserStoreHook } from '@/store';
+import { redirectToLogin } from '@/utils/auth';
 
-import { Camera } from "@element-plus/icons-vue";
+import { Camera } from '@element-plus/icons-vue';
 
 const userStore = useUserStoreHook();
 
 const userProfile = ref<UserProfileDetail>({});
 
 const enum DialogType {
-  ACCOUNT = "account",
-  PASSWORD = "password",
-  MOBILE = "mobile",
-  EMAIL = "email",
+  ACCOUNT = 'account',
+  PASSWORD = 'password',
+  MOBILE = 'mobile',
+  EMAIL = 'email',
 }
 
 const dialogState = reactive({
   visible: false,
-  title: "",
-  type: "" as DialogType, // 修改账号资料,修改密码、绑定手机、绑定邮箱"
+  title: '',
+  type: '' as DialogType, // 修改账号资料,修改密码、绑定手机、绑定邮箱"
 });
 const userProfileFormRef = ref();
 const passwordChangeFormRef = ref();
@@ -315,19 +315,19 @@ const emailTimer = ref();
 
 // 修改密码校验规则
 const passwordChangeRules = {
-  oldPassword: [{ required: true, message: "请输入原密码", trigger: "blur" }],
-  newPassword: [{ required: true, message: "请输入新密码", trigger: "blur" }],
+  oldPassword: [{ required: true, message: '请输入原密码', trigger: 'blur' }],
+  newPassword: [{ required: true, message: '请输入新密码', trigger: 'blur' }],
   confirmPassword: [
-    { required: true, message: "请再次输入新密码", trigger: "blur" },
+    { required: true, message: '请再次输入新密码', trigger: 'blur' },
     {
       validator: (_rule: any, value: string, callback: (error?: Error) => void) => {
         if (value !== passwordChangeForm.newPassword) {
-          callback(new Error("两次输入的密码不一致"));
+          callback(new Error('两次输入的密码不一致'));
           return;
         }
         callback();
       },
-      trigger: "blur",
+      trigger: 'blur',
     },
   ],
 };
@@ -335,52 +335,52 @@ const passwordChangeRules = {
 // 手机号校验规则
 const mobileBindingRules = {
   mobile: [
-    { required: true, message: "请输入手机号", trigger: "blur" },
+    { required: true, message: '请输入手机号', trigger: 'blur' },
     {
       pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/,
-      message: "请输入正确的手机号码",
-      trigger: "blur",
+      message: '请输入正确的手机号码',
+      trigger: 'blur',
     },
   ],
-  code: [{ required: true, message: "请输入验证码", trigger: "blur" }],
-  password: [{ required: true, message: "请输入当前密码", trigger: "blur" }],
+  code: [{ required: true, message: '请输入验证码', trigger: 'blur' }],
+  password: [{ required: true, message: '请输入当前密码', trigger: 'blur' }],
 };
 
 // 邮箱校验规则
 const emailBindingRules = {
   email: [
-    { required: true, message: "请输入邮箱", trigger: "blur" },
+    { required: true, message: '请输入邮箱', trigger: 'blur' },
     {
       pattern: /\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}/,
-      message: "请输入正确的邮箱地址",
-      trigger: "blur",
+      message: '请输入正确的邮箱地址',
+      trigger: 'blur',
     },
   ],
-  code: [{ required: true, message: "请输入验证码", trigger: "blur" }],
-  password: [{ required: true, message: "请输入当前密码", trigger: "blur" }],
+  code: [{ required: true, message: '请输入验证码', trigger: 'blur' }],
+  password: [{ required: true, message: '请输入当前密码', trigger: 'blur' }],
 };
 
 function maskMobile(mobile?: string) {
-  if (!mobile) return "";
-  return mobile.replace(/^(\d{3})\d{4}(\d{4})$/, "$1****$2");
+  if (!mobile) return '';
+  return mobile.replace(/^(\d{3})\d{4}(\d{4})$/, '$1****$2');
 }
 
 function maskEmail(email?: string) {
-  if (!email) return "";
-  const [name, domain] = email.split("@");
+  if (!email) return '';
+  const [name, domain] = email.split('@');
   if (!domain) return email;
-  if (name.length <= 2) return `${name[0] || ""}***@${domain}`;
+  if (name.length <= 2) return `${name[0] || ''}***@${domain}`;
   return `${name.slice(0, 2)}***@${domain}`;
 }
 
 const mobileSecurityDesc = computed(() => {
   return userProfile.value.mobile
     ? `已绑定：${maskMobile(userProfile.value.mobile)}`
-    : "未绑定手机号";
+    : '未绑定手机号';
 });
 
 const emailSecurityDesc = computed(() => {
-  return userProfile.value.email ? `已绑定：${maskEmail(userProfile.value.email)}` : "未绑定邮箱";
+  return userProfile.value.email ? `已绑定：${maskEmail(userProfile.value.email)}` : '未绑定邮箱';
 });
 
 /**
@@ -392,26 +392,26 @@ const handleOpenDialog = (type: DialogType) => {
   dialogState.visible = true;
   switch (type) {
     case DialogType.ACCOUNT:
-      dialogState.title = "账号资料";
+      dialogState.title = '账号资料';
       // 初始化表单数据
       userProfileForm.nickname = userProfile.value.nickname;
       userProfileForm.avatar = userProfile.value.avatar;
       userProfileForm.gender = userProfile.value.gender;
       break;
     case DialogType.PASSWORD:
-      dialogState.title = "修改密码";
+      dialogState.title = '修改密码';
       break;
     case DialogType.MOBILE:
-      dialogState.title = userProfile.value.mobile ? "更换手机号" : "绑定手机号";
-      mobileUpdateForm.mobile = "";
-      mobileUpdateForm.code = "";
-      mobileUpdateForm.password = "";
+      dialogState.title = userProfile.value.mobile ? '更换手机号' : '绑定手机号';
+      mobileUpdateForm.mobile = '';
+      mobileUpdateForm.code = '';
+      mobileUpdateForm.password = '';
       break;
     case DialogType.EMAIL:
-      dialogState.title = userProfile.value.email ? "更换邮箱" : "绑定邮箱";
-      emailUpdateForm.email = "";
-      emailUpdateForm.code = "";
-      emailUpdateForm.password = "";
+      dialogState.title = userProfile.value.email ? '更换邮箱' : '绑定邮箱';
+      emailUpdateForm.email = '';
+      emailUpdateForm.code = '';
+      emailUpdateForm.password = '';
       break;
   }
 };
@@ -419,17 +419,17 @@ const handleOpenDialog = (type: DialogType) => {
 async function handleUnbindMobile() {
   if (!userProfile.value.mobile) return;
   try {
-    const result = await ElMessageBox.prompt("请输入当前密码以解绑手机号", "解绑手机号", {
-      type: "warning",
-      confirmButtonText: "确定",
-      cancelButtonText: "取消",
-      inputType: "password",
-      inputPlaceholder: "当前密码",
-      inputValidator: (val) => !!val || "请输入当前密码",
+    const result = await ElMessageBox.prompt('请输入当前密码以解绑手机号', '解绑手机号', {
+      type: 'warning',
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      inputType: 'password',
+      inputPlaceholder: '当前密码',
+      inputValidator: (val) => !!val || '请输入当前密码',
     });
     const value = (result as any).value;
     await UserAPI.unbindMobile({ password: value });
-    ElMessage.success("手机号解绑成功");
+    ElMessage.success('手机号解绑成功');
     await loadUserProfile();
   } catch {
     // ignore
@@ -439,17 +439,17 @@ async function handleUnbindMobile() {
 async function handleUnbindEmail() {
   if (!userProfile.value.email) return;
   try {
-    const result = await ElMessageBox.prompt("请输入当前密码以解绑邮箱", "解绑邮箱", {
-      type: "warning",
-      confirmButtonText: "确定",
-      cancelButtonText: "取消",
-      inputType: "password",
-      inputPlaceholder: "当前密码",
-      inputValidator: (val) => !!val || "请输入当前密码",
+    const result = await ElMessageBox.prompt('请输入当前密码以解绑邮箱', '解绑邮箱', {
+      type: 'warning',
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      inputType: 'password',
+      inputPlaceholder: '当前密码',
+      inputValidator: (val) => !!val || '请输入当前密码',
     });
     const value = (result as any).value;
     await UserAPI.unbindEmail({ password: value });
-    ElMessage.success("邮箱解绑成功");
+    ElMessage.success('邮箱解绑成功');
     await loadUserProfile();
   } catch {
     // ignore
@@ -461,18 +461,18 @@ async function handleUnbindEmail() {
  */
 function handleSendMobileCode() {
   if (!mobileUpdateForm.mobile) {
-    ElMessage.error("请输入手机号");
+    ElMessage.error('请输入手机号');
     return;
   }
   // 验证手机号格式
   const reg = /^1[3-9]\d{9}$/;
   if (!reg.test(mobileUpdateForm.mobile)) {
-    ElMessage.error("手机号格式不正确");
+    ElMessage.error('手机号格式不正确');
     return;
   }
   // 发送短信验证码
   UserAPI.sendMobileCode(mobileUpdateForm.mobile).then(() => {
-    ElMessage.success("验证码发送成功");
+    ElMessage.success('验证码发送成功');
 
     // 倒计时 60s 重新发送
     mobileCountdown.value = 60;
@@ -491,19 +491,19 @@ function handleSendMobileCode() {
  */
 function handleSendEmailCode() {
   if (!emailUpdateForm.email) {
-    ElMessage.error("请输入邮箱");
+    ElMessage.error('请输入邮箱');
     return;
   }
   // 验证邮箱格式
   const reg = /\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}/;
   if (!reg.test(emailUpdateForm.email)) {
-    ElMessage.error("邮箱格式不正确");
+    ElMessage.error('邮箱格式不正确');
     return;
   }
 
   // 发送邮箱验证码
   UserAPI.sendEmailCode(emailUpdateForm.email).then(() => {
-    ElMessage.success("验证码发送成功");
+    ElMessage.success('验证码发送成功');
     // 倒计时 60s 重新发送
     emailCountdown.value = 60;
     emailTimer.value = setInterval(() => {
@@ -526,7 +526,7 @@ const handleSubmit = async () => {
       if (!valid) return;
 
       await UserAPI.updateProfile(userProfileForm);
-      ElMessage.success("账号资料修改成功");
+      ElMessage.success('账号资料修改成功');
       dialogState.visible = false;
       await loadUserProfile();
     } else if (dialogState.type === DialogType.PASSWORD) {
@@ -535,13 +535,13 @@ const handleSubmit = async () => {
 
       await UserAPI.changePassword(passwordChangeForm);
       dialogState.visible = false;
-      await redirectToLogin("密码已修改，请重新登录");
+      await redirectToLogin('密码已修改，请重新登录');
     } else if (dialogState.type === DialogType.MOBILE) {
       const valid = await mobileBindingFormRef.value?.validate();
       if (!valid) return;
 
       await UserAPI.bindOrChangeMobile(mobileUpdateForm);
-      ElMessage.success(userProfile.value.mobile ? "手机号更换成功" : "手机号绑定成功");
+      ElMessage.success(userProfile.value.mobile ? '手机号更换成功' : '手机号绑定成功');
       dialogState.visible = false;
       await loadUserProfile();
     } else if (dialogState.type === DialogType.EMAIL) {
@@ -549,7 +549,7 @@ const handleSubmit = async () => {
       if (!valid) return;
 
       await UserAPI.bindOrChangeEmail(emailUpdateForm);
-      ElMessage.success(userProfile.value.email ? "邮箱更换成功" : "邮箱绑定成功");
+      ElMessage.success(userProfile.value.email ? '邮箱更换成功' : '邮箱绑定成功');
       dialogState.visible = false;
       await loadUserProfile();
     }

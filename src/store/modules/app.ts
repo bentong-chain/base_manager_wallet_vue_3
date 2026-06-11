@@ -1,11 +1,11 @@
-import zhCn from "element-plus/es/locale/lang/zh-cn";
-import en from "element-plus/es/locale/lang/en";
-import { store } from "@/store";
-import { DeviceEnum, SidebarStatus } from "@/enums";
-import { STORAGE_KEYS } from "@/constants";
-import { defaults } from "@/settings";
+import zhCn from 'element-plus/es/locale/lang/zh-cn';
+import en from 'element-plus/es/locale/lang/en';
+import { store } from '@/store';
+import { DeviceEnum, SidebarStatus } from '@/enums';
+import { STORAGE_KEYS } from '@/constants';
+import { defaults } from '@/settings';
 
-export const useAppStore = defineStore("app", () => {
+export const useAppStore = defineStore('app', () => {
   const device = useStorage(STORAGE_KEYS.DEVICE, DeviceEnum.DESKTOP);
   const size = useStorage(STORAGE_KEYS.SIZE, defaults.size);
   const language = useStorage(STORAGE_KEYS.LANGUAGE, defaults.language);
@@ -14,9 +14,9 @@ export const useAppStore = defineStore("app", () => {
     opened: sidebarStatus.value === SidebarStatus.OPENED,
     withoutAnimation: false,
   });
-  const activeTopMenuPath = useStorage(STORAGE_KEYS.ACTIVE_TOP_MENU_PATH, "");
+  const activeTopMenuPath = useStorage(STORAGE_KEYS.ACTIVE_TOP_MENU_PATH, '');
 
-  const locale = computed(() => (language?.value === "en" ? en : zhCn));
+  const locale = computed(() => (language?.value === 'en' ? en : zhCn));
 
   function toggleSidebar() {
     sidebar.opened = !sidebar.opened;

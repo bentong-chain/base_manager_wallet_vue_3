@@ -42,7 +42,7 @@
         <el-table-column label="操作时间" prop="createdAt" width="180">
           <template #default="scope">
             {{
-              scope.row.createdAt ? dayjs(scope.row.createdAt).format("YYYY-MM-DD HH:mm:ss") : "-"
+              scope.row.createdAt ? dayjs(scope.row.createdAt).format('YYYY-MM-DD HH:mm:ss') : '-'
             }}
           </template>
         </el-table-column>
@@ -75,14 +75,14 @@
 
 <script setup lang="ts">
 defineOptions({
-  name: "Log",
+  name: 'Log',
   inheritAttrs: false,
 });
 
-import { dayjs } from "element-plus";
-import LogAPI from "@/api/system/log";
-import type { OperationLogItem, OperationLogQueryParams } from "@/types/api/operation-log";
-import type { FormInstance } from "element-plus";
+import { dayjs } from 'element-plus';
+import LogAPI from '@/api/system/log';
+import type { OperationLogItem, OperationLogQueryParams } from '@/types/api/operation-log';
+import type { FormInstance } from 'element-plus';
 
 const queryFormRef = ref<FormInstance>();
 
@@ -111,7 +111,7 @@ function buildQueryParams(): OperationLogQueryParams {
     pageNum: queryParams.pageNum,
     pageSize: queryParams.pageSize,
   };
-  if (queryParams.operationType != null && String(queryParams.operationType).trim() !== "") {
+  if (queryParams.operationType != null && String(queryParams.operationType).trim() !== '') {
     params.operationType = String(queryParams.operationType).trim();
   }
   if (createTimeRange.value && createTimeRange.value.length === 2) {

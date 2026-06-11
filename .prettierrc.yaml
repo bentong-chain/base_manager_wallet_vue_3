@@ -22,8 +22,8 @@ quoteProps: "as-needed"
 requirePragma: false
 # 在语句末尾添加分号
 semi: true
-# 使用双引号而不是单引号
-singleQuote: false
+# 使用单引号而不是双引号
+singleQuote: true
 # 缩进使用 2 个空格
 tabWidth: 2
 # 在多行元素的末尾添加逗号（ES5 支持的对象、数组等）

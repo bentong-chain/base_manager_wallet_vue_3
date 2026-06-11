@@ -37,7 +37,7 @@
         <template #default="{ data }">
           <div class="permission-tree-node">
             <div class="permission-tree-node-info">
-              <div>{{ data.permissionName || data.permissionCode || "-" }}</div>
+              <div>{{ data.permissionName || data.permissionCode || '-' }}</div>
               <div class="permission-tree-node-meta">
                 <el-tag
                   v-if="data.permissionCode && data.resourceType === 'CATALOG'"
@@ -55,7 +55,7 @@
                   v-if="data.status !== undefined && !data.isDeleted"
                   :type="data.status === 1 ? 'success' : 'danger'"
                 >
-                  {{ data.status === 1 ? "启用" : "禁用" }}
+                  {{ data.status === 1 ? '启用' : '禁用' }}
                 </el-tag>
                 <el-tag v-if="data.isDeleted" size="small" type="danger">已删除</el-tag>
                 <span v-if="data.sort !== undefined" class="sort">排序: {{ data.sort }}</span>
@@ -76,7 +76,7 @@
                 text
                 @click.stop="onUpdateStatus(data)"
               >
-                {{ data.status === 1 ? "禁用" : "启用" }}
+                {{ data.status === 1 ? '禁用' : '启用' }}
               </el-button>
               <el-button v-show="!data.isDeleted" type="danger" text @click.stop="onDelete(data)">
                 删除
@@ -104,13 +104,13 @@
 
 <script setup lang="ts">
 defineOptions({
-  name: "SystemPermission",
+  name: 'SystemPermission',
   inheritAttrs: false,
 });
 
-import type { PermissionTreeNode } from "@/types/api/permission";
-import Permission from "@/api/system/permission";
-import PermissionForm from "./components/PermissionForm.vue";
+import type { PermissionTreeNode } from '@/types/api/permission';
+import Permission from '@/api/system/permission';
+import PermissionForm from './components/PermissionForm.vue';
 
 const filterStatus = ref<number | undefined>(undefined);
 
@@ -153,19 +153,19 @@ async function onEdit(data: PermissionTreeNode) {
     formVisible.value = true;
   } catch {
     loading.value = false;
-    ElMessage.error("获取权限详情失败");
+    ElMessage.error('获取权限详情失败');
   }
 }
 
 // 修改权限状态
 async function onUpdateStatus(data: PermissionTreeNode) {
   const newStatus = data.status === 1 ? 0 : 1;
-  const action = newStatus === 1 ? "启用" : "禁用";
+  const action = newStatus === 1 ? '启用' : '禁用';
 
-  await ElMessageBox.confirm(`确定要${action}权限"${data.permissionName}"吗？`, "提示", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning",
+  await ElMessageBox.confirm(`确定要${action}权限"${data.permissionName}"吗？`, '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
   }).then(async () => {
     // 调用更新状态 API
     try {
@@ -174,7 +174,7 @@ async function onUpdateStatus(data: PermissionTreeNode) {
       ElMessage.success(`${action}成功`);
       await loadTree();
     } catch {
-      ElMessage.error("更新权限状态失败");
+      ElMessage.error('更新权限状态失败');
     } finally {
       loading.value = false;
     }
@@ -187,19 +187,19 @@ async function onDelete(data: PermissionTreeNode) {
     ? `确定要彻底删除权限"${data.permissionName}"吗？此操作不可恢复！`
     : `确定要删除权限"${data.permissionName}"吗？`;
 
-  await ElMessageBox.confirm(confirmMsg, "提示", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning",
+  await ElMessageBox.confirm(confirmMsg, '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
   }).then(async () => {
     // 调用删除 API
     try {
       loading.value = true;
       await Permission.deletePermission(data.id);
-      ElMessage.success("删除成功");
+      ElMessage.success('删除成功');
       await loadTree();
     } catch {
-      ElMessage.error("删除权限失败");
+      ElMessage.error('删除权限失败');
     } finally {
       loading.value = false;
     }
