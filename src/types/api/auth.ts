@@ -2,26 +2,27 @@
  * 认证相关类型定义
  */
 
+/**
+ * 登录请求参数（兼容 api.json AdminLoginRequest：username, password, device?, deviceType?）
+ * 数学算式验证码：captchaKey + captchaAnswer（见 captcha-usage.md）
+ */
 export interface LoginRequest {
-  /** 管理员钱包地址 */
-  address?: string;
-  /** 签名时间戳，毫秒 */
-  signTime?: number;
-  /** 钱包签名结果 */
-  loginSign?: string;
-  /** 设备标识 */
-  device?: string;
-  /** 设备类型 */
-  deviceType?: string;
-  /** 历史账号密码登录字段，仅保留以兼容未使用的旧组件类型 */
-  username?: string;
-  password?: string;
+  /** 用户名 */
+  username: string;
+  /** 密码 */
+  password: string;
+  /** 验证码 key（数学算式验证码，从 getCaptcha 返回） */
   captchaKey?: string;
+  /** 验证码答案（用户输入的算式结果） */
   captchaAnswer?: string;
-  captchaCode?: string;
-  captchaId?: string;
+  /** 记住我 */
   rememberMe?: boolean;
+  /** 租户ID */
   tenantId?: number;
+  /** 设备标识（api.json AdminLoginRequest） */
+  device?: string;
+  /** 设备类型（api.json AdminLoginRequest） */
+  deviceType?: string;
 }
 
 /**
@@ -57,6 +58,9 @@ export interface RefreshTokenResponse {
   salt: string;
 }
 
+/**
+ * 数学算式验证码响应（见 captcha-usage.md）
+ */
 export interface CaptchaInfo {
   /** 验证码唯一标识，格式 captcha:{uuid} */
   captchaKey: string;
@@ -64,4 +68,42 @@ export interface CaptchaInfo {
   captchaImage: string;
   /** 有效期（秒） */
   expiresIn: number;
+}
+
+/**
+ * 管理员钱包登录请求参数
+ */
+export interface AdminWalletLoginRequest {
+  /** 管理员钱包地址 */
+  address: string;
+  /** 签名时间 */
+  signTime: number;
+  /** 签名字符串 */
+  signStr: string;
+  /** 登录签名 */
+  loginSign: string;
+  /** 设备标识，用于多端登录；不传则使用默认值 */
+  device?: string;
+  /** 设备类型，如 app/web */
+  deviceType?: string;
+}
+
+/**
+ * 管理员登录成功响应
+ */
+export interface AdminLoginResponse {
+  /** 访问令牌（Access Token） */
+  accessToken: string;
+  /** Access Token 过期时间（秒） */
+  accessExpiresIn: number;
+  /** 管理员 UID */
+  uid: number;
+  /** 用户名 */
+  username: string;
+  /** 真实姓名 */
+  realName?: string;
+  /** RSA 公钥（Base64） */
+  publicKey: string;
+  /** 盐值（salt） */
+  salt: string;
 }

@@ -1,7 +1,13 @@
 import { http as request } from '@/utils/request';
 import { NO_AUTH_HEADER_VALUE, AP_KEY } from '@/api/constants';
 import { aesBackendDecrypt } from '@/utils/crypto';
-import type { LoginRequest, LoginResponse, CaptchaInfo } from '@/types/api/auth';
+import type {
+  LoginRequest,
+  LoginResponse,
+  CaptchaInfo,
+  AdminWalletLoginRequest,
+  AdminLoginResponse,
+} from '@/types/api/auth';
 
 /** 管理员认证接口基础路径，对接 http://localhost:8099（api.json） */
 const AUTH_BASE_URL = '/api';
@@ -10,26 +16,72 @@ const AuthAPI = {
   /** 管理员登录：POST /api/admin/auth/login（不携带 token，使用默认公钥与 salt） */
   async login(data: LoginRequest) {
     const payload: Record<string, unknown> = {
-      address: data.address,
-      signTime: data.signTime,
-      loginSign: data.loginSign,
-      device: data.device,
-      deviceType: data.deviceType ?? 'web',
+      username: data.username,
+      password: data.password,
     };
+    if (data.captchaKey != null) payload.captchaKey = data.captchaKey;
+    if (data.captchaAnswer != null) payload.captchaAnswer = data.captchaAnswer;
+    if (data.device != null) payload.device = data.device;
+    if (data.deviceType != null) payload.deviceType = data.deviceType;
 
     const response = await request<any, LoginResponse>({
       url: `${AUTH_BASE_URL}/v1/admin/auth/login`,
       method: 'post',
       data: payload,
       headers: { Authorization: NO_AUTH_HEADER_VALUE },
-      withCredentials: true,
     });
 
+    console.log('[auth-api] 原始响应:', response);
     const decryptedAccessToken = aesBackendDecrypt(response.accessToken, AP_KEY);
     const decryptedPublicKey = response.publicKey
       ? aesBackendDecrypt(response.publicKey, AP_KEY)
-      : '';
-    const decryptedSalt = response.salt ? aesBackendDecrypt(response.salt, AP_KEY) : '';
+      : undefined;
+    const decryptedSalt = response.salt ? aesBackendDecrypt(response.salt, AP_KEY) : undefined;
+    console.log('[auth-api] 解密后:', { decryptedAccessToken, decryptedPublicKey, decryptedSalt });
+
+    // 解密后端返回的加密字段
+    return {
+      ...response,
+      accessToken: decryptedAccessToken,
+      publicKey: decryptedPublicKey,
+      salt: decryptedSalt,
+    };
+  },
+
+  /**
+   * 管理员钱包登录：POST /api/v1/admin/auth/wallet/login
+   * @param data - 登录请求参数
+   * @returns 登录响应（包含加密的 token、公钥和盐值）
+   */
+  async walletLogin(data: AdminWalletLoginRequest) {
+    const response = await request<any, AdminLoginResponse>({
+      url: `${AUTH_BASE_URL}/v1/admin/auth/wallet/login`,
+      method: 'post',
+      data: {
+        address: data.address,
+        signTime: data.signTime,
+        signStr: data.signStr,
+        loginSign: data.loginSign,
+        ...(data.device != null ? { device: data.device } : {}),
+        ...(data.deviceType != null ? { deviceType: data.deviceType } : {}),
+      },
+      headers: {
+        Authorization: NO_AUTH_HEADER_VALUE,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    console.log('[auth-api] 钱包登录原始响应:', response);
+    const decryptedAccessToken = aesBackendDecrypt(response.accessToken, AP_KEY);
+    const decryptedPublicKey = response.publicKey
+      ? aesBackendDecrypt(response.publicKey, AP_KEY)
+      : undefined;
+    const decryptedSalt = response.salt ? aesBackendDecrypt(response.salt, AP_KEY) : undefined;
+    console.log('[auth-api] 钱包登录解密后:', {
+      decryptedAccessToken,
+      decryptedPublicKey,
+      decryptedSalt,
+    });
 
     // 解密后端返回的加密字段
     return {

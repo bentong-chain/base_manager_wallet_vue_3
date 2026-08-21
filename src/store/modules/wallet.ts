@@ -62,7 +62,7 @@ export const useWalletStore = defineStore('wallet', () => {
       const signTime = Date.now();
       const signInfoName = import.meta.env.VITE_APP_SIGN_INFO_NAME;
       const baseURL = import.meta.env.VITE_APP_SIGN_INFO_URL;
-      console.log(baseURL);
+
       const signStr =
         signInfoName +
         ' wants you to sign in with your account:\n' +
@@ -83,9 +83,10 @@ export const useWalletStore = defineStore('wallet', () => {
       const signature = await signer.signMessage(signStr);
 
       // 调用 userStore.walletLogin，内部已处理认证状态同步和用户信息获取
-      await userStore.login({
+      await userStore.walletLogin({
         address: account,
         signTime,
+        signStr,
         loginSign: signature,
         device: authStore.deviceId,
         deviceType: 'web',

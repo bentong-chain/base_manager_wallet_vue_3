@@ -2,7 +2,7 @@ import { store } from '@/store';
 
 import AuthAPI from '@/api/auth-api';
 import UserAPI from '@/api/system/user';
-import type { LoginRequest, UserInfo } from '@/types/api';
+import type { LoginRequest, UserInfo, AdminWalletLoginRequest } from '@/types/api';
 import type { AuthCredentialsOverride } from '@/utils/request';
 import { AuthStorage } from '@/utils/auth';
 import { useAuthStore } from '@/store/modules/auth';
@@ -25,17 +25,17 @@ export const useUserStore = defineStore('user', () => {
   /**
    * 登录
    * 签名模式且后端返回 publicKey/salt 时，解密后写入 authStore；否则走原有 AuthStorage
-   * 对接管理员钱包签名登录：address、signTime、loginSign、device、deviceType
+   * 对接 api.json：AdminLoginRequest 含 username, password, device?, deviceType?
    */
   async function login(loginRequest: LoginRequest): Promise<void> {
     const authStore = useAuthStore(store);
     const payload: LoginRequest = {
       ...loginRequest,
-      device: loginRequest.device || authStore.deviceId,
+      device: loginRequest.device ?? authStore.deviceId,
       deviceType: loginRequest.deviceType ?? 'web',
     };
     const res = await AuthAPI.login(payload);
-    rememberMe.value = false;
+    rememberMe.value = loginRequest.rememberMe ?? false;
 
     if (USE_SIGN_AUTH) {
       const { accessToken, publicKey, salt } = res;
@@ -54,6 +54,42 @@ export const useUserStore = defineStore('user', () => {
     } else {
       // Bearer 模式：token 写入 AuthStorage，直接拉取用户信息
       AuthStorage.setTokens(res.accessToken, res.refreshToken ?? '', rememberMe.value);
+      await getUserInfo();
+    }
+  }
+
+  /**
+   * 钱包登录
+   * 签名模式且后端返回 publicKey/salt 时，解密后写入 authStore；否则走原有 AuthStorage
+   */
+  async function walletLogin(loginRequest: AdminWalletLoginRequest): Promise<void> {
+    console.log('walletLogin');
+    const authStore = useAuthStore(store);
+    const payload: AdminWalletLoginRequest = {
+      ...loginRequest,
+      device: loginRequest.device ?? authStore.deviceId,
+      deviceType: loginRequest.deviceType ?? 'web',
+    };
+    const res = await AuthAPI.walletLogin(payload);
+
+    if (USE_SIGN_AUTH) {
+      const { accessToken, publicKey, salt } = res;
+      // 同步到 authStore，确保请求拦截器能获取到 token
+      useAuthStore(store).setAuth({
+        accessToken,
+        publicKey: publicKey || DEFAULT_PUBLIC_KEY,
+        salt: salt || DEFAULT_SALT,
+      });
+      // 登录成功后立即调 info，显式传入本次凭证，避免拦截器未读到 store 导致 header 无 token
+      await getUserInfo({
+        token: accessToken,
+        salt: salt || DEFAULT_SALT,
+        publicKey: publicKey || DEFAULT_PUBLIC_KEY,
+      });
+    } else {
+      // Bearer 模式：token 写入 AuthStorage，直接拉取用户信息
+      // 钱包登录接口不返回 refreshToken，使用空字符串
+      AuthStorage.setTokens(res.accessToken, '', false);
       await getUserInfo();
     }
   }
@@ -109,7 +145,6 @@ export const useUserStore = defineStore('user', () => {
    * 统一处理所有清理工作，包括用户凭证、路由、缓存等
    */
   async function resetAllState(): Promise<void> {
-    console.log('重置所有系统状态');
     const { disconnect } = useDisconnect();
     // 1. 重置用户状态
     resetUserState();
@@ -160,6 +195,7 @@ export const useUserStore = defineStore('user', () => {
     isLoggedIn: () =>
       USE_SIGN_AUTH ? useAuthStore(store).isLoggedIn : !!AuthStorage.getAccessToken(),
     login,
+    walletLogin,
     logout,
     getUserInfo,
     resetAllState,
