@@ -19,6 +19,11 @@ export const hasPerm: Directive = {
 
     const { roles, perms } = useUserStore().userInfo;
 
+    // 用户信息未加载完成时，不做任何处理（避免报错导致页面空白）
+    if (!roles || !perms) {
+      return;
+    }
+
     // 超级管理员拥有所有权限，如果是"*:*:*"权限标识，则不需要进行权限校验
     if (roles.includes(ROLE_ROOT) || requiredPerms.includes('*:*:*')) {
       return;
@@ -51,6 +56,11 @@ export const hasRole: Directive = {
     }
 
     const { roles } = useUserStore().userInfo;
+
+    // 用户信息未加载完成时，不做任何处理（避免报错导致页面空白）
+    if (!roles) {
+      return;
+    }
 
     // 检查是否有对应角色权限
     const hasAuth = Array.isArray(requiredRoles)
